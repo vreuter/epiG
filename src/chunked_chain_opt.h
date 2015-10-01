@@ -206,7 +206,11 @@ void chunk_haplo_chain_optimizer::run() {
 			//Init haplo optimizer
 			haplo_chain_optimizer opt(config, data, ref, alt);
 
-			opt.run(p);
+			if(config.use_paired_reads) {
+				opt.run_paired(p);
+			} else {
+				opt.run(p);
+			}
 
 			//Init genotype optimizer
 			t_haplotype haplo = opt.get_haplotype_chains();

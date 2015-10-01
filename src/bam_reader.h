@@ -22,11 +22,12 @@ public:
 	t_length length;
 	t_seq_bases bases;
 	t_quality quality;
+	std::string name;
 
-	aligned_read_raw(t_seq_bases const& bases, t_quality const& quality, t_position position) :
-		position(position), length(bases.n_elem), bases(bases), quality(quality) {}
+	aligned_read_raw(t_seq_bases const& bases, t_quality const& quality, t_position position, std::string const& name) :
+		position(position), length(bases.n_elem), bases(bases), quality(quality), name(name) {}
 
-	aligned_read_raw() : position(0), length(0), bases(), quality() {}
+	aligned_read_raw() : position(0), length(0), bases(), quality(), name() {}
 };
 
 class aligned_read {
@@ -103,6 +104,8 @@ static int fetch_raw_func(const bam1_t *b, void *data)
 	int length = b->core.l_qseq;
 	t_position pos = b->core.pos;
 
+    std::string name(bam1_qname(b));
+
 	uint8_t * s = bam1_seq(b);
 	t_seq_bases bases(length);
 
@@ -114,7 +117,7 @@ static int fetch_raw_func(const bam1_t *b, void *data)
         quality(i) = static_cast<int>(q[i]);
 	}
 
-	reads->push_back(aligned_read_raw(bases, quality, pos));
+	reads->push_back(aligned_read_raw(bases, quality, pos, name));
 
     return 0;
 }

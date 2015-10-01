@@ -136,6 +136,7 @@ SEXP epiG_fetch_reads_raw(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_
 	field<t_quality> quality(reads.size());
 	t_positions pos(reads.size());
 	t_lengths len(reads.size());
+    std::vector<std::string> name(reads.size());
 
     for(unsigned int i = 0; i < reads.size(); ++i) {
 
@@ -145,6 +146,8 @@ SEXP epiG_fetch_reads_raw(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_
 		quality(i) = read.quality;
 		pos(i) = read.position;
 		len(i) = read.length;
+        name[i] = read.name;
+
 	}
 
     rList res;
@@ -153,6 +156,7 @@ SEXP epiG_fetch_reads_raw(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_
 	res.attach(rObject(quality), "quality");
 	res.attach(rObject(pos), "positions");
 	res.attach(rObject(len), "lengths");
+    res.attach(rObject(name), "names");
 
     return rObject(res);
 }

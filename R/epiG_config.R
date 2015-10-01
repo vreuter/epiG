@@ -245,7 +245,21 @@ create_bisulfite_model <- function(bisulfite_rates = 0.94, bisulfite_inap_rate =
 #' 
 #' @author martin
 #' @export
-epiG.algorithm.config <- function(ref.file, alt.file, max_iterations = 1e5, prior = list(create_genotype_prior_ref(), create_genotype_prior_alt()), model = create_bisulfite_model(), sequence_quality_adjust = 0.1, haplo_prior = function(x) dgeom(x, p= 0.2), ref_prior = 0.9, min_overlap_length = 1, chunk_size = 500, chunk_method = "reads", reads_hard_limit = 750, verbose = TRUE) {
+epiG.algorithm.config <- function(
+		ref.file, 
+		alt.file, 
+		max_iterations = 1e5, 
+		prior = list(create_genotype_prior_ref(), create_genotype_prior_alt()), 
+		model = create_bisulfite_model(), 
+		sequence_quality_adjust = 0.1, 
+		haplo_prior = function(x) dgeom(x, p= 0.2), 
+		ref_prior = 0.9, 
+		min_overlap_length = 1, 
+		chunk_size = 500, 
+		chunk_method = "reads", 
+		reads_hard_limit = 750,
+		use_paired_reads = FALSE,
+		verbose = TRUE) {
 	
 	#TODO check config valid
 	# 1) chunk_size < reads_hard_limit
@@ -280,6 +294,8 @@ epiG.algorithm.config <- function(ref.file, alt.file, max_iterations = 1e5, prio
 	config$ref_prior <- ref_prior
 	
 	config$min_overlap_length <- as.integer(min_overlap_length)
+	
+	config$use_paired_reads <- use_paired_reads
 	
 	config$verbose <- verbose
 			

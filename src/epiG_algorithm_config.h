@@ -73,6 +73,8 @@ public:
 
     const t_position min_overlap_length;
 
+    bool const use_paired_reads;
+
 	bool const verbose;
 
 	AlgorithmConfiguration(rList const& config) :
@@ -94,6 +96,8 @@ public:
             genotype_priors(getConfigList<arma::vec>(config, "log_prior")),
 
             min_overlap_length(getConfigAttribute<t_position>(config, "min_overlap_length")),
+
+			use_paired_reads(getConfigAttribute<bool>(config, "use_paired_reads")),
 
 			verbose(getConfigAttribute<bool>(config, "verbose")) {
 	}

@@ -508,6 +508,36 @@ read.info.epiG <- function(object, inc.symbols = FALSE, ...) {
 	
 }
 
+read.info.epiG_reads <- function(object, inc.symbols = FALSE, ...) {
+	
+	info <- NULL
+	
+	if(inc.symbols) {
+		for(idx in 1:length(object$reads)) {
+			tmp <- data.frame(
+					name = object$names[idx], 
+					position = object$position[idx]:(object$position[idx]+object$length[idx]-1), 
+					symbol = symbols(object$reads[[idx]]),
+					quality = object$quality[[idx]],
+					read.id = idx
+					)
+			
+			info <- rbind(info, tmp)	
+		}
+	} else {
+		info <- data.frame(
+				name = object$names, 
+				start = object$position,  
+				end = object$position+object$length-1,
+				length = object$length,
+				read.id = 1:length(object$reads)
+		)
+	}
+	
+	return(info)
+}
+
+
 #' Number of chunks 
 #' @param object 
 #' @param pos 

@@ -82,6 +82,8 @@ fetch.reads.raw <- function(filename, refname, start, end) {
 	
 	reads <- .Call(r_epiG_fetch_reads_raw, filename, refname, as.integer(start), as.integer(end))
 		
+	class(reads) <- "epiG_reads"
+	
 	return(reads)
 }
 
