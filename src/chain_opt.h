@@ -345,7 +345,8 @@ inline t_count haplo_chain_optimizer::optimize_pair_profile(
 		std::vector<std::string>::iterator it = find(pair_names.begin(), pair_names.end(), data.read_names[read_number]);
 
 		 if(it != pair_names.end()) {
-			  read_pairs[it - pair_names.begin()](1) == read_number;
+			  t_haplotype & rp = read_pairs[it - pair_names.begin()];
+			  rp(1) = read_number;
 		  }
 
 		  else {
@@ -377,13 +378,21 @@ inline t_count haplo_chain_optimizer::optimize_pair_profile(
 			t_index read_number_1 = reads_pair(0);
 			t_index read_number_2 = reads_pair(1);
 
-			t_haplotype feasible_haplotypes = compute_feasible_haplotypes(read_start_postion(read_number_1), read_end_postion(read_number_2));
+			t_position start = min(read_start_postion(read_number_1), read_start_postion(read_number_2));
+			t_position end = max(read_end_postion(read_number_1), read_end_postion(read_number_2));
+
+			t_haplotype feasible_haplotypes = compute_feasible_haplotypes(start, end);
 
 			//Add free haplo chain , i.e. a haplo chain with no reads
 			feasible_haplotypes.resize(feasible_haplotypes.n_elem + 1);
 			feasible_haplotypes(feasible_haplotypes.n_elem - 1) = max(haplo) + 1;
 
-			t_loglike_vector loglike = profile_posterior(reads_pair, feasible_haplotypes);
+			t_loglike_vector loglike ;
+			if(read_number_1 != read_number_2) {
+				loglike = profile_posterior(reads_pair, feasible_haplotypes);
+			} else {
+				loglike = profile_posterior(read_number_1, feasible_haplotypes);
+			}
 
 			if (!is_finite(loglike)) {
 				throw std::runtime_error("optimize_profile - internal error");
@@ -410,6 +419,8 @@ inline t_count haplo_chain_optimizer::optimize_pair_profile(
 			changes++;
 
 		}
+
+		cout << changes << " : " << compute_posterior(haplo) << endl;
 
 		if (changes == 0) {
 			break;
