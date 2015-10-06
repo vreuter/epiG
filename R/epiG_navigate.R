@@ -352,12 +352,13 @@ position.info.epiG <- function(object, pos, ...) {
 		}	
 		
 		chains <- sort(object$haplotype$chain[object$read_ids[[pos - start(object)+1]]])
-
-		info.df <- data.frame(position = pos, chain.id = sort(unique(chains)), ref = NA, alt = NA, 
-				genotype = symbols(genotype(object, pos, remove.meth = TRUE)), 
-				methylated = methylation(object, pos), 
-				strand = strand(object, pos), 
-				coverage = sapply(unique(chains), function(x) sum(chains == x)))
+		cid <- sort(unique(chains))
+		
+		info.df <- data.frame(position = pos, chain.id = cid, ref = NA, alt = NA, 
+				genotype = symbols(genotype(object, pos, remove.meth = TRUE))[as.character(cid)], 
+				methylated = methylation(object, pos)[as.character(cid)], 
+				strand = strand(object, pos)[as.character(cid)], 
+				coverage = sapply(cid, function(x) sum(chains == x)))
 				
 		if(!is.null(object[["ref"]])) {
 			info.df$ref <- symbols(object$ref[pos - object$offset + 1])

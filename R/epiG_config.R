@@ -252,7 +252,7 @@ epiG.algorithm.config <- function(
 		prior = list(create_genotype_prior_ref(), create_genotype_prior_alt()), 
 		model = create_bisulfite_model(), 
 		sequence_quality_adjust = 0.1, 
-		haplo_prior = function(x) dgeom(x, p= 0.2), 
+		haplo_prior = 1.1, 
 		ref_prior = 0.9, 
 		min_overlap_length = 1, 
 		chunk_size = 500, 
@@ -286,11 +286,6 @@ epiG.algorithm.config <- function(
 	
 	config$reads_hard_limit <- as.integer(reads_hard_limit)
 	
-	# Compute log haplochain prior values, do something abt -Inf values
-	tmp <- log(haplo_prior(0:1000))
-	tmp[!is.finite(tmp)] <- -1e4
-	config$log_haplo_prior <- tmp
-	
 	config$ref_prior <- ref_prior
 	
 	config$min_overlap_length <- as.integer(min_overlap_length)
@@ -298,6 +293,16 @@ epiG.algorithm.config <- function(
 	config$use_paired_reads <- use_paired_reads
 	
 	config$verbose <- verbose
+	
+	# Compute log haplochain prior values
+	a <- c(0, 1)
+	
+	for(n in 3:1000) {
+		a[n] <- 2*a[n-1]-a[n-2]+1
+	}
+	 
+	config$log_haplo_prior <- a*log(haplo_prior)
+	
 			
 	class(config) <- "epiG.config"
 	
