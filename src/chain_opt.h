@@ -256,6 +256,8 @@ inline void haplo_chain_optimizer::run(const abort_checker& ac) {
 		change_count = optimize_profile(ac);
 		change_count += optimize_haplochains(ac);
 	}
+
+	cout << "done" << endl;
 }
 
 template<typename abort_checker>
@@ -269,6 +271,9 @@ inline void haplo_chain_optimizer::run_paired(const abort_checker& ac) {
 		change_count = optimize_pair_profile(ac);
 		change_count += optimize_haplochains(ac);
 	}
+
+	cout << "done" << endl;
+
 }
 
 

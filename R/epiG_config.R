@@ -297,7 +297,7 @@ epiG.algorithm.config <- function(
 	# Compute log haplochain prior values
 	a <- c(0, 1)
 	
-	for(n in 3:1000) {
+	for(n in 3:reads_hard_limit) {
 		a[n] <- 2*a[n-1]-a[n-2]+1
 	}
 	 
