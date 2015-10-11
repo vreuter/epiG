@@ -455,13 +455,13 @@ read.info <- function(object, ... ) UseMethod("read.info")
 #' @method read.info epiG
 #' @export
 read.info.epiG <- function(object, inc.symbols = FALSE, ...) {
-	
-	if(!("reads" %in% names(object))) {
-		object <- fetch.reads(object)
-	}
 		
 	if(paste(class(object), collapse = ".") == "epiG") {
 
+		if(!("reads" %in% names(object))) {
+			object <- fetch.reads(object)
+		}
+		
 		info <- NULL
 		
 		if(inc.symbols) {
@@ -607,7 +607,7 @@ nchain.epiG <- function(object, ...) {
 #' 
 #' @author Martin Vincent
 #' @export
-subregion <- function(object, start, end, chop.reads = TRUE, ... ) UseMethod("subregion")
+subregion <- function(object, start, end, chop.reads = FALSE, ... ) UseMethod("subregion")
 
 #' subregion
 #' @param object 
@@ -620,7 +620,7 @@ subregion <- function(object, start, end, chop.reads = TRUE, ... ) UseMethod("su
 #' @author Martin Vincent
 #' @method subregion epiG
 #' @export
-subregion.epiG <- function(object, start, end, chop.reads = TRUE, ...) {
+subregion.epiG <- function(object, start, end, chop.reads = FALSE, ...) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
 
@@ -687,6 +687,7 @@ subregion.epiG <- function(object, start, end, chop.reads = TRUE, ...) {
 	
 		# Reads
 		if("reads" %in% names(object)) {
+						
 			new_object$reads$reads <- object$reads$reads[remaining_read_ids]
 			new_object$reads$quality <- object$reads$quality[remaining_read_ids]
 			new_object$reads$positions <- object$reads$positions[remaining_read_ids] - rel_start_pos
@@ -695,6 +696,8 @@ subregion.epiG <- function(object, start, end, chop.reads = TRUE, ...) {
 			
 			if(chop.reads) {
 			
+				#FIXME bug in chop.reads
+				
 				for(i in 1:length(new_object$reads$lengths)) {
 					
 					read_rel_start_pos <- max(0,-new_object$reads$positions[i]) 
@@ -714,7 +717,23 @@ subregion.epiG <- function(object, start, end, chop.reads = TRUE, ...) {
 	}
 	
 	if(paste(class(object), collapse = ".") == "epiG.chunks") {
-		stop("Not yet implemented")
+		
+		new_object <- list()
+		j <- 1
+		
+		for(i in 1:nchunks(object)) {
+			if((start(object[[i]]) <= end && end <= end(object[[i]])) || (start(object[[i]]) <= start && start <= end(object[[i]]))) {
+				new_object[[j]] <- subregion(object[[i]], max(start, start(object[[i]])), min(end, end(object[[i]])), chop.reads, ...)
+				j <- j + 1
+			} 		
+		}
+		
+		if(j == 1) {
+			stop("Out of range")
+		}
+		
+		class(new_object) <- c("epiG", "chunks")
+		return(new_object)
 	}
 	
 }

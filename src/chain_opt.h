@@ -184,11 +184,15 @@ inline t_loglike_vector haplo_chain_optimizer::compute_logsum(
 inline double haplo_chain_optimizer::compute_haplochain_prior(
 		t_count const n) const {
 
+	if(n == 0) {
+		return 0;
+	}
+
 	if (n >= haplochain_log_prior.n_elem) {
 		throw std::runtime_error("compute_haplochain_prior : invalid input");
 	}
 
-	return haplochain_log_prior(n);
+	return haplochain_log_prior(n-1);
 }
 
 //TODO if we use logsum instead of max_logsum then we do not need ref and alt
@@ -257,7 +261,6 @@ inline void haplo_chain_optimizer::run(const abort_checker& ac) {
 		change_count += optimize_haplochains(ac);
 	}
 
-	cout << "done" << endl;
 }
 
 template<typename abort_checker>
@@ -272,7 +275,6 @@ inline void haplo_chain_optimizer::run_paired(const abort_checker& ac) {
 		change_count += optimize_haplochains(ac);
 	}
 
-	cout << "done" << endl;
 
 }
 
@@ -347,7 +349,7 @@ inline t_count haplo_chain_optimizer::optimize_profile(
 			t_index i = argmax(loglike);
 
 			//check if any improvement
-			if (1e-10 >= loglike(i)) {
+			if (1e-5 >= loglike(i)) { //TODO configable threshold
 				continue;
 			}
 
@@ -365,7 +367,9 @@ inline t_count haplo_chain_optimizer::optimize_profile(
 
 		}
 
-		cout << changes << " : " << compute_posterior(haplo) << endl;
+		//TODO check posterior is decreasing
+		//TODO remove output
+		//cout << changes << " : " << compute_posterior(haplo) << endl;
 
 		if (changes == 0) {
 			break;
@@ -450,7 +454,7 @@ inline t_count haplo_chain_optimizer::optimize_pair_profile(
 			t_index i = argmax(loglike);
 
 			//check if any improvement
-			if (1e-10 >= loglike(i)) {
+			if (1e-5 >= loglike(i)) { //TODO configable threshold
 				continue;
 			}
 
@@ -469,7 +473,9 @@ inline t_count haplo_chain_optimizer::optimize_pair_profile(
 
 		}
 
-		cout << changes << " : " << compute_posterior(haplo) << endl;
+		//TODO check posterior is decreasing
+		//TODO remove output
+		//cout << changes << " : " << compute_posterior(haplo) << endl;
 
 		if (changes == 0) {
 			break;
@@ -530,7 +536,7 @@ inline t_count haplo_chain_optimizer::optimize_haplochains(
 			t_index i = argmax(posterior);
 
 			//check if any improvement
-			if (1e-10 >= posterior(i)) {
+			if (1e-5 >= posterior(i)) { //TODO configable threshold
 				continue;
 			}
 
@@ -808,6 +814,26 @@ double haplo_chain_optimizer::compute_delta_posterior(t_index const read_number,
 	//TODO debug guards
 //	if(fabs(delta_posterior - compute_posterior(new_haplo) + compute_posterior(haplo)) > 1e-5) {
 //
+//				cout << current_chain << " -> " << new_chain << endl;
+//
+//				cout << delta_posterior  << " : " << compute_posterior(new_haplo) - compute_posterior(haplo) << endl;
+//				cout << compute_posterior(new_haplo)  << endl;
+//				cout << compute_posterior(haplo) << endl;
+//
+//				for (t_index i = 0; i <= max(new_haplo); ++i) {
+//					if(compute_prior_chain(new_haplo, i) != compute_prior_chain(haplo, i)) {
+//						cout << "prior : " << i
+//								<< " : " << compute_prior_chain(new_haplo, i)
+//								<< " : " << compute_prior_chain(haplo, i) << endl;
+//					}
+//
+//					if(compute_chain_loglike(new_haplo, i) != compute_chain_loglike(haplo, i)) {
+//						cout << "loglike : " << i
+//								<< " : " << compute_chain_loglike(new_haplo, i)
+//								<< " : " << compute_chain_loglike(haplo, i) << endl;
+//					}
+//				}
+//
 //		throw std::runtime_error("compute_delta_posterior 1: Error");
 //	}
 
@@ -908,12 +934,7 @@ double haplo_chain_optimizer::compute_delta_posterior(
 	}
 
 	//TODO debug guards
-//	if(fabs(posterior - compute_posterior(new_haplo) + compute_posterior(haplo)) > 1e-5) {
-//
-//
-//		cout << haplo(pair) << endl;
-//		cout << data.read_names[pair(0)] << endl;
-//		cout << data.read_names[pair(1)] << endl;
+//	if(fabs(posterior - compute_posterior(new_haplo) + compute_posterior(haplo)) > 1) {
 //
 //		throw std::runtime_error("compute_delta_posterior 3: Error");
 //	}

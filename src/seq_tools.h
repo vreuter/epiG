@@ -27,10 +27,11 @@ std::string read_fasta(std::string const& filename, std::string const& ref, t_po
 			pos, pos + length-1, &l);
 
 	if (cstr_ref == 0) {
+
+		cout << ref << " : " << pos << " - " << pos + length-1 << endl;
+
 		throw std::runtime_error("read_fasta : unable to fetch region");
 	}
-
-	//cout << cstr_ref << endl;
 
 	//Note the first base is at postion 0
 	std::string s(cstr_ref);
