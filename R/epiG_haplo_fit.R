@@ -69,7 +69,7 @@ epiG <- function(filename, refname, start, end, max_threads = 8L, config, refGen
 	n_chunks <- res$number_of_chunks
 	
 	res.chunks <- list()
-
+	
 	for(i in 1:n_chunks) {
 		
 		res.chunks[[i]] <- list()
@@ -90,13 +90,7 @@ epiG <- function(filename, refname, start, end, max_threads = 8L, config, refGen
 		res.chunks[[i]]$haplotype$start <- res$chain_start[[i]]
 		res.chunks[[i]]$haplotype$end <- res$chain_end[[i]]
 		
-		if(length(res.chunks[[i]]$haplotype$chain) > 0) {
-			res.chunks[[i]]$strands <- sapply(1:max(res.chunks[[i]]$haplotype$chain), function(chain) res$strands[[i]][res.chunks[[i]]$haplotype$chain == chain][1])
-		} else {
-			res.chunks[[i]]$strands <- as.character()
-		}
-		
-		res.chunks[[i]]$strands <- factor(res.chunks[[i]]$strands)
+		res.chunks[[i]]$strands <- factor(res$strands[[i]])
 		levels(res.chunks[[i]]$strands) <- c("fwd", "rev")
 		
 		res.chunks[[i]]$genotypes <-  lapply(res$genotypes[[i]], function(x) as.integer(x + 1))
@@ -161,13 +155,7 @@ epiG.chunks <- function(filename, refnames, chunks_start, chunks_end, max_thread
 		res.chunks[[i]]$haplotype$start <- res$chain_start[[i]]
 		res.chunks[[i]]$haplotype$end <- res$chain_end[[i]]
 		
-		if(length(res.chunks[[i]]$haplotype$chain) > 0) {
-			res.chunks[[i]]$strands <- sapply(1:max(res.chunks[[i]]$haplotype$chain), function(chain) res$strands[[i]][res.chunks[[i]]$haplotype$chain == chain][1])
-		} else {
-			res.chunks[[i]]$strands <- as.character()
-		}
-		
-		res.chunks[[i]]$strands <- factor(res.chunks[[i]]$strands)
+		res.chunks[[i]]$strands <- factor(res$strands[[i]])
 		levels(res.chunks[[i]]$strands) <- c("fwd", "rev")
 		
 		res.chunks[[i]]$genotypes <-  lapply(res$genotypes[[i]], function(x) as.integer(x + 1))
@@ -184,16 +172,3 @@ epiG.chunks <- function(filename, refnames, chunks_start, chunks_end, max_thread
 	class(res.chunks) <- c("epiG", "chunks")
 	return(res.chunks)
 }
-
-
-#' symbols
-#' 
-#' @param g 
-#' @return symbols
-#' 
-#' @author martin
-#' @export
-symbols <- function(g) {
-	return(unlist(sapply(g, function(x) c("N", "C", "G", "A", "T", "c", "g")[x+1])))
-}
-

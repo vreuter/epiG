@@ -214,7 +214,7 @@ void chunk_haplo_chain_optimizer::run() {
 
 			//Init genotype optimizer
 			t_haplotype haplo = opt.get_haplotype_chains();
-			t_strands st = opt.get_chain_strands();
+			t_strands st = opt.get_read_strands();
 
 			genotype_optimizer opt_geno(data, haplo, st, ref, alt, config);
 
@@ -241,7 +241,7 @@ void chunk_haplo_chain_optimizer::run() {
 
 				haplotypes(i) = opt.get_haplotype_chains();
 
-				strands(i) = opt.get_chain_strands();
+				strands(i) = opt.get_read_strands();
 
 				genotypes(i) = opt_geno.genotypes;
 

@@ -72,4 +72,30 @@ public:
 #define TIMER_START
 #endif
 
+class EnterFunction {
+
+
+private:
+	const std::string func;
+	const std::string file;
+	const int line;
+
+public:
+
+	EnterFunction(std::string func, std::string file, int line) : func(func), file(file), line(line) {
+		 std::cout << "Enter : " << func << " in " << file << " line " << line <<  std::endl;
+	}
+
+	~EnterFunction() {
+		 std::cout << "Leave : " << func << std::endl;
+	}
+
+};
+
+#ifdef FUNC_ENTER
+#define DEBUG_ENTER EnterFunction enter(__func__, __FILE__, __LINE__);
+#else
+#define DEBUG_ENTER
+#endif
+
 #endif /* SIMPLE_TIMER_H_ */

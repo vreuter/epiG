@@ -145,6 +145,10 @@ genotype <- function(object, pos, remove.meth, ... ) UseMethod("genotype")
 #' @export
 genotype.epiG <- function(object, pos, remove.meth = FALSE, ...) {
 	
+	if(length(pos) > 1) {
+		stop("pos must have length 1")
+	}
+	
 	if(paste(class(object), collapse = ".") == "epiG") {
 	
 		if(start(object) > pos || end(object) < pos) {
@@ -162,90 +166,6 @@ genotype.epiG <- function(object, pos, remove.meth = FALSE, ...) {
 		}
 		
 		return(collected[!is.na(collected)])
-	}
-	
-	
-	if(paste(class(object), collapse = ".") == "epiG.chunks") {
-		stop("Not yet implemented for chunks")
-	}
-	
-	stop("Unknown class")
-	
-}
-
-#' methylation
-#' @param object 
-#' @param pos 
-#' @param ... 
-#' @return ??
-#' 
-#' @author Martin Vincent
-#' @export
-methylation <- function(object, pos, ... ) UseMethod("methylation")
-
-#' methylation
-#' @param object 
-#' @param pos 
-#' @param ... 
-#' @return ??
-#' 
-#' @author Martin Vincent
-#' @method methylation epiG
-#' @export
-methylation.epiG <- function(object, pos, ...) {
-	
-	if(paste(class(object), collapse = ".") == "epiG") {
-		
-		g <- genotype(object, pos)
-		s <- strand(object, pos)
-		
-		# Remove chains where methylation is not possible
-		g[!((s == "fwd" & g %in% c(1,5)) | (s == "rev" & g %in% c(2,6)))] <- NA
-		
-		return( g == 5 | g == 6 )
-	}
-	
-	
-	if(paste(class(object), collapse = ".") == "epiG.chunks") {
-		stop("Not yet implemented for chunks")
-	}
-	
-	stop("Unknown class")
-	
-}
-
-#' strand
-#' @param object 
-#' @param pos 
-#' @param ... 
-#' @return ??
-#' 
-#' @author Martin Vincent
-#' @export
-strand <- function(object, pos, ... ) UseMethod("strand")
-
-#' strand
-#' @param object 
-#' @param pos 
-#' @param ... 
-#' @return ??
-#' 
-#' @author Martin Vincent
-#' @method strand epiG
-#' @export
-strand.epiG <- function(object, pos, ...) {
-	
-	if(paste(class(object), collapse = ".") == "epiG") {
-		
-		if(start(object) > pos || end(object) < pos) {
-			stop("Position not in range")
-		}
-		
-		collected <- sapply(1:nchain(object), function(i) if((pos - object$haplotype$start)[i] >= 0 && (object$haplotype$end[i] - pos) >= 0) as.character(object$strands[i]) else NA)
-		
-		names(collected) <- 1:length(object$genotype)
-		
-		return(factor(collected[!is.na(collected)], levels = c("fwd", "rev")))
 	}
 	
 	
@@ -317,6 +237,18 @@ coverage.epiG <- function(object, pos = NULL, ...) {
 #' @export
 position.info <- function(object, pos, ... ) UseMethod("position.info")
 
+.methylation.status <- function(genotype.code, nfwd, nrev) {
+	sapply(1:length(genotype.code), function(i) {
+				if(genotype.code[i] %in% c(5,6)) return(TRUE)
+				
+				if(genotype.code[i] == 1 && nfwd[i] > 0) return(FALSE)
+				
+				if(genotype.code[i] == 2 && nrev[i] > 0) return(FALSE)
+				
+				return(NA)
+			})
+}
+
 #' position.info
 #' @param object 
 #' @param pos 
@@ -348,17 +280,23 @@ position.info.epiG <- function(object, pos, ...) {
 		if(coverage(object, pos) == 0) {
 			#Return data.frame
 			return(data.frame(position = pos, chain.id = NA, ref = NA, alt = NA, 
-							genotype = NA, methylated = NA, strand = NA, coverage = 0))
+							genotype = NA, methylated = NA, nreads = NA, nreads.fwd = NA, nreads.rev = NA))
 		}	
 		
-		chains <- sort(object$haplotype$chain[object$read_ids[[pos - start(object)+1]]])
+		chains <- object$haplotype$chain[object$read_ids[[pos - start(object)+1]]]
+		strands <- object$strands[object$read_ids[[pos - start(object)+1]]]
+		
 		cid <- sort(unique(chains))
+		nfwd <- sapply(cid, function(i) sum(strands[chains == i] == "fwd"))
+		nrev <- sapply(cid, function(i) sum(strands[chains == i] == "rev"))
 		
 		info.df <- data.frame(position = pos, chain.id = cid, ref = NA, alt = NA, 
 				genotype = symbols(genotype(object, pos, remove.meth = TRUE))[as.character(cid)], 
-				methylated = methylation(object, pos)[as.character(cid)], 
-				strand = strand(object, pos)[as.character(cid)], 
-				coverage = sapply(cid, function(x) sum(chains == x)))
+				methylated =.methylation.status(genotype(object, pos, remove.meth = FALSE)[as.character(cid)], nfwd, nrev),  
+				nreads = sapply(cid, function(x) sum(chains == x)),
+				nreads.fwd = nfwd,
+				nreads.rev = nrev
+		)
 				
 		if(!is.null(object[["ref"]])) {
 			info.df$ref <- symbols(object$ref[pos - object$offset + 1])
@@ -411,12 +349,18 @@ chain.info <- function(object, ... ) UseMethod("chain.info")
 chain.info.epiG <- function(object, ...) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
-		return(data.frame(chain.id = sort(unique(object$haplotype$chain)), 
+		
+		chains <- sort(unique(object$haplotype$chain))
+		
+		return(data.frame(chain.id = chains, 
 						start = object$haplotype$start, 
 						end = object$haplotype$end, 
 						length = object$haplotype$end - object$haplotype$start + 1, 
 						nreads = as.vector(table(object$haplotype$chain)), 
-						strand = object$strands))
+						nreads.fwd = sapply(chains, function(i) sum(object$strands[object$haplotype$chain == i] == "fwd")),
+						nreads.rev = sapply(chains, function(i) sum(object$strands[object$haplotype$chain == i] == "rev"))
+		
+				))
 	}
 	
 	
@@ -466,18 +410,25 @@ read.info.epiG <- function(object, inc.symbols = FALSE, ...) {
 		
 		if(inc.symbols) {
 			for(idx in 1:nread(object)) {
-				tmp <- data.frame(name = object$reads$name[idx], position = object$reads$position[idx]:(object$reads$position[idx]+object$reads$length[idx]-1) + object$offset, 
-						symbol = symbols(object$reads$reads[[idx]]), read.id = idx, quality = object$reads$quality[[idx]], chain.id=object$haplotype$chain[idx], strand=object$strands[object$haplotype$chain[idx]])
+				tmp <- data.frame(
+						name = object$reads$name[idx], 
+						position = object$reads$position[idx]:(object$reads$position[idx]+object$reads$length[idx]-1) + object$offset, 
+						symbol = symbols(object$reads$reads[[idx]]), 
+						read.id = idx, quality = object$reads$quality[[idx]],
+						chain.id=object$haplotype$chain[idx], 
+						strand=object$strands[idx])
 			
 				info <- rbind(info, tmp)	
 			}
 		} else {
-			info <- data.frame(name = object$reads$name, 
-							start = object$reads$position + object$offset,  
-							end = object$reads$position+object$reads$length-1 + object$offset,
-							length = object$reads$length,
-							read.id = 1:nread(object),
-							chain.id=object$haplotype$chain, strand=object$strands[object$haplotype$chain]
+			info <- data.frame(
+						name = object$reads$name, 
+						start = object$reads$position + object$offset,  
+						end = object$reads$position+object$reads$length-1 + object$offset,
+						length = object$reads$length,
+						read.id = 1:nread(object),
+						chain.id=object$haplotype$chain, 
+						strand=object$strands
 					)
 		}
 	
@@ -649,6 +600,8 @@ subregion.epiG <- function(object, start, end, chop.reads = FALSE, ...) {
 		new_object$read_ids <- object$read_ids[rel_start_pos:rel_end_pos+1]
 		remaining_read_ids <- sort(unique(unlist(new_object$read_ids)))
 	
+		new_object$strands <- object$strands[remaining_read_ids]
+		
 		#FIXME add unique read ids + read names
 		
 		#Recalibrate read_ids
@@ -671,9 +624,7 @@ subregion.epiG <- function(object, start, end, chop.reads = FALSE, ...) {
 		new_object$haplotype$chain <- object$haplotype$chain[remaining_read_ids]
 		remaining_chains <- sort(unique(new_object$haplotype$chain))
 		new_object$haplotype$chain <- as.integer(factor(new_object$haplotype$chain))
-					
-		new_object$strands <- object$strands[remaining_chains]
-		
+							
 		new_object$haplotype$start <- sapply(object$haplotype$start[remaining_chains], function(x) max(start, x))
 		new_object$haplotype$end <- sapply(object$haplotype$end[remaining_chains], function(x) min(end, x))
 		
@@ -735,6 +686,17 @@ subregion.epiG <- function(object, start, end, chop.reads = FALSE, ...) {
 		class(new_object) <- c("epiG", "chunks")
 		return(new_object)
 	}
-	
 }
+	
+#' symbols
+#' 
+#' @param g 
+#' @return symbols
+#' 
+#' @author martin
+#' @export
+symbols <- function(g) {
+		return(unlist(sapply(g, function(x) c("N", "C", "G", "A", "T", "c", "g")[x+1])))
+}
+	
 	

@@ -75,6 +75,8 @@ public:
 
     bool const use_paired_reads;
 
+    bool const dual_chains;
+
 	bool const verbose;
 
 	AlgorithmConfiguration(rList const& config) :
@@ -98,6 +100,8 @@ public:
             min_overlap_length(getConfigAttribute<t_position>(config, "min_overlap_length")),
 
 			use_paired_reads(getConfigAttribute<bool>(config, "use_paired_reads")),
+
+			dual_chains(getConfigAttribute<bool>(config, "dual_chains")),
 
 			verbose(getConfigAttribute<bool>(config, "verbose")) {
 	}

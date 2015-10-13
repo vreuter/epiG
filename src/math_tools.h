@@ -34,6 +34,11 @@ T min(T a, T b) {
 }
 
 template<typename T>
+T pos(T a) {
+	return a < 0 ? 0 : a;
+}
+
+template<typename T>
 T square(T x) {
 	return x*x;
 }

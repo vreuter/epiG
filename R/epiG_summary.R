@@ -58,5 +58,4 @@ print.epiG <- function(x, ...) {
 print.epiG.config <- function(x, ...) {
 	
 	message("epiG config object:")
-	
 }

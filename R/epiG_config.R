@@ -165,13 +165,13 @@ create_error_distributions <- function(bisulfite_rate = 0.94, bisulfite_inap_rat
 	bisulfite_model$fwd[1, 5] <- 1 - bisulfite_inap_rate #C c
 	bisulfite_model$fwd[4, 5] <- bisulfite_inap_rate #T c
 	bisulfite_model$fwd[2, 2] <- 1 #G G
-	bisulfite_model$fwd[2, 6] <- 0 #G g
+	bisulfite_model$fwd[2, 6] <- 1 #G g
 	bisulfite_model$fwd[3, 3] <- 1 #A A
 	bisulfite_model$fwd[4, 1] <- bisulfite_rate #T C
 	bisulfite_model$fwd[4, 4] <- 1 #T T
 	
 	bisulfite_model$rev[1, 1] <- 1 #C C
-	bisulfite_model$rev[1, 5] <- 0 #C c
+	bisulfite_model$rev[1, 5] <- 1 #C c
 	bisulfite_model$rev[2, 2] <- 1 - bisulfite_rate #G G
 	bisulfite_model$rev[2, 6] <- 1 - bisulfite_inap_rate #G g
 	bisulfite_model$rev[3, 6] <- bisulfite_inap_rate #A g
@@ -259,6 +259,7 @@ epiG.algorithm.config <- function(
 		chunk_method = "reads", 
 		reads_hard_limit = 750,
 		use_paired_reads = FALSE,
+		dual_chains = TRUE,
 		verbose = TRUE) {
 	
 	#TODO check config valid
@@ -291,6 +292,8 @@ epiG.algorithm.config <- function(
 	config$min_overlap_length <- as.integer(min_overlap_length)
 	
 	config$use_paired_reads <- use_paired_reads
+	
+	config$dual_chains <- dual_chains
 	
 	config$verbose <- verbose
 	
