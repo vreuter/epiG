@@ -843,19 +843,14 @@ double haplo_chain_optimizer::compute_logsum(
 	for (t_epi_base a = 0; a < 6; ++a) {
 		for (t_epi_base b = 0; b < 6; ++b) {
 
-			if(a == 0 && b == 5) {
-				continue;
-			}
-
-			if(a == 4 && b == 1) {
-				continue;
-			}
-
 			//Ref prior
 			logsum(a,b) = a % 4 + 1 == ref(pos) || a % 4 + 1 == alt(pos) ? ref_match_prior_log : ref_no_match_prior_log;
 			logsum(a,b) = b % 4 + 1 == ref(pos+1) || b % 4 + 1 == alt(pos+1) ? ref_match_prior_log : ref_no_match_prior_log;
 		}
 	}
+
+	//scale prior with number of overlapping reads
+	logsum = static_cast<double>(reads.n_elem)*logsum;
 
 	//logsum
 
@@ -877,6 +872,7 @@ double haplo_chain_optimizer::compute_logsum(
 		logsum.col(b) += trans(loglike_term.row(0));
 	}
 
+	//rule out half methylated genotypes
 	logsum(0, 5) = -1 * std::numeric_limits<float>::infinity();
 	logsum(4, 1) = -1 * std::numeric_limits<float>::infinity();
 
@@ -885,8 +881,7 @@ double haplo_chain_optimizer::compute_logsum(
 
 
 
-inline double haplo_chain_optimizer::compute_haplochain_prior(
-		t_count const n) const {
+inline double haplo_chain_optimizer::compute_haplochain_prior(t_count const n) const {
 
 	if(n == 0) {
 		return 0;
