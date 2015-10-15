@@ -23,7 +23,7 @@ typedef t_counts t_lengths;
 typedef int t_position;
 typedef Col<int> t_positions;
 
-typedef char t_base; //coding 100 -N, 0 - C, 1 - G, 2 - A, 3 - T
+typedef char t_base; //coding 0 - N, 1 -C, 2 - G, 3 -A, 4 - T
 typedef Col<t_base> t_seq_bases;
 
 typedef Col<double> t_epsilon_quality;

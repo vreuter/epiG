@@ -25,7 +25,10 @@ class haplo_chain_optimizer {
 	//Priors
 	double ref_no_match_prior_log;
 	double ref_match_prior_log;
+
 	arma::Col<double> haplochain_log_prior;
+
+	field<vec> ref_priores;
 
 	template<typename abort_checker>
 	t_count optimize_profile(abort_checker const& ac);
@@ -58,9 +61,10 @@ class haplo_chain_optimizer {
 
 	double compute_haplochain_prior(t_count const unique_chains) const;
 
+	field<vec> compute_ref_priors() const;
+
 	double compute_logsum(
-			t_indices const& reads,
-			t_strands const& strands,
+			mat const& loglike_term,
 			t_position pos) const;
 
 
@@ -103,6 +107,14 @@ class haplo_chain_optimizer {
 			t_haplotype & haplotype,
 			t_haplochain const old_chain) const;
 
+	t_genotype compute_chain_genotype(t_haplochain const chain) const;
+
+	void compute_genotype(
+			mat const& loglike_term,
+			t_position pos,
+			t_epi_base & g1,
+			t_epi_base & g2) const;
+
 	t_position read_start_postion(t_index const read_number) const;
 	t_position read_end_postion(t_index const read_number) const;
 
@@ -141,6 +153,35 @@ public:
 		return read_strands;
 	}
 
+	field<t_genotype> get_chain_genotypes() const;
+
+	t_positions haplo_chain_start() const {
+
+		t_haplotype unique_chains = sort(unique(haplo));
+
+		t_positions pos(unique_chains.n_elem);
+
+		for (t_index i = 0; i < unique_chains.n_elem; ++i) {
+			pos(i) = haplo_chain_start(unique_chains(i));
+		}
+
+		return pos;
+	}
+
+	t_positions haplo_chain_end() const {
+
+		t_haplotype unique_chains = sort(unique(haplo));
+
+		t_positions pos(unique_chains.n_elem);
+
+		for (t_index i = 0; i < unique_chains.n_elem; ++i) {
+			pos(i) = haplo_chain_end(unique_chains(i));
+		}
+
+		return pos;
+	}
+
+
 };
 
 //TODO if we use logsum instead of max_logsum then we do not need ref and alt
@@ -157,7 +198,8 @@ inline haplo_chain_optimizer::haplo_chain_optimizer(
 				data(data),
 				ref(ref),
 				alt(alt),
-				haplochain_log_prior(config.haplochain_log_prior) {
+				haplochain_log_prior(config.haplochain_log_prior),
+				ref_priores() {
 
 	///////////////// Initialize:
 
@@ -207,6 +249,7 @@ inline haplo_chain_optimizer::haplo_chain_optimizer(
 	ref_no_match_prior_log = log(1-config.ref_prior);
 	ref_match_prior_log = log(config.ref_prior);
 
+	ref_priores = compute_ref_priors();
 }
 
 
@@ -815,11 +858,19 @@ double haplo_chain_optimizer::compute_chain_loglike(
 
 	double logsum = 0;
 
-	for (t_position pos = chain_start+1; pos <= chain_end-1; ++pos) {
+	mat loglike_term(chain_end - chain_start + 1, 6, fill::zeros);
 
-		t_indices reads = reads_in_chain(find(starts <= pos-1 && pos+1 <= ends));
-		logsum += compute_logsum(reads, strands, pos);
+	t_indices::const_iterator r = reads_in_chain.begin();
+	for (; r != reads_in_chain.end(); ++r) {
+		t_position const read_start = read_start_postion(*r);
+		t_position const read_end = read_end_postion(*r);
 
+		loglike_term.rows(read_start - chain_start, read_end - chain_start) += data.loglike_terms(*r, strands(*r));
+	}
+
+	for (t_position pos = chain_start; pos <= chain_end-1; ++pos) {
+		logsum += compute_logsum(
+				loglike_term.rows(pos - chain_start, pos - chain_start + 1), pos);
 	}
 
 	if(!std::isfinite(logsum)) {
@@ -829,48 +880,37 @@ double haplo_chain_optimizer::compute_chain_loglike(
 	return logsum;
 }
 
-double haplo_chain_optimizer::compute_logsum(
-		t_indices const& reads,
-		t_strands const& strands,
-		t_position pos) const {
+field<vec> haplo_chain_optimizer::compute_ref_priors() const {
 
-	TIMER_START
-	DEBUG_ENTER
+	field<vec> priores(5,5);
 
-	mat::fixed<6,6> logsum;
-
-	//Prior
-	for (t_epi_base a = 0; a < 6; ++a) {
-		for (t_epi_base b = 0; b < 6; ++b) {
-
-			//Ref prior
-			logsum(a,b) = a % 4 + 1 == ref(pos) || a % 4 + 1 == alt(pos) ? ref_match_prior_log : ref_no_match_prior_log;
-			logsum(a,b) = b % 4 + 1 == ref(pos+1) || b % 4 + 1 == alt(pos+1) ? ref_match_prior_log : ref_no_match_prior_log;
+	for (t_base r = 0; r < 5; ++r) {
+		for (t_base a = 0; a < 5; ++a) {
+			priores(r,a).set_size(6);
+			for (t_epi_base g = 0; g < 6; ++g) {
+				priores(r, a)(g) = (g % 4 + 1 == r || g % 4 + 1 == a ? ref_match_prior_log : ref_no_match_prior_log);
+			}
 		}
 	}
 
-	//scale prior with number of overlapping reads
-	logsum = static_cast<double>(reads.n_elem)*logsum;
 
-	//logsum
+	return priores;
+}
 
+double haplo_chain_optimizer::compute_logsum(
+		mat const& loglike_term,
+		t_position pos) const {
 
-	mat::fixed<2,6> loglike_term;
-	loglike_term.zeros();
+	DEBUG_ENTER
+	//TIMER_START
 
-	t_indices::const_iterator r = reads.begin();
-	for (; r != reads.end(); ++r) {
-		t_position const read_start = read_start_postion(*r);
-		loglike_term += data.loglike_terms(*r, strands(*r)).rows(pos  - read_start, pos + 1 - read_start);
-	}
+	//Prior scaled with number of overlapping reads
+	//Logsum
 
-	for (t_epi_base a = 0; a < 6; ++a) {
-		logsum.row(a) += loglike_term.row(1);
-	}
+	mat::fixed<6,6> logsum;
 
-	for (t_epi_base b = 0; b < 6; ++b) {
-		logsum.col(b) += trans(loglike_term.row(0));
-	}
+	logsum.each_row() = trans(ref_priores(ref(pos+1), alt(pos+1))) + loglike_term.row(1);
+	logsum.each_col() += ref_priores(ref(pos), alt(pos)) + trans(loglike_term.row(0));
 
 	//rule out half methylated genotypes
 	logsum(0, 5) = -1 * std::numeric_limits<float>::infinity();
@@ -879,6 +919,91 @@ double haplo_chain_optimizer::compute_logsum(
 	return logsum.max();
 }
 
+t_genotype haplo_chain_optimizer::compute_chain_genotype(t_haplochain const chain) const {
+
+	t_indices reads_in_chain = find(haplo == chain);
+
+	if (reads_in_chain.n_elem == 0) {
+		return 0;
+	}
+
+	//find start, end pos of chain
+	t_positions starts = data.reads_start_postions(reads_in_chain);
+	t_positions ends = data.reads_end_postions(reads_in_chain);
+
+	t_position chain_start = min(starts);
+	t_position chain_end = max(ends);
+
+	t_genotype genotype(chain_end-chain_start+1, fill::zeros);
+
+	mat loglike_term(chain_end - chain_start + 1, 6, fill::zeros);
+
+	t_indices::const_iterator r = reads_in_chain.begin();
+	for (; r != reads_in_chain.end(); ++r) {
+		t_position const read_start = read_start_postion(*r);
+		t_position const read_end = read_end_postion(*r);
+
+		loglike_term.rows(read_start - chain_start, read_end - chain_start) += data.loglike_terms(*r, read_strands(*r));
+	}
+
+	t_epi_base g;
+	for (t_position pos = chain_start; pos <= chain_end-1; ++pos) {
+		compute_genotype(
+				loglike_term.rows(pos - chain_start, pos - chain_start + 1),
+				pos,
+				genotype(pos-chain_start),
+				g);
+	}
+
+	genotype(chain_end - chain_start) = g;
+
+	return genotype;
+
+}
+
+void haplo_chain_optimizer::compute_genotype(
+		mat const& loglike_term,
+		t_position pos,
+		t_epi_base & g1,
+		t_epi_base & g2) const {
+
+	DEBUG_ENTER
+	//TIMER_START
+
+	//Prior scaled with number of overlapping reads
+	//Logsum
+
+	mat::fixed<6,6> logsum;
+
+	logsum.each_row() = trans(ref_priores(ref(pos+1), alt(pos+1))) + loglike_term.row(1);
+	logsum.each_col() += ref_priores(ref(pos), alt(pos)) + trans(loglike_term.row(0));
+
+	//rule out half methylated genotypes
+	logsum(0, 5) = -1 * std::numeric_limits<float>::infinity();
+	logsum(4, 1) = -1 * std::numeric_limits<float>::infinity();
+
+	t_index a;
+	t_index b;
+	logsum.max(a, b);
+
+	g1 = static_cast<t_epi_base>(a);
+	g2 = static_cast<t_epi_base>(b);
+
+}
+
+
+field<t_genotype> haplo_chain_optimizer::get_chain_genotypes() const {
+
+	t_haplotype unique_chains = sort(unique(haplo));
+
+	field<t_genotype> genotypes(unique_chains.n_elem);
+
+		for (t_index i = 0; i < unique_chains.n_elem; ++i) {
+			genotypes(i) = compute_chain_genotype(unique_chains(i));
+		}
+
+	return(genotypes);
+}
 
 
 inline double haplo_chain_optimizer::compute_haplochain_prior(t_count const n) const {

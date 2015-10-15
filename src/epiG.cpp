@@ -48,9 +48,7 @@
 #include "bam_reader.h"
 #include "epiG_algorithm_config.h"
 #include "alignment_data.h"
-#include "prior.h"
 #include "chain_opt.h"
-#include "genotype_opt.h"
 #include "chunked_chain_opt.h"
 
 //// R interface
