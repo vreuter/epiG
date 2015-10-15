@@ -117,7 +117,7 @@ inline alignment_data::alignment_data(AlgorithmConfiguration const& config, std:
 			t_position k = j - reads_start_postions(i);
 
 			t_base base = read.bases(k);
-			double epsilon = read.epsilon(k) * config.sequence_quality_adjust; //FIXME configable
+			double epsilon = read.epsilon(k);
 
 			if(base == 0) {
 				//base = N

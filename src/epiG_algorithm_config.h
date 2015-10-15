@@ -61,21 +61,15 @@ public:
 	const t_models fwd_model;
 	const t_models rev_model;
 
-	const double sequence_quality_adjust;
-
     const t_count reads_hard_limit;
 
 	const arma::Col<double> haplochain_log_prior;
 
     const double ref_prior;
 
-    const field<arma::vec> genotype_priors;
-
     const t_position min_overlap_length;
 
     bool const use_paired_reads;
-
-    bool const dual_chains;
 
 	bool const verbose;
 
@@ -87,21 +81,15 @@ public:
 
 			rev_model(getConfigList<t_model>(config, "rev_model")),
 
-			sequence_quality_adjust(getConfigAttribute<double>(config, "sequence_quality_adjust")),
-
             reads_hard_limit(getConfigAttribute<t_count>(config, "reads_hard_limit")),
 
             haplochain_log_prior(getConfigAttribute<arma::Col<double> >(config, "log_haplo_prior")),
 
             ref_prior(getConfigAttribute<double>(config, "ref_prior")),
 
-            genotype_priors(getConfigList<arma::vec>(config, "log_prior")),
-
             min_overlap_length(getConfigAttribute<t_position>(config, "min_overlap_length")),
 
 			use_paired_reads(getConfigAttribute<bool>(config, "use_paired_reads")),
-
-			dual_chains(getConfigAttribute<bool>(config, "dual_chains")),
 
 			verbose(getConfigAttribute<bool>(config, "verbose")) {
 	}

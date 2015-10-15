@@ -8,8 +8,6 @@ class haplo_chain_optimizer {
 
 	t_position const min_overlap_length;
 
-	bool dual_chains;
-
 	//Model parameters
 	t_haplotype haplo; //vector of size n_reads
 	t_strands read_strands; //vector of size n_reads
@@ -192,7 +190,6 @@ inline haplo_chain_optimizer::haplo_chain_optimizer(
 		t_seq_bases const& alt) :
 				max_iterations(config.max_iterations),
 				min_overlap_length(config.min_overlap_length),
-				dual_chains(config.dual_chains),
 				haplo(data.n_reads),
 				read_strands(data.n_reads),
 				data(data),
@@ -391,6 +388,7 @@ template<typename abort_checker>
 inline t_count haplo_chain_optimizer::optimize_pair_profile(
 		const abort_checker& ac) {
 
+	//TODO move this
 	std::vector<std::string> pair_names;
 	std::vector<t_indices> read_pairs;
 	for(t_index read_number = 0; read_number < data.n_reads; ++read_number) {
@@ -722,7 +720,7 @@ double haplo_chain_optimizer::compute_delta_posterior(
 
 	t_haplochain current_chain = haplo(reads(0));
 
-	if(current_chain == new_chain) {
+	if(current_chain == new_chain && all(strands == read_strands(reads))) {
 		return 0;
 	}
 
@@ -785,7 +783,7 @@ double haplo_chain_optimizer::compute_delta_posterior(
 
 	t_haplochain current_chain = haplo(pair(0));
 
-	if(current_chain == new_chain) {
+	if(current_chain == new_chain && strand == read_strands(pair(0))) {
 		return 0;
 	}
 
@@ -865,8 +863,11 @@ double haplo_chain_optimizer::compute_chain_loglike(
 		t_position const read_start = read_start_postion(*r);
 		t_position const read_end = read_end_postion(*r);
 
-		loglike_term.rows(read_start - chain_start, read_end - chain_start) += data.loglike_terms(*r, strands(*r));
+		loglike_term.rows(read_start - chain_start, read_end - chain_start)
+				+= data.loglike_terms(*r, strands(*r));
 	}
+
+
 
 	for (t_position pos = chain_start; pos <= chain_end-1; ++pos) {
 		logsum += compute_logsum(

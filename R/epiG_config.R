@@ -2,140 +2,6 @@
 # 
 # Author: martin
 ###############################################################################
-
-
-# Genotype prior coding:
-#
-#	1 R 
-#	2 A1 
-# 	3 A2 
-#	4 A3
-#	5 A1 A2 
-#	6 A3 R 
-#	7 A1 A3 
-#	8 A2 R 
-#	9 A1 R 
-#	10 A2 A3 
-#	11 A1 A3 R 
-#	12 A1 A2 A3 
-#	13 A2 R A3 
-#	14 A1 R A2 
-#	15 A2 A1 R A3 
-
-#' create_genotype_prior
-#' 
-#' @param scale 
-#' @param R 
-#' @param RA 
-#' @param A 
-#' @param AA 
-#' @param RAA 
-#' @param AAA 
-#' @param RAAA 
-#' @return prior
-#' 
-#' @author Martin Vincent
-#' @export
-create_genotype_prior_ref <- function(scale = 0.5, R = exp(6*scale), RA = exp(5*scale), A = exp(4*scale), AA = exp(3*scale) , RAA = exp(2*scale), AAA = exp(scale), RAAA = 1)  {
-	
-	prior <- c(R = R, 
-			A1 = A, 
-			A2 = A, 
-			A3 = A, 
-			A1A2 = AA, 
-			RA3 = RA, 
-			A1A3 = AA,  
-			RA2 = RA,
-			RA1 = RA, 
-			A2A3 = AA, 
-			RA1A3 = RAA,
-			A1A2A3 = AAA,
-			RA2A3 = RAA, 
-			RA1A2 = RAA, 
-			RA1A2A3 = RAAA)
-	
-	#Normalize
-	prior <- prior/sum(prior)
-	
-	return(prior)
-}
-
-#' create_genotype_prior_alt
-#' 
-#' @param scale 
-#' @param R 
-#' @param RA 
-#' @param A 
-#' @param RB 
-#' @param AB 
-#' @param B 
-#' @param RAB 
-#' @param RBB 
-#' @param ABB 
-#' @param RABB 
-#' @param BB 
-#' @return prior
-#' 
-#' @author Martin Vincent
-#' @export
-create_genotype_prior_alt <- function(scale = 0.5, 
-		R = exp(5*scale), 
-		RA = exp(4.5*scale), 
-		A = exp(4.5*scale), 
-		RAB = exp(4*scale), 
-		RABB = exp(3*scale), RB = exp(3*scale), AB = exp(3*scale),
-		RBB = exp(2*scale), ABB = exp(2*scale), 
-		B = exp(scale), BB = exp(scale))  {
-	
-	prior_alt <- c(R = R, 
-			A1 = A, 
-			A2 = B, 
-			A3 = B, 
-			A1A2 = AB, 
-			RA3 = RB, 
-			A1A3 = AB,  
-			RA2 = RB,
-			RA1 = RA, 
-			A2A3 = BB, 
-			RA1A3 = RAB,
-			A1A2A3 = ABB,
-			RA2A3 = RBB, 
-			RA1A2 = RAB, 
-			RA1A2A3 = RABB)
-	
-	#Normalize
-	prior_alt <- prior_alt/sum(prior_alt)
-	
-	return(prior_alt)
-}
-
-#create_genotype_prior_alt <- function(scale = 0.5, R = exp(11*scale), RA = exp(10*scale), A = exp(9*scale), 
-#		RB = exp(8*scale), AB = exp(7*scale), B = exp(6*scale),
-#		RAB = exp(5*scale), RBB = exp(4*scale), ABB = exp(3*scale), 
-#		RABB = exp(2*scale), BB = 1)  {
-#	
-#	prior_alt <- c(R = R, 
-#			A1 = A, 
-#			A2 = B, 
-#			A3 = B, 
-#			A1A2 = AB, 
-#			RA3 = RB, 
-#			A1A3 = AB,  
-#			RA2 = RB,
-#			RA1 = RA, 
-#			A2A3 = BB, 
-#			RA1A3 = RAB,
-#			A1A2A3 = ABB,
-#			RA2A3 = RBB, 
-#			RA1A2 = RAB, 
-#			RA1A2A3 = RABB)
-#	
-#	#Normalize
-#	prior_alt <- prior_alt/sum(prior_alt)
-#	
-#	return(prior_alt)
-#}
-
 #' create_error_distributions
 #' 
 #' @param bisulfite_rate 
@@ -249,17 +115,15 @@ epiG.algorithm.config <- function(
 		ref.file, 
 		alt.file, 
 		max_iterations = 1e5, 
-		prior = list(create_genotype_prior_ref(), create_genotype_prior_alt()), 
 		model = create_bisulfite_model(), 
 		sequence_quality_adjust = 0.1, 
 		haplo_prior = c(10, 2), 
 		ref_prior = 0.9, 
 		min_overlap_length = 1, 
-		chunk_size = 500, 
+		chunk_size = 5000, 
 		chunk_method = "reads", 
-		reads_hard_limit = 750,
+		reads_hard_limit = 7500,
 		use_paired_reads = FALSE,
-		dual_chains = TRUE,
 		verbose = TRUE) {
 	
 	#TODO check config valid
@@ -279,8 +143,6 @@ epiG.algorithm.config <- function(
 	
 	config$sequence_quality_adjust <- sequence_quality_adjust
 	
-	config$log_prior <- lapply(prior, log)
-	
 	config$chunk_size <- chunk_size
 	
 	config$chunk.method <- chunk_method
@@ -292,9 +154,7 @@ epiG.algorithm.config <- function(
 	config$min_overlap_length <- as.integer(min_overlap_length)
 	
 	config$use_paired_reads <- use_paired_reads
-	
-	config$dual_chains <- dual_chains
-	
+		
 	config$verbose <- verbose
 	
 	# Compute log haplochain prior values

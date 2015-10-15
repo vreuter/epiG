@@ -683,6 +683,12 @@ subregion.epiG <- function(object, start, end, chop.reads = FALSE, ...) {
 			stop("Out of range")
 		}
 		
+		if(j == 2) {
+			new_object <- new_object[[1]]
+			class(new_object) <- c("epiG")
+			return(new_object)
+		}
+		
 		class(new_object) <- c("epiG", "chunks")
 		return(new_object)
 	}
