@@ -10,7 +10,7 @@
 #' 
 #' @author Martin Vincent
 #' @export
-create_error_distributions <- function(bisulfite_rate = 0.94, bisulfite_inap_rate = 0.06) {
+create_error_distributions <- function(bisulfite_rate, bisulfite_inap_rate) {
 	
 	#TODO split up into 2 functions one for fwd model and one for rev model
 	
@@ -48,23 +48,7 @@ create_error_distributions <- function(bisulfite_rate = 0.94, bisulfite_inap_rat
 	return(bisulfite_model)
 }
 
-create_pcr_model <- function(rate = 0.01) 1/3*rate + (1-4/3*rate)*diag(4)
-
-#' exp_decay
-#' 
-#' @param lambda 
-#' @param Lmax 
-#' @param x 
-#' @return function values
-#' 
-#' @author martin
-#' @export
-exp_decay <- function(lambda = 0.1, Lmax = 100, x = 0:(Lmax-1)) {
-	
-	c <- (1-exp(-lambda))/(1-exp(-lambda*(Lmax)))
-	
-	return(c*exp(-lambda*x))
-}
+create_pcr_model <- function(rate) 1/3*rate + (1-4/3*rate)*diag(4)
 
 #' create_bisulfite_model
 #' 
@@ -76,7 +60,7 @@ exp_decay <- function(lambda = 0.1, Lmax = 100, x = 0:(Lmax-1)) {
 #' 
 #' @author Martin Vincent
 #' @export
-create_bisulfite_model <- function(bisulfite_rates = 0.94, bisulfite_inap_rate = 0.06, lambda = 0.1, Lmax = 100) {
+create_bisulfite_model <- function(bisulfite_rates, bisulfite_inap_rate, Lmax) {
 	
 	#TODO postion decay
 	#p <- exp_decay(lambda = lambda, Lmax = Lmax)
@@ -91,6 +75,53 @@ create_bisulfite_model <- function(bisulfite_rates = 0.94, bisulfite_inap_rate =
 	
 	return(model)
 }
+
+create_haplo_prior <- function(delta, n_max){
+		
+	# Compute log haplochain prior values
+		
+	h <- vector()
+	h[1] <- -delta*log(2)
+	h[2] <- 2*h[1] + delta*log(2)
+	for(i in 3:n_max) {
+		h[i] = 2*h[i-1]-h[i-2]-delta*log((i-1)/i)
+	}
+	
+	return(h)
+
+} 
+
+
+auto_config <- function(bam_file, ref_file, alt_file, chr, start, end, use_paired_reads = FALSE, chunk_size = 10000) {
+
+	reads <- fetch_reads_info(bam_file, chr, start, end)
+	
+	### Create bisulfite model
+	#TODO auto detimen bisulfite rates
+	model <- create_bisulfite_model(bisulfite_rate = .95, bisulfite_inap_rate = 0.05, Lmax = max(reads$length))
+	pcr.model <- create_pcr_model(rate = 0.2)
+	model$fwd <- lapply(model$fwd, function(x) pcr.model %*% x)
+	model$rev <- lapply(model$rev, function(x) pcr.model %*% x)
+	
+	min_overlap <- mean(reads$length) - 
+					quantile(diff(reads$start[seq(from = 1, to = nrow(reads), length.out = nrow(reads)/2)]), p = 0.95)
+		
+	config <- epiG.algorithm.config(
+			model = model,
+			log_haplo_prior = create_haplo_prior(1, chunk_size + 2000),
+			ref_prior = .99,
+			min_overlap_length = min_overlap,
+			reads_hard_limit = chunk_size + 2000,
+			chunk_size = chunk_size,
+			use_paired_reads = use_paired_reads,
+			ref.file = ref_file,
+			alt.file = alt_file
+	)
+	
+	return(config)
+}	
+
+
 
 #' Create a epiG configuration
 #' 
@@ -115,9 +146,8 @@ epiG.algorithm.config <- function(
 		ref.file, 
 		alt.file, 
 		max_iterations = 1e5, 
-		model = create_bisulfite_model(), 
-		sequence_quality_adjust = 0.1, 
-		haplo_prior = c(10, 2), 
+		model, 
+		log_haplo_prior, 
 		ref_prior = 0.9, 
 		min_overlap_length = 1, 
 		chunk_size = 5000, 
@@ -140,9 +170,7 @@ epiG.algorithm.config <- function(
 	config$fwd_model <- model$fwd
 	
 	config$rev_model <- model$rev
-	
-	config$sequence_quality_adjust <- sequence_quality_adjust
-	
+		
 	config$chunk_size <- chunk_size
 	
 	config$chunk.method <- chunk_method
@@ -157,15 +185,7 @@ epiG.algorithm.config <- function(
 		
 	config$verbose <- verbose
 	
-	# Compute log haplochain prior values
-	# TODO move out in function
-	c <- haplo_prior[1]
-	N <- reads_hard_limit
-	n <- 1:N
-	r <- haplo_prior[2]
-	hrel <- c*n*log(1+r/n)/(N*(log(1+r/N)))
-	
-	config$log_haplo_prior <- cumsum(hrel)
+	config$log_haplo_prior <- log_haplo_prior
 				
 	class(config) <- "epiG.config"
 	

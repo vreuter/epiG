@@ -15,6 +15,8 @@ class haplo_chain_optimizer {
 	//Data
 	alignment_data const& data;
 
+	std::vector<t_indices> read_pairs;
+
 	//Ref
 	t_seq_bases const& ref;
 	t_seq_bases const& alt;
@@ -56,8 +58,6 @@ class haplo_chain_optimizer {
 	t_haplotype compute_feasible_haplotypes(
 			t_position const start,
 			t_position const end) const;
-
-	double compute_haplochain_prior(t_count const unique_chains) const;
 
 	field<vec> compute_ref_priors() const;
 
@@ -113,6 +113,7 @@ class haplo_chain_optimizer {
 			t_epi_base & g1,
 			t_epi_base & g2) const;
 
+
 	t_position read_start_postion(t_index const read_number) const;
 	t_position read_end_postion(t_index const read_number) const;
 
@@ -127,6 +128,46 @@ class haplo_chain_optimizer {
 		t_indices reads_in_chain(find(haplo == chain));
 		t_positions end_pos = data.reads_end_postions(reads_in_chain);
 		return max(end_pos);
+	}
+
+	void chain_clean() {
+
+		t_haplotype unique_chains = sort(unique(haplo));
+
+		t_haplotype new_haplo(haplo);
+
+		for (t_index i = 0; i < unique_chains.n_elem; ++i) {
+			t_indices reads_in_chain(find(haplo == unique_chains(i)));
+			new_haplo(reads_in_chain).fill(i);
+		}
+
+		haplo = new_haplo;
+	}
+
+	void scramble(t_index mode, t_index select) {
+		for(u32 i = 0; i < haplo.n_elem; i++) {
+			if(i % mode == select) {
+				t_haplochain chain = haplo(i);
+				haplo(i) = max(haplo)+1;
+				update_haplotype_chain(haplo, chain);
+			}
+		}
+	}
+
+	void scramble_paired(t_index mode, t_index select) {
+
+		for (t_index pair_number = 0; pair_number < read_pairs.size(); ++pair_number) {
+
+			if(pair_number % mode == select) {
+
+				t_haplotype const& reads_pair = read_pairs[pair_number];
+				t_haplochain chain = haplo(reads_pair(0));
+				haplo(reads_pair(0)) = max(haplo)+1;
+				haplo(reads_pair(1)) = haplo(reads_pair(0));
+
+				update_haplotype_chain(read_pairs, haplo, chain);
+			}
+		}
 	}
 
 public:
@@ -242,11 +283,34 @@ inline haplo_chain_optimizer::haplo_chain_optimizer(
 			haplo(i) = i;
 		}
 	}
+
 	//Init ref prior
 	ref_no_match_prior_log = log(1-config.ref_prior);
 	ref_match_prior_log = log(config.ref_prior);
 
 	ref_priores = compute_ref_priors();
+
+	//Find read pairs
+	// and init read_pairs
+
+	std::vector<std::string> pair_names;
+	for(t_index read_number = 0; read_number < data.n_reads; ++read_number) {
+
+		std::vector<std::string>::iterator it = find(pair_names.begin(), pair_names.end(), data.read_names[read_number]);
+
+		 if(it != pair_names.end()) {
+			 t_indices & rp = read_pairs[it - pair_names.begin()];
+			  rp(1) = read_number;
+		  }
+
+		  else {
+			  pair_names.push_back(data.read_names[read_number]);
+			  t_indices read_pair(2);
+			  read_pair.fill(read_number);
+			  read_pairs.push_back(read_pair);
+		  }
+	}
+
 }
 
 
@@ -255,6 +319,14 @@ inline void haplo_chain_optimizer::run(const abort_checker& ac) {
 
 	TIMER_START
 
+
+	t_count i = 0;
+
+	double posterior = -1 * std::numeric_limits<double>::infinity();
+	double posterior_new;
+
+	while(true)  {
+
 	t_count change_count = 1;
 
 	while(change_count != 0) {
@@ -262,13 +334,27 @@ inline void haplo_chain_optimizer::run(const abort_checker& ac) {
 		cout << "---------------------------------" << endl;
 
 		change_count = optimize_profile(ac);
-
-		cout << change_count << " : " << compute_posterior(haplo, read_strands) << endl;
-
 		change_count += optimize_haplochains(ac);
 
-		cout << change_count << " : " << compute_posterior(haplo, read_strands) << endl;
+		posterior_new = compute_posterior(haplo, read_strands);
 
+		cout << change_count << " : " << posterior_new << endl;
+
+
+	}
+
+	cout << "scramble" << endl;
+
+	chain_clean();
+
+	if(posterior_new <= posterior) {
+		break;
+	}
+
+	posterior = posterior_new;
+
+	scramble(2, i % 2);
+	i++;
 
 	}
 
@@ -282,6 +368,13 @@ inline void haplo_chain_optimizer::run_paired(const abort_checker& ac) {
 
 	TIMER_START
 
+	t_count i = 0;
+
+	double posterior = -1 * std::numeric_limits<double>::infinity();
+	double posterior_new;
+
+	while(true)  {
+
 	t_count change_count = 1;
 
 	while(change_count != 0) {
@@ -289,15 +382,29 @@ inline void haplo_chain_optimizer::run_paired(const abort_checker& ac) {
 		cout << "---------------------------------" << endl;
 
 		change_count = optimize_pair_profile(ac);
-
-		cout << change_count << " : " << compute_posterior(haplo, read_strands) << endl;
-
 		change_count += optimize_haplochains(ac);
 
-		cout << change_count << " : " << compute_posterior(haplo, read_strands) << endl;
+		posterior_new = compute_posterior(haplo, read_strands);
+
+		cout << change_count << " : " << posterior_new << endl;
+
 
 	}
 
+	chain_clean();
+
+	if(posterior_new <= posterior) {
+		break;
+	}
+
+	posterior = posterior_new;
+
+	cout << "scramble" << endl;
+
+	scramble_paired(2, i % 2);
+	i++;
+
+	}
 
 }
 
@@ -387,26 +494,6 @@ inline t_count haplo_chain_optimizer::optimize_profile(const abort_checker& ac) 
 template<typename abort_checker>
 inline t_count haplo_chain_optimizer::optimize_pair_profile(
 		const abort_checker& ac) {
-
-	//TODO move this
-	std::vector<std::string> pair_names;
-	std::vector<t_indices> read_pairs;
-	for(t_index read_number = 0; read_number < data.n_reads; ++read_number) {
-
-		std::vector<std::string>::iterator it = find(pair_names.begin(), pair_names.end(), data.read_names[read_number]);
-
-		 if(it != pair_names.end()) {
-			 t_indices & rp = read_pairs[it - pair_names.begin()];
-			  rp(1) = read_number;
-		  }
-
-		  else {
-			  pair_names.push_back(data.read_names[read_number]);
-			  t_indices read_pair(2);
-			  read_pair.fill(read_number);
-			  read_pairs.push_back(read_pair);
-		  }
-	}
 
 	t_count i = 0;
 	for (; i < max_iterations; i++) {
@@ -1006,20 +1093,6 @@ field<t_genotype> haplo_chain_optimizer::get_chain_genotypes() const {
 	return(genotypes);
 }
 
-
-inline double haplo_chain_optimizer::compute_haplochain_prior(t_count const n) const {
-
-	if(n == 0) {
-		return 0;
-	}
-
-	if (n >= haplochain_log_prior.n_elem) {
-		throw std::runtime_error("compute_haplochain_prior : invalid input");
-	}
-
-	return haplochain_log_prior(n-1);
-}
-
 t_haplotype haplo_chain_optimizer::compute_feasible_haplotypes(t_position const start, t_position const end) const {
 
 	TIMER_START
@@ -1143,9 +1216,7 @@ double haplo_chain_optimizer::compute_prior_chain(t_haplotype const& h, t_haploc
 
 	TIMER_START
 
-	double reads_in_chain = sum(h == chain);
-
-	return compute_haplochain_prior(reads_in_chain);
+	return haplochain_log_prior(sum(h == chain));
 
 }
 
