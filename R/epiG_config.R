@@ -92,26 +92,26 @@ create_haplo_prior <- function(delta, n_max){
 } 
 
 
-auto_config <- function(bam_file, ref_file, alt_file, chr, start, end, use_paired_reads = FALSE, chunk_size = 10000) {
+auto_config <- function(bam_file, ref_file, alt_file, chr, start, end, use_paired_reads = FALSE, chunk_size = 15000) {
 
 	reads <- fetch_reads_info(bam_file, chr, start, end)
 	
 	### Create bisulfite model
 	#TODO auto detimen bisulfite rates
 	model <- create_bisulfite_model(bisulfite_rate = .95, bisulfite_inap_rate = 0.05, Lmax = max(reads$length))
-	pcr.model <- create_pcr_model(rate = 0.2)
+	pcr.model <- create_pcr_model(rate = 0.25)
 	model$fwd <- lapply(model$fwd, function(x) pcr.model %*% x)
 	model$rev <- lapply(model$rev, function(x) pcr.model %*% x)
 	
-	min_overlap <- mean(reads$length) - 
-					quantile(diff(reads$start[seq(from = 1, to = nrow(reads), length.out = nrow(reads)/2)]), p = 0.95)
+	min_overlap <- max(mean(reads$length) - 
+					quantile(diff(reads$start[seq(from = 1, to = nrow(reads), length.out = nrow(reads)/2)]), p = 0.95), 25)
 		
 	config <- epiG.algorithm.config(
 			model = model,
-			log_haplo_prior = create_haplo_prior(1, chunk_size + 2000),
+			log_haplo_prior = create_haplo_prior(1, chunk_size + 5000),
 			ref_prior = .99,
 			min_overlap_length = min_overlap,
-			reads_hard_limit = chunk_size + 2000,
+			reads_hard_limit = chunk_size + 5000,
 			chunk_size = chunk_size,
 			use_paired_reads = use_paired_reads,
 			ref.file = ref_file,

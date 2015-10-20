@@ -319,44 +319,13 @@ inline void haplo_chain_optimizer::run(const abort_checker& ac) {
 
 	TIMER_START
 
+	cout << "---------------------------------" << endl;
 
-	t_count i = 0;
+	t_count change_count = optimize_profile(ac);
 
-	double posterior = -1 * std::numeric_limits<double>::infinity();
-	double posterior_new;
-
-	while(true)  {
-
-	t_count change_count = 1;
-
-	while(change_count != 0) {
-
-		cout << "---------------------------------" << endl;
-
-		change_count = optimize_profile(ac);
-		change_count += optimize_haplochains(ac);
-
-		posterior_new = compute_posterior(haplo, read_strands);
-
-		cout << change_count << " : " << posterior_new << endl;
-
-
-	}
-
-	cout << "scramble" << endl;
+	cout << change_count << " : " << compute_posterior(haplo, read_strands) << endl;
 
 	chain_clean();
-
-	if(posterior_new <= posterior) {
-		break;
-	}
-
-	posterior = posterior_new;
-
-	scramble(2, i % 2);
-	i++;
-
-	}
 
 }
 
@@ -368,43 +337,13 @@ inline void haplo_chain_optimizer::run_paired(const abort_checker& ac) {
 
 	TIMER_START
 
-	t_count i = 0;
+	cout << "---------------------------------" << endl;
 
-	double posterior = -1 * std::numeric_limits<double>::infinity();
-	double posterior_new;
+	t_count change_count = optimize_pair_profile(ac);
 
-	while(true)  {
-
-	t_count change_count = 1;
-
-	while(change_count != 0) {
-
-		cout << "---------------------------------" << endl;
-
-		change_count = optimize_pair_profile(ac);
-		change_count += optimize_haplochains(ac);
-
-		posterior_new = compute_posterior(haplo, read_strands);
-
-		cout << change_count << " : " << posterior_new << endl;
-
-
-	}
+	cout << change_count << " : " << compute_posterior(haplo, read_strands) << endl;
 
 	chain_clean();
-
-	if(posterior_new <= posterior) {
-		break;
-	}
-
-	posterior = posterior_new;
-
-	cout << "scramble" << endl;
-
-	scramble_paired(2, i % 2);
-	i++;
-
-	}
 
 }
 
@@ -954,11 +893,8 @@ double haplo_chain_optimizer::compute_chain_loglike(
 				+= data.loglike_terms(*r, strands(*r));
 	}
 
-
-
 	for (t_position pos = chain_start; pos <= chain_end-1; ++pos) {
-		logsum += compute_logsum(
-				loglike_term.rows(pos - chain_start, pos - chain_start + 1), pos);
+		logsum += compute_logsum(loglike_term.rows(pos - chain_start, pos - chain_start + 1), pos);
 	}
 
 	if(!std::isfinite(logsum)) {
