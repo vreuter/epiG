@@ -30,7 +30,7 @@ typedef Col<double> t_epsilon_quality;
 typedef Col<int> t_quality;
 
 typedef u32 t_haplochain;
-typedef Col<t_haplochain> t_haplotype;
+typedef Col<t_haplochain> t_haplochains;
 
 typedef char t_epi_base; //coding 0 - C, 1 - G, 2 - A, 3 - T, 4 - C^me, 5 - G_me
 typedef Col<t_epi_base> t_genotype;
@@ -73,4 +73,5 @@ typedef field<t_model> t_models;
 
 typedef Col<double>::fixed<15> t_prior_vector; //TODO
 
+static const std::vector<t_indices> null_read_pairs;
 #endif /* TYPES_HPP_ */

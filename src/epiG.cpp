@@ -48,6 +48,7 @@
 #include "bam_reader.h"
 #include "epiG_algorithm_config.h"
 #include "alignment_data.h"
+#include "haplotype.h"
 #include "chain_opt.h"
 #include "chunked_chain_opt.h"
 

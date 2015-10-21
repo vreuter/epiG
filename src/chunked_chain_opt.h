@@ -33,7 +33,7 @@ private:
 	field<t_indices> read_ids;
 	field<std::vector<std::string> > read_names;
 
-	field<t_haplotype> haplotypes;
+	field<t_haplochains> haplotypes;
 	field<t_strands> strands;
 	field<field<Col<t_epi_base> > > genotypes;
 	field<t_positions> chain_starts;
@@ -55,7 +55,7 @@ public:
 
 	void run();
 
-	field<t_haplotype> get_haplotypes() const {
+	field<t_haplochains> get_haplotypes() const {
 		return haplotypes;
 	}
 
@@ -204,13 +204,9 @@ void chunk_haplo_chain_optimizer::run() {
 			}
 
 			//Init haplo optimizer
-			haplo_chain_optimizer opt(config, data, ref, alt);
+			haplo_chain_optimizer opt = haplo_chain_optimizer::create(config, data, ref, alt, config.use_paired_reads);
 
-			if(config.use_paired_reads) {
-				opt.run_paired(p);
-			} else {
-				opt.run(p);
-			}
+			opt.run(p);
 
 #ifdef EPIG_USE_OPENMP
 #pragma omp critical
@@ -230,7 +226,7 @@ void chunk_haplo_chain_optimizer::run() {
 
 				read_names(i) = data.read_names;
 
-				haplotypes(i) = opt.get_haplotype_chains();
+				haplotypes(i) = opt.get_haplochains();
 
 				strands(i) = opt.get_read_strands();
 
