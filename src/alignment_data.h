@@ -17,8 +17,8 @@ public:
 	t_models const fwd_model;
 	t_models const rev_model;
 
-	t_positions const reads_start_postions;
-	t_positions const reads_end_postions;
+	t_positions const reads_start_positions;
+	t_positions const reads_end_positions;
 
 	t_position const offset;
 	t_position const sequence_length; //length of sequence
@@ -68,12 +68,12 @@ inline alignment_data::alignment_data(AlgorithmConfiguration const& config, std:
 	const_cast<t_position&>(this->offset) = starts.min();
 	const_cast<t_position&>(this->sequence_length) = ends.max() - starts.min() + 1;
 
-	const_cast<t_positions&>(this->reads_start_postions) = starts - offset;
-	const_cast<t_positions&>(this->reads_end_postions) = ends - offset;
+	const_cast<t_positions&>(this->reads_start_positions) = starts - offset;
+	const_cast<t_positions&>(this->reads_end_positions) = ends - offset;
 
 	t_counts coverage(sequence_length, arma::fill::zeros);
 	for (t_count i = 0; i < n_reads; ++i) {
-		coverage.subvec(reads_start_postions(i), reads_end_postions(i)) = coverage.subvec(reads_start_postions(i), reads_end_postions(i)) + 1;
+		coverage.subvec(reads_start_positions(i), reads_end_positions(i)) = coverage.subvec(reads_start_positions(i), reads_end_positions(i)) + 1;
 	}
 
 	t_base_subsets subsets(sequence_length, arma::fill::zeros);
@@ -102,8 +102,8 @@ inline alignment_data::alignment_data(AlgorithmConfiguration const& config, std:
 		tmp_like_terms(i, 0).set_size(L, 6);
 		tmp_like_terms(i, 1).set_size(L, 6);
 
-		for (t_position j = reads_start_postions(i);
-				j <= reads_end_postions(i); ++j) {
+		for (t_position j = reads_start_positions(i);
+				j <= reads_end_positions(i); ++j) {
 
 			//read numbers
 			if (tmp_read_numbers(j).is_empty()) {
@@ -114,7 +114,7 @@ inline alignment_data::alignment_data(AlgorithmConfiguration const& config, std:
 			++pos_read_count(j);
 
 			//log sums
-			t_position k = j - reads_start_postions(i);
+			t_position k = j - reads_start_positions(i);
 
 			t_base base = read.bases(k);
 			double epsilon = read.epsilon(k);

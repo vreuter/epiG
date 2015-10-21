@@ -218,9 +218,9 @@ void chunk_haplo_chain_optimizer::run() {
 			{
 
 				chunk_start_pos(i) = max(chunk_start_pos(i),
-						data.reads_start_postions.min() + data.offset);
+						data.reads_start_positions.min() + data.offset);
 				chunk_end_pos(i) = min(chunk_end_pos(i),
-						data.reads_end_postions.max() + data.offset);
+						data.reads_end_positions.max() + data.offset);
 
 				read_numbers(i) = data.read_numbers.subfield(
 						chunk_start_pos(i) - data.offset, 0,
