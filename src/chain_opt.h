@@ -100,8 +100,6 @@ inline void haplo_chain_optimizer::run(const abort_checker& ac) {
 	DEBUG_ENTER
 	TIMER_START
 
-	cout << "---------------------------------" << endl;
-
 	t_count change_count = optimize_profile(ac);
 
 	cout << change_count << " : " << h.posterior() << endl;
@@ -146,12 +144,18 @@ inline t_count haplo_chain_optimizer::optimize_profile(
 			t_index i_rev = argmax(loglike(1));
 
 			//check if any improvement
-			if (1e-5 >= loglike(0)(i_fwd) && 1e-5 >= loglike(1)(i_rev)) { //TODO configable threshold
+			if (1e-7 >= loglike(0)(i_fwd) && 1e-7 >= loglike(1)(i_rev)) { //TODO configable threshold
 				continue;
 			}
 
-			//Update haplotype chain of read pair
+			//Update haplotype chain
 			if(loglike(0)(i_fwd) > loglike(1)(i_rev)) {
+
+				if(1e-5 >= loglike(0)(i_fwd)) {
+					//No improvement
+
+				}
+
 				h.move(id, strand_fwd, feasible_haplotypes(i_fwd));
 			}
 

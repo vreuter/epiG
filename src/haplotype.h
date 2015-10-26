@@ -25,7 +25,7 @@ private:
 	double ref_no_match_prior_log;
 	double ref_match_prior_log;
 
-	arma::Col<double> haplochain_log_prior;
+	vec haplochain_log_prior;
 
 	field<vec> ref_priores;
 
@@ -41,14 +41,22 @@ private:
 			t_haplochain const old_chain) const;
 
 	void move_read(
+			t_haplochains & h,
+			t_strands & s,
+			t_positions & c_start,
+			t_positions & c_end,
 			t_index id,
 			t_strand strand,
-			t_haplochain to);
+			t_haplochain to) const;
 
 	void move_read_pair(
+			t_haplochains & h,
+			t_strands & s,
+			t_positions & c_start,
+			t_positions & c_end,
 			t_indices const& pair,
 			t_strand strand,
-			t_haplochain to);
+			t_haplochain to) const;
 
 	double compute_delta_posterior(
 			t_index const read_number,
@@ -92,6 +100,17 @@ private:
 	double compute_posterior(
 			t_haplochains const& h,
 			t_strands const& strands) const;
+
+	double compute_delta(
+			t_haplochains const& h,
+			t_strands const& s,
+			t_haplochains const& new_h,
+			t_strands const& new_s,
+			t_indices const& reads_in_region,
+			t_position region_start,
+			t_position region_end,
+			t_haplochain current_chain,
+			t_haplochain new_chain) const;
 
 	field<vec> compute_ref_priors() const;
 
@@ -146,6 +165,14 @@ public:
 
 	t_haplochains haplotypes() const {
 		return haplo;
+	}
+
+	t_strand strand(t_index id) const {
+		if(use_paired_reads) {
+			return read_strands(read_pairs[id](0));
+		}
+
+		return read_strands(id);
 	}
 
 	t_strands strands() const {
@@ -261,11 +288,11 @@ void haplotype::move(
 		t_haplochain to) {
 
 	if(use_paired_reads) {
-		move_read_pair(read_pairs[id], strand, to);
+		move_read_pair(haplo, read_strands, chain_start, chain_end, read_pairs[id], strand, to);
 		return;
 	}
 
-	move_read(id, strand, to);
+	move_read(haplo, read_strands, chain_start, chain_end, id, strand, to);
 }
 
 double haplotype::delta_posterior(
@@ -282,104 +309,112 @@ double haplotype::delta_posterior(
 }
 
 void haplotype::move_read(
+		t_haplochains & h,
+		t_strands & s,
+		t_positions & c_start,
+		t_positions & c_end,
 		t_index id,
 		t_strand strand,
-		t_haplochain to) {
+		t_haplochain to) const {
 
 	TIMER_START
 	DEBUG_ENTER
 
-	t_haplochain from = haplo(id);
+	t_haplochain from = h(id);
 
-	if(from == to && strand == read_strands(id)) {
+	if(from == to && strand == s(id)) {
 		return;
 	}
 
 	//Update haplo and strand
-	t_haplochain max_chain_old = max(haplo);
+	t_haplochain max_chain_old = max(h);
 
-	haplo(id) = to;
-	read_strands(id) = strand;
+	h(id) = to;
+	s(id) = strand;
 
-	update_haplotype_chain(haplo, from);
+	update_haplotype_chain(h, from);
 
 	//update chain start and end
 	if(to <= max_chain_old) {
-		chain_start(to) = min(chain_start(to), data.reads_start_positions(id));
-		chain_end(to) = max(chain_end(to), data.reads_end_positions(id));
+		c_start(to) = min(c_start(to), data.reads_start_positions(id));
+		c_end(to) = max(c_end(to), data.reads_end_positions(id));
 	}
 
-	t_indices reads_in_chain(find(haplo == from)); //TODO this could properly be done more efficient
+	t_indices reads_in_chain(find(h == from)); //TODO this could properly be done more efficient
 	if(reads_in_chain.n_elem > 0) {
-		chain_start(from) = min(data.reads_start_positions(reads_in_chain));
-    	chain_end(from) =  max(data.reads_end_positions(reads_in_chain));
+		c_start(from) = min(data.reads_start_positions(reads_in_chain));
+		c_end(from) =  max(data.reads_end_positions(reads_in_chain));
 	}
 
 	//Add new chains if any
-	chain_start.resize(max(haplo)+1);
-	chain_end.resize(max(haplo)+1);
+	c_start.resize(max(h)+1);
+	c_end.resize(max(h)+1);
 
-	for(t_haplochain chain = max_chain_old + 1; chain <= max(haplo); ++chain) {
+	for(t_haplochain chain = max_chain_old + 1; chain <= max(h); ++chain) {
 
 		if(chain == from) {
 			continue;
 		}
 
-		t_indices reads(find(haplo == chain)); //TODO this could properly be done more efficient
-		chain_start(chain) = min(data.reads_start_positions(reads));
-	    chain_end(chain) =  max(data.reads_end_positions(reads));
+		t_indices reads(find(h == chain)); //TODO this could properly be done more efficient
+		c_start(chain) = min(data.reads_start_positions(reads));
+		c_end(chain) =  max(data.reads_end_positions(reads));
 
 	}
 }
 
 
 void haplotype::move_read_pair(
+		t_haplochains & h,
+		t_strands & s,
+		t_positions & c_start,
+		t_positions & c_end,
 		t_indices const& pair,
 		t_strand strand,
-		t_haplochain to) {
+		t_haplochain to) const {
 
 	TIMER_START
 	DEBUG_ENTER
 
-	t_haplochain from = haplo(pair(0));
+	t_haplochain from = h(pair(0));
 
-	if(from == to && strand == read_strands(pair(0))) {
+	if(from == to && strand == s(pair(0))) {
 		return;
 	}
 
 	//Update haplo and strand
-	t_haplochain max_chain_old = max(haplo);
+	t_haplochain max_chain_old = max(h);
 
-	haplo(pair).fill(to);
-	read_strands(pair).fill(strand);
+	h(pair).fill(to);
+	s(pair).fill(strand);
 
-	update_haplotype_chain(read_pairs, haplo, from);
+	update_haplotype_chain(read_pairs, h, from);
 
 	//update chain start and end
 	if(to <= max_chain_old) {
-		chain_start(to) = min(chain_start(to), min(data.reads_start_positions(pair)));
-		chain_end(to) = max(chain_end(to), max(data.reads_end_positions(pair)));
+		c_start(to) = min(c_start(to), min(data.reads_start_positions(pair)));
+		c_end(to) = max(c_end(to), max(data.reads_end_positions(pair)));
 	}
 
-	t_indices reads_in_chain(find(haplo == from)); //TODO this could properly be done more efficient
+	t_indices reads_in_chain(find(h == from)); //TODO this could properly be done more efficient
 	if(reads_in_chain.n_elem > 0) {
-		chain_start(from) = min(data.reads_start_positions(reads_in_chain));
-		chain_end(from) =  max(data.reads_end_positions(reads_in_chain));
+		c_start(from) = min(data.reads_start_positions(reads_in_chain));
+		c_end(from) =  max(data.reads_end_positions(reads_in_chain));
 	}
 
 	//Add new chains if any
-	chain_start.resize(max(haplo)+1);
-	chain_end.resize(max(haplo)+1);
+	c_start.resize(max(h)+1);
+	c_end.resize(max(h)+1);
 
-	for(t_haplochain chain = max_chain_old + 1; chain <= max(haplo); ++chain) {
+	for(t_haplochain chain = max_chain_old + 1; chain <= max(h); ++chain) {
 
 		if(chain == from) {
 			continue;
 		}
 
-		t_indices reads(find(haplo == chain)); //TODO this could properly be done more efficient
-		chain_start(chain) = min(data.reads_start_positions(reads));
-	    chain_end(chain) =  max(data.reads_end_positions(reads));
+		t_indices reads(find(h == chain)); //TODO this could properly be done more efficient
+		c_start(chain) = min(data.reads_start_positions(reads));
+		c_end(chain) =  max(data.reads_end_positions(reads));
 
 	}
 }
@@ -494,6 +529,8 @@ double haplotype::compute_delta_posterior(
 
 	t_haplochains new_haplo(haplo); //TODO this is alot of copying
 	t_strands new_strands(read_strands); //TODO this is alot of copying
+	t_positions new_starts(chain_start);
+	t_positions new_ends(chain_end);
 
 	t_haplochain current_chain = haplo(read_number);
 
@@ -506,79 +543,13 @@ double haplotype::compute_delta_posterior(
 
 	t_indices reads_in_region = find(data.reads_start_positions <= region_end && data.reads_end_positions >= region_start);
 
-	double delta_posterior = 0;
+
+	//Create new haplo
+	move_read(new_haplo, new_strands, new_starts, new_ends, read_number, strand, new_chain);
 
 	//Compute posterior
-	new_haplo(read_number) = new_chain;
-	new_strands(read_number) = strand;
 
-	update_haplotype_chain(new_haplo, current_chain);
-
-	//current posterior
-	delta_posterior -= compute_prior_chain(haplo, current_chain);
-	delta_posterior -= compute_chain_loglike(haplo, read_strands, current_chain, reads_in_region, region_start, region_end);
-
-	//new posterior
-	delta_posterior += compute_prior_chain(new_haplo, current_chain);
-	delta_posterior += compute_chain_loglike(new_haplo, new_strands, current_chain, reads_in_region, region_start, region_end);
-
-	if(new_chain != current_chain) {
-		//current posterior
-		delta_posterior -= compute_prior_chain(haplo, new_chain);
-		delta_posterior -= compute_chain_loglike(haplo, read_strands, new_chain, reads_in_region, region_start, region_end);
-
-		//new posterior
-		delta_posterior += compute_prior_chain(new_haplo, new_chain);
-		delta_posterior += compute_chain_loglike(new_haplo, new_strands, new_chain, reads_in_region, region_start, region_end);
-
-	}
-
-	for(t_haplochain chain = max(haplo) + 1; chain <= max(new_haplo); ++chain) {
-
-		if(chain == new_chain) {
-			continue;
-		}
-
-		delta_posterior += compute_prior_chain(new_haplo, chain);
-		delta_posterior += compute_chain_loglike(new_haplo, new_strands, chain, reads_in_region, region_start, region_end);
-
-	}
-
-	//TODO debug guards
-//	if(fabs(delta_posterior - compute_posterior(new_haplo, new_strands) + compute_posterior(haplo, read_strands)) > 1e-5) {
-//
-//		cout << "chain : " << current_chain << " -> " << new_chain << endl;
-//		cout << "strand : " << read_strands(read_number) << " -> " << strand << endl;
-//
-//		cout << delta_posterior << " vs "  << compute_posterior(new_haplo, new_strands) - compute_posterior(haplo, read_strands) << endl;
-//
-//		for (t_index i = 0; i <= max(new_haplo); ++i) {
-//
-//			double a = compute_prior_chain(haplo, i);
-//			double b = compute_chain_loglike(haplo, read_strands, i);
-//			double c = compute_prior_chain(new_haplo, i);
-//			double d = compute_chain_loglike(new_haplo, new_strands, i);
-//			double e = compute_chain_loglike(haplo, read_strands, i, reads_in_region, region_start, region_end);
-//			double f = compute_chain_loglike(new_haplo, new_strands, i, reads_in_region, region_start, region_end);
-//
-//			if(a != c) {
-//				cout << i << " prior : " << a << " vs " << c << endl;
-//			}
-//
-//			if(b != d || e != f ) {
-//				cout << " ---------------------------- " << endl;
-//				cout << i << " logsum : " << b << " vs " << d << endl;
-//				cout << i << " logsum : " << e << " vs " << f << endl;
-//
-//			}
-//
-//
-//		}
-//
-//		throw std::runtime_error("compute_delta_posterior 1: Error");
-//	}
-
-	return delta_posterior;
+	return compute_delta(haplo, read_strands, new_haplo, new_strands, reads_in_region, region_start, region_end, current_chain, new_chain);
 }
 
 double haplotype::compute_delta_posterior(
@@ -588,9 +559,12 @@ double haplotype::compute_delta_posterior(
 		t_haplochain const new_chain) const {
 
 	TIMER_START
+	DEBUG_ENTER
 
 	t_haplochains new_haplo(haplo);
 	t_strands new_strands(read_strands); //TODO this is alot of copying
+	t_positions new_starts(chain_start);
+	t_positions new_ends(chain_end);
 
 	t_haplochain current_chain = haplo(pair(0));
 
@@ -603,54 +577,68 @@ double haplotype::compute_delta_posterior(
 
 	t_indices reads_in_region = find(pair_start_positions <= region_end && pair_end_positions >= region_start);
 
+	//create new haplo
+	move_read_pair(new_haplo, new_strands, new_starts, new_ends, pair, strand, new_chain);
 
-	//new posterior
-	new_haplo(pair).fill(new_chain);
-	new_strands(pair).fill(strand);
-	update_haplotype_chain(read_pairs, new_haplo, current_chain);
+	//Compute posterior
+	return compute_delta(haplo, read_strands, new_haplo, new_strands, reads_in_region, region_start, region_end, current_chain, new_chain);
+}
+
+
+double haplotype::compute_delta(
+		t_haplochains const& h,
+		t_strands const& s,
+		t_haplochains const& new_h,
+		t_strands const& new_s,
+		t_indices const& reads_in_region,
+		t_position region_start,
+		t_position region_end,
+		t_haplochain current_chain,
+		t_haplochain new_chain) const {
+
+	TIMER_START
+	DEBUG_ENTER
 
 	double delta_posterior = 0;
 
+
 	//current posterior
-	delta_posterior -= compute_prior_chain(haplo, current_chain);
-	delta_posterior -= compute_chain_loglike(haplo, read_strands, current_chain, reads_in_region, region_start, region_end);
+	delta_posterior -= compute_prior_chain(h, current_chain);
+	delta_posterior -= compute_chain_loglike(h, s, current_chain, reads_in_region, region_start, region_end);
 
 	//new posterior
-	delta_posterior += compute_prior_chain(new_haplo, current_chain);
-	delta_posterior += compute_chain_loglike(new_haplo, new_strands, current_chain, reads_in_region, region_start, region_end);
+	delta_posterior += compute_prior_chain(new_h, current_chain);
+	delta_posterior += compute_chain_loglike(new_h, new_s, current_chain, reads_in_region, region_start, region_end);
 
 	if(new_chain != current_chain) {
 		//current posterior
-		delta_posterior -= compute_prior_chain(haplo, new_chain);
-		delta_posterior -= compute_chain_loglike(haplo, read_strands, new_chain, reads_in_region, region_start, region_end);
+		delta_posterior -= compute_prior_chain(h, new_chain);
+		delta_posterior -= compute_chain_loglike(h, s, new_chain, reads_in_region, region_start, region_end);
 
 		//new posterior
-		delta_posterior += compute_prior_chain(new_haplo, new_chain);
-		delta_posterior += compute_chain_loglike(new_haplo, new_strands, new_chain, reads_in_region, region_start, region_end);
+		delta_posterior += compute_prior_chain(new_h, new_chain);
+		delta_posterior += compute_chain_loglike(new_h, new_s, new_chain, reads_in_region, region_start, region_end);
 
 	}
 
-	for(t_haplochain chain = max(haplo) + 1; chain <= max(new_haplo); ++chain) {
+	for(t_haplochain chain = max(h) + 1; chain <= max(new_h); ++chain) {
 
 		if(chain == new_chain) {
 			continue;
 		}
 
-		delta_posterior += compute_prior_chain(new_haplo, chain);
-		delta_posterior += compute_chain_loglike(new_haplo, new_strands, chain, reads_in_region, region_start, region_end);
+		delta_posterior += compute_prior_chain(new_h, chain);
+		delta_posterior += compute_chain_loglike(new_h, new_s, chain, reads_in_region, region_start, region_end);
 
 	}
 
-
 	//TODO debug guards
-//	if(fabs(delta_posterior - compute_posterior(new_haplo, new_strands) + compute_posterior(haplo, read_strands)) > 1e-5) {
-//		throw std::runtime_error("compute_delta_posterior 3: Error");
+//	if(fabs(delta_posterior - compute_posterior(new_h, new_s) + compute_posterior(h, s)) > 1e-5) {
+//		throw std::runtime_error("compute_delta_posterior 1: Error");
 //	}
-
 
 	return delta_posterior;
 }
-
 
 double haplotype::compute_chain_loglike(
 		t_haplochains const& h,
@@ -935,6 +923,7 @@ double haplotype::compute_prior_chain(
 		t_haplochain chain) const {
 
 	TIMER_START
+	DEBUG_ENTER
 
 	t_count reads_in_chain = sum(h == chain);
 
@@ -942,7 +931,7 @@ double haplotype::compute_prior_chain(
 		return 0;
 	}
 
-	return haplochain_log_prior(reads_in_chain-1);
+	return haplochain_log_prior(reads_in_chain);
 
 }
 

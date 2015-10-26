@@ -392,6 +392,7 @@ read.info <- function(object, ... ) UseMethod("read.info")
 
 #' read.info
 #' @param object 
+#' @param  inc.symbols 
 #' @param ... 
 #' @return ??
 #' 

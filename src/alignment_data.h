@@ -23,6 +23,8 @@ public:
 	t_position const offset;
 	t_position const sequence_length; //length of sequence
 
+	t_counts const read_depth; //vector of size sequence length
+
 	t_base_subsets const base_subsets; //vector of size (length of sequence)
 
 	arma::field<arma::mat> const loglike_terms; //field of size (number of reads) x 2
@@ -73,7 +75,7 @@ inline alignment_data::alignment_data(AlgorithmConfiguration const& config, std:
 
 	t_counts coverage(sequence_length, arma::fill::zeros);
 	for (t_count i = 0; i < n_reads; ++i) {
-		coverage.subvec(reads_start_positions(i), reads_end_positions(i)) = coverage.subvec(reads_start_positions(i), reads_end_positions(i)) + 1;
+		coverage.subvec(reads_start_positions(i), reads_end_positions(i)) += 1;
 	}
 
 	t_base_subsets subsets(sequence_length, arma::fill::zeros);
@@ -153,7 +155,7 @@ inline alignment_data::alignment_data(AlgorithmConfiguration const& config, std:
 	const_cast<t_indices&>(this->read_ids) = tmp_read_ids;
 	const_cast<std::vector<std::string>&>(this->read_names) = tmp_read_names;
 	const_cast<t_loglike_vector&>(this->log_pmax) = tmp_pmax;
-
+	const_cast<t_counts&>(this->read_depth) = coverage;
 }
 
 

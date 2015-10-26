@@ -76,23 +76,24 @@ create_bisulfite_model <- function(bisulfite_rates, bisulfite_inap_rate, Lmax) {
 	return(model)
 }
 
-create_haplo_prior <- function(delta, n_max){
+create_haplo_prior <- function(delta, n_reads){
 		
 	# Compute log haplochain prior values
-		
-	h <- vector()
-	h[1] <- -delta*log(2)
-	h[2] <- 2*h[1] + delta*log(2)
-	for(i in 3:n_max) {
-		h[i] = 2*h[i-1]-h[i-2]-delta*log((i-1)/i)
-	}
+	log_alpha <- -1/(1:n_reads)^delta	
 	
+	h <- vector()
+	h[1] <- log_alpha[1]
+	h[2] <- 2*h[1] - log_alpha[1]
+	for(i in 3:n_reads) {
+		h[i] = 2*h[i-1]-h[i-2]-log_alpha[i-1]
+	}
+		
 	return(h)
 
 } 
 
 
-auto_config <- function(bam_file, ref_file, alt_file, chr, start, end, use_paired_reads = FALSE, chunk_size = 15000) {
+auto_config <- function(bam_file, ref_file, alt_file, chr, start, end, use_paired_reads = FALSE, chunk_size = 15000, delta) {
 
 	reads <- fetch_reads_info(bam_file, chr, start, end)
 	
@@ -106,9 +107,33 @@ auto_config <- function(bam_file, ref_file, alt_file, chr, start, end, use_paire
 	min_overlap <- max(mean(reads$length) - 
 					quantile(diff(reads$start[seq(from = 1, to = nrow(reads), length.out = nrow(reads)/2)]), p = 0.95), 25)
 		
+	n_reads <- nrow(reads)
+	if(nrow(reads) > chunk_size) {
+		
+		warning("Number of reads in region exceeds chunk_size")
+		
+		n_reads <- chunk_size + 5000
+	}
+	
+	# Compute delta for structural prior
+#	a <- function(n, delta) -n^(-delta)
+#	critical <- 0.05*sum(reads$length)/(end-start+1)
+#	delta <- 1:100/20
+#	delta <- delta[which.min(abs(a(critical, delta)+0.2))]
+	
+	
+	#TODO only if verbose=TRUE + nicer output use data.frame + rounding
+	cat("Generating configuration with the following parameters:\n\n")
+	cat(paste(" bisulphite conversion rate (fixed) =", 0.95,"\n"))
+	cat(paste(" inappropriate bisulphite conversion rate (fixed) =", 0.05,"\n"))
+	cat(paste(" PCR error parameter (fixed) =", 0.25,"\n"))
+	cat(paste(" Reference prior (fixed) =", 0.95,"\n"))
+	cat(paste(" Min overlap length (computed) =", as.integer(min_overlap),"\n"))
+	cat(paste(" Structural prior delta (computed) =", delta,"\n"))
+
 	config <- epiG.algorithm.config(
 			model = model,
-			log_haplo_prior = create_haplo_prior(1, chunk_size + 5000),
+			log_haplo_prior = create_haplo_prior(delta = delta, n_reads),
 			ref_prior = .99,
 			min_overlap_length = min_overlap,
 			reads_hard_limit = chunk_size + 5000,
