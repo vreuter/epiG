@@ -111,6 +111,7 @@ SEXP epiG_haplo_fit_filename(SEXP r_filename, SEXP r_refGenom_filename, SEXP r_a
 	res.attach(rObject(opt.get_haplotypes()), "haplotypes");
 	res.attach(rObject(opt.get_strands()), "strands");
 	res.attach(rObject(opt.get_genotypes()), "genotypes");
+	res.attach(rObject(opt.get_loglikes()), "loglikes");
 	res.attach(rObject(opt.get_chain_start()), "chain_start");
 	res.attach(rObject(opt.get_chain_end()), "chain_end");
 
@@ -169,6 +170,7 @@ SEXP epiG_haplo_fit_filename_chunks(SEXP r_filename, SEXP r_refGenom_filename, S
 	res.attach(rObject(opt.get_haplotypes()), "haplotypes");
 	res.attach(rObject(opt.get_strands()), "strands");
 	res.attach(rObject(opt.get_genotypes()), "genotypes");
+	res.attach(rObject(opt.get_loglikes()), "loglikes");
 	res.attach(rObject(opt.get_chain_start()), "chain_start");
 	res.attach(rObject(opt.get_chain_end()), "chain_end");
 

@@ -36,6 +36,7 @@ private:
 	field<t_haplochains> haplotypes;
 	field<t_strands> strands;
 	field<field<Col<t_epi_base> > > genotypes;
+	field<field<mat> > loglikes;
 	field<t_positions> chain_starts;
 	field<t_positions> chain_ends;
 
@@ -65,6 +66,10 @@ public:
 
 	field<field<Col<t_epi_base> > > get_genotypes() const {
 		return genotypes;
+	}
+
+	field<field<mat> > get_loglikes() const {
+		return loglikes;
 	}
 
 	field<t_positions> get_chain_start() const {
@@ -106,7 +111,7 @@ chunk_haplo_chain_optimizer::chunk_haplo_chain_optimizer(
 		altGenom_filename(altGenom_filename), refNames(refNames), offset(
 				chunk_start_positions.min()), max_threads(max_threads), config(
 				config), bam_file(bam_file), read_numbers(number_of_chunks), read_ids(number_of_chunks), read_names(number_of_chunks), haplotypes(
-				number_of_chunks), strands(number_of_chunks), genotypes(number_of_chunks),
+				number_of_chunks), strands(number_of_chunks), genotypes(number_of_chunks), loglikes(number_of_chunks),
 				chain_starts(number_of_chunks), chain_ends(number_of_chunks),
 				chunk_start_pos(chunk_start_positions), chunk_end_pos(chunk_end_positions),
 				n_reads_hard_limit(config.reads_hard_limit) {
@@ -231,6 +236,8 @@ void chunk_haplo_chain_optimizer::run() {
 				strands(i) = opt.get_read_strands();
 
 				genotypes(i) = opt.get_chain_genotypes();
+
+				loglikes(i) = opt.get_chain_loglikes();
 
 				chain_starts(i) = opt.haplo_chain_start() + data.offset ;
 

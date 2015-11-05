@@ -106,21 +106,6 @@ auto_config <- function(bam_file, ref_file, alt_file, chr, start, end, use_paire
 	
 	min_overlap <- max(mean(reads$length) - 
 					quantile(diff(reads$start[seq(from = 1, to = nrow(reads), length.out = nrow(reads)/2)]), p = 0.95), 25)
-		
-	n_reads <- nrow(reads)
-	if(nrow(reads) > chunk_size) {
-		
-		warning("Number of reads in region exceeds chunk_size")
-		
-		n_reads <- chunk_size + 5000
-	}
-	
-	# Compute delta for structural prior
-#	a <- function(n, delta) -n^(-delta)
-#	critical <- 0.05*sum(reads$length)/(end-start+1)
-#	delta <- 1:100/20
-#	delta <- delta[which.min(abs(a(critical, delta)+0.2))]
-	
 	
 	#TODO only if verbose=TRUE + nicer output use data.frame + rounding
 	cat("Generating configuration with the following parameters:\n\n")
@@ -133,7 +118,7 @@ auto_config <- function(bam_file, ref_file, alt_file, chr, start, end, use_paire
 
 	config <- epiG.algorithm.config(
 			model = model,
-			log_haplo_prior = create_haplo_prior(delta = delta, n_reads),
+			log_haplo_prior = create_haplo_prior(delta = delta, chunk_size + 5000),
 			ref_prior = .99,
 			min_overlap_length = min_overlap,
 			reads_hard_limit = chunk_size + 5000,

@@ -47,6 +47,11 @@ public:
 		return h.genotypes();
 	}
 
+	field<mat> get_chain_loglikes() const {
+			return h.loglikes();
+	}
+
+
 	t_positions haplo_chain_start() const {
 		return h.starts();
 	}
@@ -102,7 +107,7 @@ inline void haplo_chain_optimizer::run(const abort_checker& ac) {
 
 	t_count change_count = optimize_profile(ac);
 
-	cout << change_count << " : " << h.posterior() << endl;
+//	cout << change_count << " : " << h.posterior() << endl;
 
 	h.chain_clean();
 

@@ -94,6 +94,7 @@ epiG <- function(filename, refname, start, end, max_threads = 8L, config, refGen
 		levels(res.chunks[[i]]$strands) <- c("fwd", "rev")
 		
 		res.chunks[[i]]$genotypes <-  lapply(res$genotypes[[i]], function(x) as.integer(x + 1))
+		res.chunks[[i]]$loglikes <- res$loglikes[[i]]
 				
 		res.chunks[[i]]$length <- res$chunks_end[i] - res.chunks[[i]]$offset + 1
 		
@@ -159,6 +160,7 @@ epiG.chunks <- function(filename, refnames, chunks_start, chunks_end, max_thread
 		levels(res.chunks[[i]]$strands) <- c("fwd", "rev")
 		
 		res.chunks[[i]]$genotypes <-  lapply(res$genotypes[[i]], function(x) as.integer(x + 1))
+		res.chunks[[i]]$loglikes <- res$loglikes[[i]]
 		
 		res.chunks[[i]]$length <- as.integer(res$chunks_end[i] - res.chunks[[i]]$offset + 1)
 		

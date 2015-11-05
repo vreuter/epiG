@@ -160,8 +160,12 @@ public:
 
 	t_genotype compute_chain_genotype(t_haplochain const chain) const;
 
+	mat compute_chain_loglike(t_haplochain const chain) const;
+
 	//getters
 	field<t_genotype> genotypes() const;
+
+	field<mat> loglikes() const;
 
 	t_haplochains haplotypes() const {
 		return haplo;
@@ -832,6 +836,34 @@ t_genotype haplotype::compute_chain_genotype(t_haplochain const chain) const {
 
 }
 
+mat haplotype::compute_chain_loglike(t_haplochain const chain) const {
+
+	t_indices reads_in_chain = find(haplo == chain);
+
+	if (reads_in_chain.n_elem == 0) {
+		return 0;
+	}
+
+	//find start, end pos of chain
+	t_positions starts = data.reads_start_positions(reads_in_chain);
+	t_positions ends = data.reads_end_positions(reads_in_chain);
+
+	t_position chain_start = min(starts);
+	t_position chain_end = max(ends);
+
+	mat loglike_term(chain_end - chain_start + 1, 6, fill::zeros);
+
+	t_indices::const_iterator r = reads_in_chain.begin();
+	for (; r != reads_in_chain.end(); ++r) {
+		t_position const read_start = data.reads_start_positions(*r);
+		t_position const read_end = data.reads_end_positions(*r);
+
+		loglike_term.rows(read_start - chain_start, read_end - chain_start) += data.loglike_terms(*r, read_strands(*r));
+	}
+
+	return loglike_term;
+}
+
 void haplotype::compute_genotype(
 		mat const& loglike_term,
 		t_position pos,
@@ -873,7 +905,20 @@ field<t_genotype> haplotype::genotypes() const {
 			genotypes(i) = compute_chain_genotype(unique_chains(i));
 		}
 
-	return(genotypes);
+	return genotypes;
+}
+
+field<mat> haplotype::loglikes() const {
+
+	t_haplochains unique_chains = sort(unique(haplo));
+
+	field<mat> loglikes(unique_chains.n_elem);
+
+		for (t_index i = 0; i < unique_chains.n_elem; ++i) {
+			loglikes(i) = compute_chain_loglike(unique_chains(i));
+		}
+
+	return loglikes;
 }
 
 t_haplochains haplotype::compute_feasible_haplotypes(t_index id) const {

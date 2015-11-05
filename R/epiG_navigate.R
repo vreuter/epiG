@@ -177,6 +177,59 @@ genotype.epiG <- function(object, pos, remove.meth = FALSE, ...) {
 	
 }
 
+#' genotype
+#' @param object 
+#' @param pos 
+#' @param ... 
+#' @return ??
+#' 
+#' @author Martin Vincent
+#' @export
+loglike <- function(object, pos, ... ) UseMethod("loglike")
+
+#' genotype
+#' codeing C = 1, G = 2, A = 3, T = 4
+#' @param object 
+#' @param pos 
+#' @param remove.meth 
+#' @param ... 
+#' @return ??
+#' 
+#' @author Martin Vincent
+#' @method genotype epiG
+#' @export
+loglike.epiG <- function(object, pos, ...) {
+	
+	if(length(pos) > 1) {
+		stop("pos must have length 1")
+	}
+	
+	if(paste(class(object), collapse = ".") == "epiG") {
+		
+		if(start(object) > pos || end(object) < pos) {
+			stop("Position not in range")
+		}
+		
+		collected <- sapply(1:length(object$loglike), 
+				function(i) if((pos - object$haplotype$start)[i] >= 0 && (object$haplotype$end[i] - pos) >= 0) 
+						object$loglike[[i]][(pos - object$haplotype$start)[i]+1,] else rep(NA,6))
+		
+		colnames(collected) <- 1:length(object$loglike)
+		
+		rownames(collected) <- c("C", "G", "A", "T", "c", "g")
+		
+		return(collected[,apply(collected, 2, function(x) all(!is.na(x))), drop = FALSE])
+	}
+	
+	
+	if(paste(class(object), collapse = ".") == "epiG.chunks") {
+		stop("Not yet implemented for chunks")
+	}
+	
+	stop("Unknown class")
+	
+}
+
 #' coverage
 #' @param object 
 #' @param pos 
@@ -249,6 +302,31 @@ position.info <- function(object, pos, ... ) UseMethod("position.info")
 			})
 }
 
+.ratio <- function(loglike, g) {
+	
+	if(g == 0) return(NA)
+	
+	if(g == 1) {
+		return(2*(max(loglike[-c(1,5)]) - max(loglike[c(1,5)])))
+	}
+	
+	if(g == 2) {
+		return(2*(max(loglike[-c(2,6)]) - max(loglike[c(2,6)])))
+	}
+	
+	
+	if(g == 3) {
+		return(2*(max(loglike[-3]) - max(loglike[3])))
+	}
+
+	if(g == 4) {
+		return(2*(max(loglike[-4]) - max(loglike[4])))
+	}
+	
+	# We should nerver get to this point
+	stop("Internal errro")
+}
+
 #' position.info
 #' @param object 
 #' @param pos 
@@ -279,8 +357,18 @@ position.info.epiG <- function(object, pos, ...) {
 		
 		if(coverage(object, pos) == 0) {
 			#Return data.frame
-			return(data.frame(position = pos, chain.id = NA, ref = NA, alt = NA, 
-							genotype = NA, methylated = NA, nreads = NA, nreads.fwd = NA, nreads.rev = NA))
+			return(data.frame(
+							position = pos, 
+							chain.id = NA, 
+							ref = NA, 
+							alt = NA, 
+							genotype = NA, 
+							fit.ratio = NA,
+							ref.ratio = NA,
+							methylated = NA, 
+							nreads = NA, 
+							nreads.fwd = NA, 
+							nreads.rev = NA))
 		}	
 		
 		chains <- object$haplotype$chain[object$read_ids[[pos - start(object)+1]]]
@@ -289,9 +377,17 @@ position.info.epiG <- function(object, pos, ...) {
 		cid <- sort(unique(chains))
 		nfwd <- sapply(cid, function(i) sum(strands[chains == i] == "fwd"))
 		nrev <- sapply(cid, function(i) sum(strands[chains == i] == "rev"))
+		g <- genotype(object, pos, remove.meth = TRUE)
+		ll <- loglike(object, pos)
 		
-		info.df <- data.frame(position = pos, chain.id = cid, ref = NA, alt = NA, 
-				genotype = symbols(genotype(object, pos, remove.meth = TRUE))[as.character(cid)], 
+		info.df <- data.frame(
+				position = pos, 
+				chain.id = cid, 
+				ref = NA, 
+				alt = NA, 
+				genotype = symbols(g)[as.character(cid)], 
+				fit.ratio = sapply(as.character(cid), function(x) .ratio(ll[,x], g[x])),
+				ref.ratio = NA,
 				methylated =.methylation.status(genotype(object, pos, remove.meth = FALSE)[as.character(cid)], nfwd, nrev),  
 				nreads = sapply(cid, function(x) sum(chains == x)),
 				nreads.fwd = nfwd,
@@ -299,11 +395,15 @@ position.info.epiG <- function(object, pos, ...) {
 		)
 				
 		if(!is.null(object[["ref"]])) {
-			info.df$ref <- symbols(object$ref[pos - object$offset + 1])
+			ref <- object$ref[pos - object$offset + 1]
+			info.df$ref <- symbols(ref)
+			info.df$ref.ratio = sapply(as.character(cid), function(x) .ratio(ll[,x], ref))
+			
 		} 
 		
 		if(!is.null(object[["alt"]])) {
-			info.df$alt <- symbols(object$alt[pos - object$offset + 1])
+			alt <- object$alt[pos - object$offset + 1]
+			info.df$alt <- symbols(alt)			
 		} 
 		
 		return(info.df)
@@ -416,8 +516,8 @@ read.info.epiG <- function(object, inc.symbols = FALSE, ...) {
 						position = object$reads$position[idx]:(object$reads$position[idx]+object$reads$length[idx]-1) + object$offset, 
 						symbol = symbols(object$reads$reads[[idx]]), 
 						read.id = idx, quality = object$reads$quality[[idx]],
-						chain.id=object$haplotype$chain[idx], 
-						strand=object$strands[idx])
+						chain.id = object$haplotype$chain[idx], 
+						strand = object$strands[idx])
 			
 				info <- rbind(info, tmp)	
 			}
@@ -428,8 +528,8 @@ read.info.epiG <- function(object, inc.symbols = FALSE, ...) {
 						end = object$reads$position+object$reads$length-1 + object$offset,
 						length = object$reads$length,
 						read.id = 1:nread(object),
-						chain.id=object$haplotype$chain, 
-						strand=object$strands
+						chain.id = object$haplotype$chain, 
+						strand = object$strands
 					)
 		}
 	
@@ -573,7 +673,7 @@ subregion <- function(object, start, end, chop.reads = FALSE, ... ) UseMethod("s
 #' @method subregion epiG
 #' @export
 subregion.epiG <- function(object, start, end, chop.reads = FALSE, ...) {
-	
+		
 	if(paste(class(object), collapse = ".") == "epiG") {
 
 		if(end < start(object) || start > end(object)) {
@@ -630,11 +730,13 @@ subregion.epiG <- function(object, start, end, chop.reads = FALSE, ...) {
 		new_object$haplotype$end <- sapply(object$haplotype$end[remaining_chains], function(x) min(end, x))
 		
 		new_object$genotypes <- list()
+		new_object$loglikes <- list()
 		for(i in remaining_chains) {
 				chain_rel_start_pos <- max(start, object$haplotype$start[i]) - object$haplotype$start[i]
 				chain_rel_end_pos <- min(end, object$haplotype$end[i]) - object$haplotype$start[i]
 				
-				new_object$genotypes[[length(new_object$genotypes)+1]] <- object$genotypes[[i]][chain_rel_start_pos:chain_rel_end_pos+1]				
+				new_object$genotypes[[length(new_object$genotypes)+1]] <- object$genotypes[[i]][chain_rel_start_pos:chain_rel_end_pos+1]		
+				new_object$loglikes[[length(new_object$loglikes)+1]] <- object$loglikes[[i]][chain_rel_start_pos:chain_rel_end_pos+1,]				
 		}
 	
 		# Reads
