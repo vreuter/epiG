@@ -153,7 +153,11 @@ fetch_ref <- function(object) {
 #' @author martin
 #' @export
 read.fasta <- function(filename, refname, start, len) {
-	return(.Call(r_epiG_read_fasta, filename, refname, as.integer(start), as.integer(len)))
+	return(.Call(r_epiG_read_fasta, 
+					as.character(filename), 
+					as.character(refname), 
+					as.integer(start), 
+					as.integer(len)))
 }
 
 #' fetch_alt

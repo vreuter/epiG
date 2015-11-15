@@ -37,6 +37,10 @@
 #' @useDynLib epiG r_epiG_haplo_fit_filename_chunks
 epiG <- function(filename, refname, start, end, max_threads = 8L, config, refGenom_filename = config$ref.filename, altGenom_filename = config$alt.filename) {
 	
+	if( ! is.character(refname)) {
+		stop("refname must be a character string")
+	}
+	
 	if(start >= end) {
 		stop("end must be larger than start")
 	}

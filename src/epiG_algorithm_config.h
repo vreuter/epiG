@@ -61,6 +61,9 @@ public:
 	const t_models fwd_model;
 	const t_models rev_model;
 
+	const t_models fwd_GpC_model;
+	const t_models rev_GpC_model;
+
     const t_count reads_hard_limit;
 
 	const arma::Col<double> haplochain_log_prior;
@@ -70,6 +73,8 @@ public:
     const t_position min_overlap_length;
 
     bool const use_paired_reads;
+
+    bool const NOMEseq_mode;
 
 	bool const verbose;
 
@@ -81,6 +86,10 @@ public:
 
 			rev_model(getConfigList<t_model>(config, "rev_model")),
 
+			fwd_GpC_model(getConfigList<t_model>(config, "fwd_GpC_model")),
+
+			rev_GpC_model(getConfigList<t_model>(config, "rev_GpC_model")),
+
             reads_hard_limit(getConfigAttribute<t_count>(config, "reads_hard_limit")),
 
             haplochain_log_prior(getConfigAttribute<arma::Col<double> >(config, "log_haplo_prior")),
@@ -90,6 +99,8 @@ public:
             min_overlap_length(getConfigAttribute<t_position>(config, "min_overlap_length")),
 
 			use_paired_reads(getConfigAttribute<bool>(config, "use_paired_reads")),
+
+			NOMEseq_mode(getConfigAttribute<bool>(config, "NOMEseq_mode")),
 
 			verbose(getConfigAttribute<bool>(config, "verbose")) {
 	}

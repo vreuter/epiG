@@ -93,7 +93,18 @@ create_haplo_prior <- function(delta, n_reads){
 } 
 
 
-auto_config <- function(bam_file, ref_file, alt_file, chr, start, end, use_paired_reads = FALSE, chunk_size = 15000, delta) {
+auto_config <- function(
+		bam_file,
+		ref_file, 
+		alt_file, 
+		chr, 
+		start, 
+		end, 
+		use_paired_reads = FALSE, 
+		NOMEseq_mode = FALSE,
+		chunk_size = 15000, 
+		delta = NULL, 
+		min_overlap = NULL) {
 
 	reads <- fetch_reads_info(bam_file, chr, start, end)
 	
@@ -104,9 +115,16 @@ auto_config <- function(bam_file, ref_file, alt_file, chr, start, end, use_paire
 	model$fwd <- lapply(model$fwd, function(x) pcr.model %*% x)
 	model$rev <- lapply(model$rev, function(x) pcr.model %*% x)
 	
-	min_overlap <- max(mean(reads$length) - 
-					quantile(diff(reads$start[seq(from = 1, to = nrow(reads), length.out = nrow(reads)/2)]), p = 0.95), 25)
+	if(is.null(delta)) {
+		delta <- 1
+	}
 	
+	if(is.null(min_overlap)) {
+	
+		min_overlap <- max(mean(reads$length) - 
+					quantile(diff(reads$start[seq(from = 1, to = nrow(reads), length.out = nrow(reads)/2)]), p = 0.95), 25)
+	}
+
 	#TODO only if verbose=TRUE + nicer output use data.frame + rounding
 	cat("Generating configuration with the following parameters:\n\n")
 	cat(paste(" bisulphite conversion rate (fixed) =", 0.95,"\n"))
@@ -118,7 +136,7 @@ auto_config <- function(bam_file, ref_file, alt_file, chr, start, end, use_paire
 
 	config <- epiG.algorithm.config(
 			model = model,
-			log_haplo_prior = create_haplo_prior(delta = delta, chunk_size + 5000),
+			log_haplo_prior = create_haplo_prior(delta = delta, min(nrow(readsc), chunk_size + 5000)),
 			ref_prior = .99,
 			min_overlap_length = min_overlap,
 			reads_hard_limit = chunk_size + 5000,
@@ -164,6 +182,7 @@ epiG.algorithm.config <- function(
 		chunk_method = "reads", 
 		reads_hard_limit = 7500,
 		use_paired_reads = FALSE,
+		NOMEseq_mode = FALSE,
 		verbose = TRUE) {
 	
 	#TODO check config valid
@@ -192,11 +211,21 @@ epiG.algorithm.config <- function(
 	config$min_overlap_length <- as.integer(min_overlap_length)
 	
 	config$use_paired_reads <- use_paired_reads
+	
+	config$NOMEseq_mode <- NOMEseq_mode
 		
 	config$verbose <- verbose
 	
 	config$log_haplo_prior <- log_haplo_prior
-				
+	
+	config$fwd_GpC_model <- list(matrix(0))
+	config$rev_GpC_model <- list(matrix(0))
+	
+	if(NOMEseq_mode) {
+		config$fwd_GpC_model <- model$fwd_GpC
+		config$rev_GpC_model <- model$rev_GpC
+	} 
+	
 	class(config) <- "epiG.config"
 	
 	return(config)

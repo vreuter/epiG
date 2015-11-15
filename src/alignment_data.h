@@ -17,6 +17,10 @@ public:
 	t_models const fwd_model;
 	t_models const rev_model;
 
+	t_models const fwd_GpC_model;
+	t_models const rev_GpC_model;
+
+
 	t_positions const reads_start_positions;
 	t_positions const reads_end_positions;
 
@@ -36,15 +40,29 @@ public:
 	t_indices const read_ids; //Reads ids
 	std::vector<std::string> const read_names; //name of reads -- matching with read_id
 
-    alignment_data(AlgorithmConfiguration const& config, std::vector<aligned_read> const& reads, t_count hard_limit);
+    alignment_data(
+    		AlgorithmConfiguration const& config,
+    		std::vector<aligned_read> const& reads,
+			std::string const refGenom_filename,
+			std::string const refName,
+			t_count hard_limit);
 
 };
 
-inline alignment_data::alignment_data(AlgorithmConfiguration const& config, std::vector<aligned_read> const& reads, t_count hard_limit) :
-        n_reads(min(static_cast<t_count>(reads.size()), hard_limit)),
-		fwd_model(config.fwd_model), rev_model(config.rev_model),
-		offset(0), sequence_length(0),
-		read_names(n_reads) {
+inline alignment_data::alignment_data(
+		AlgorithmConfiguration const& config,
+		std::vector<aligned_read> const& reads,
+		std::string const refGenom_filename,
+		std::string const refName,
+		t_count hard_limit) :
+        		n_reads(min(static_cast<t_count>(reads.size()), hard_limit)),
+				fwd_model(config.fwd_model),
+				rev_model(config.rev_model),
+				fwd_GpC_model(config.fwd_GpC_model),
+				rev_GpC_model(config.rev_GpC_model),
+				offset(0),
+				sequence_length(0),
+				read_names(n_reads) {
 
 	if(reads.empty()) {
 		throw std::runtime_error("No reads");
@@ -72,6 +90,10 @@ inline alignment_data::alignment_data(AlgorithmConfiguration const& config, std:
 
 	const_cast<t_positions&>(this->reads_start_positions) = starts - offset;
 	const_cast<t_positions&>(this->reads_end_positions) = ends - offset;
+
+	//Load ref
+    t_seq_bases ref = create_bases_vector(read_fasta(refGenom_filename, refName, offset, sequence_length+1));
+
 
 	t_counts coverage(sequence_length, arma::fill::zeros);
 	for (t_count i = 0; i < n_reads; ++i) {
@@ -130,14 +152,34 @@ inline alignment_data::alignment_data(AlgorithmConfiguration const& config, std:
 				tmp_like_terms(i, 1).row(k).fill(0.25);
 
 			} else {
-				//fwd strand
-				tmp_loglike_terms(i, 0).row(k) = log((1-4/static_cast<double>(3)*epsilon)*fwd_model(k).row(base-1) + epsilon/static_cast<double>(3));
 
-				//rev strand
-				tmp_loglike_terms(i, 1).row(k) = log((1-4/static_cast<double>(3)*epsilon)*rev_model(k).row(base-1) + epsilon/static_cast<double>(3));
+				if(config.NOMEseq_mode && ((ref(j) == 2 && ref(j+1) == 1) || (j > 0 && ref(j-1) == 2 && ref(j) == 1)))	{
 
-				tmp_like_terms(i, 0).row(k) = (1-4/static_cast<double>(3)*epsilon)*fwd_model(k).row(base-1) + epsilon/static_cast<double>(3);
-				tmp_like_terms(i, 1).row(k) = (1-4/static_cast<double>(3)*epsilon)*rev_model(k).row(base-1) + epsilon/static_cast<double>(3);
+					// GpC context
+					//fwd strand
+					tmp_loglike_terms(i, 0).row(k) = log((1-4/static_cast<double>(3)*epsilon)*fwd_GpC_model(k).row(base-1) + epsilon/static_cast<double>(3));
+
+					//rev strand
+					tmp_loglike_terms(i, 1).row(k) = log((1-4/static_cast<double>(3)*epsilon)*rev_GpC_model(k).row(base-1) + epsilon/static_cast<double>(3));
+
+					tmp_like_terms(i, 0).row(k) = (1-4/static_cast<double>(3)*epsilon)*fwd_GpC_model(k).row(base-1) + epsilon/static_cast<double>(3);
+					tmp_like_terms(i, 1).row(k) = (1-4/static_cast<double>(3)*epsilon)*rev_GpC_model(k).row(base-1) + epsilon/static_cast<double>(3);
+
+				}
+
+				else {
+					//Non GpC context or normal mode
+
+					//fwd strand
+					tmp_loglike_terms(i, 0).row(k) = log((1-4/static_cast<double>(3)*epsilon)*fwd_model(k).row(base-1) + epsilon/static_cast<double>(3));
+
+					//rev strand
+					tmp_loglike_terms(i, 1).row(k) = log((1-4/static_cast<double>(3)*epsilon)*rev_model(k).row(base-1) + epsilon/static_cast<double>(3));
+
+					tmp_like_terms(i, 0).row(k) = (1-4/static_cast<double>(3)*epsilon)*fwd_model(k).row(base-1) + epsilon/static_cast<double>(3);
+					tmp_like_terms(i, 1).row(k) = (1-4/static_cast<double>(3)*epsilon)*rev_model(k).row(base-1) + epsilon/static_cast<double>(3);
+
+				}
 			}
 
 			//Position marks

@@ -182,15 +182,15 @@ void chunk_haplo_chain_optimizer::run() {
 						<< n_reads_hard_limit << " reads are used.";
 				warnings.add(msg.str());
 			}
-
-			std::vector<aligned_read> const& reads = reader.get_reads();
-			alignment_data data(config, reads, n_reads_hard_limit);
+	        //Load and prepare data
+	        std::vector<aligned_read> const& reads = reader.get_reads();
+	        alignment_data data(config, reads, refGenom_filename, refNames(i), n_reads_hard_limit);
 
 			//Load ref
-	        t_seq_bases ref = create_bases_vector(read_fasta(refGenom_filename, refNames(i), data.offset, data.sequence_length));
+	        t_seq_bases ref = create_bases_vector(read_fasta(refGenom_filename, refNames(i), data.offset, data.sequence_length+1));
 
 	        //TODO append 0's (unknowns) + error -> warning
-	        if (ref.n_elem != static_cast<unsigned int>(data.sequence_length)) {
+	        if (ref.n_elem != static_cast<unsigned int>(data.sequence_length+1)) {
 				throw std::runtime_error("Problem with refGenom"); //TODO error msg
 			}
 
