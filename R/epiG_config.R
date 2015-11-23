@@ -110,8 +110,8 @@ auto_config <- function(
 	
 	### Create bisulfite model
 	#TODO auto detimen bisulfite rates
-	model <- create_bisulfite_model(bisulfite_rate = .95, bisulfite_inap_rate = 0.05, Lmax = max(reads$length))
-	pcr.model <- create_pcr_model(rate = 0.25)
+	model <- create_bisulfite_model(bisulfite_rate = .95, bisulfite_inap_rate = 0.01, Lmax = max(reads$length))
+	pcr.model <- create_pcr_model(rate = 0.20)
 	model$fwd <- lapply(model$fwd, function(x) pcr.model %*% x)
 	model$rev <- lapply(model$rev, function(x) pcr.model %*% x)
 	
@@ -128,15 +128,15 @@ auto_config <- function(
 	#TODO only if verbose=TRUE + nicer output use data.frame + rounding
 	cat("Generating configuration with the following parameters:\n\n")
 	cat(paste(" bisulphite conversion rate (fixed) =", 0.95,"\n"))
-	cat(paste(" inappropriate bisulphite conversion rate (fixed) =", 0.05,"\n"))
-	cat(paste(" PCR error parameter (fixed) =", 0.25,"\n"))
-	cat(paste(" Reference prior (fixed) =", 0.95,"\n"))
+	cat(paste(" inappropriate bisulphite conversion rate (fixed) =", 0.01,"\n"))
+	cat(paste(" PCR error parameter (fixed) =", 0.20,"\n"))
+	cat(paste(" Reference prior (fixed) =", 0.99,"\n"))
 	cat(paste(" Min overlap length (computed) =", as.integer(min_overlap),"\n"))
 	cat(paste(" Structural prior delta (computed) =", delta,"\n"))
 
 	config <- epiG.algorithm.config(
 			model = model,
-			log_haplo_prior = create_haplo_prior(delta = delta, min(nrow(readsc), chunk_size + 5000)),
+			log_haplo_prior = create_haplo_prior(delta = delta, min(nrow(reads), chunk_size + 5000)),
 			ref_prior = .99,
 			min_overlap_length = min_overlap,
 			reads_hard_limit = chunk_size + 5000,

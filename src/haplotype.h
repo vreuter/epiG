@@ -116,6 +116,23 @@ private:
 
 	void init(double ref_prior);
 
+	bool is_CG(t_position pos) const {
+		return (ref(pos) == 1 && ref(pos+1) == 2);
+	}
+
+	bool is_GC(t_position pos) const {
+		return (ref(pos) == 2 && ref(pos+1) == 1);
+	}
+
+	bool is_HCGD(t_position pos) const {
+		return (pos > 0 && ref(pos-1) != 2 && ref(pos) == 1 && ref(pos+1) == 2 && ref(pos+2) != 1);
+	}
+
+	bool is_DGCH(t_position pos) const {
+		return (pos > 0 && ref(pos-1) != 1 && ref(pos) == 2 && ref(pos+1) == 1 && ref(pos+2) != 2);
+	}
+
+
 public:
 
 	bool use_paired_reads;
@@ -772,34 +789,41 @@ double haplotype::compute_logsum(
 	logsum.each_row() = trans(ref_priores(ref(pos+1), alt(pos+1))) + loglike_term.row(1);
 	logsum.each_col() += ref_priores(ref(pos), alt(pos)) + trans(loglike_term.row(0));
 
-	if(NOMEseq_mode && ((pos > 0 && ref(pos-1) != 1 && ref(pos) == 2 && ref(pos+1) == 1 && ref(pos+2) != 2)
-			|| (pos > 1 && ref(pos-2) != 1 && ref(pos-1) == 2 && ref(pos) == 1 && ref(pos+1) != 2)))	{
+	if(NOMEseq_mode && is_DGCH(pos)) {
 
-		// DGCH context
+		// DGCH
 		//rule out half methylated genotypes
 		logsum(5, 0) = -1 * std::numeric_limits<float>::infinity();
 		logsum(1, 4) = -1 * std::numeric_limits<float>::infinity();
+
 	}
 
-	else if(NOMEseq_mode && ((ref(pos) == 2 && ref(pos+1) == 1) || (pos > 0 && ref(pos-1) == 2 && ref(pos) == 1)))	{
+	else if(NOMEseq_mode && is_HCGD(pos)) {
+
+		logsum(0, 5) = -1 * std::numeric_limits<float>::infinity();
+		logsum(4, 1) = -1 * std::numeric_limits<float>::infinity();
+
+	}
+
+	else if(NOMEseq_mode &&  (ref(pos) == 1 || ref(pos) == 2 || ref(pos+1) == 1 || ref(pos+1) == 2))	{
 
 		//GCG CGC context
-		//Ignore
+		//Ignore return 0
 
 		return 0;
 
-	}
+		}
 
 	else {
 
-		//Non GpC context or normal mode
+		//Non GpC or CpG context or normal mode
 
 		//rule out half methylated genotypes
 		logsum(0, 5) = -1 * std::numeric_limits<float>::infinity();
 		logsum(4, 1) = -1 * std::numeric_limits<float>::infinity();
 
-
 	}
+
 
 	return logsum.max();
 }
@@ -855,10 +879,8 @@ t_genotype haplotype::compute_chain_genotype(t_haplochain const chain) const {
 				loglike_term.rows(pos - chain_start, pos - chain_start + 1),
 				pos,
 				genotype(pos-chain_start),
-				g);
+				genotype(pos+1-chain_start));
 	}
-
-	genotype(chain_end - chain_start) = g;
 
 	return genotype;
 
@@ -909,35 +931,34 @@ void haplotype::compute_genotype(
 	logsum.each_row() = trans(ref_priores(ref(pos+1), alt(pos+1))) + loglike_term.row(1);
 	logsum.each_col() += ref_priores(ref(pos), alt(pos)) + trans(loglike_term.row(0));
 
-	if(NOMEseq_mode && ((pos > 0 && ref(pos-1) != 1 && ref(pos) == 2 && ref(pos+1) == 1 && ref(pos+2) != 2)
-			|| (pos > 1 && ref(pos-2) != 1 && ref(pos-1) == 2 && ref(pos) == 1 && ref(pos+1) != 2)))	{
+	if(NOMEseq_mode && is_DGCH(pos)) {
 
-		// DGCH context
+		// DGCH
 		//rule out half methylated genotypes
 		logsum(5, 0) = -1 * std::numeric_limits<float>::infinity();
 		logsum(1, 4) = -1 * std::numeric_limits<float>::infinity();
+
 	}
 
-	else if(NOMEseq_mode && ((ref(pos) == 2 && ref(pos+1) == 1) || (pos > 0 && ref(pos-1) == 2 && ref(pos) == 1)))	{
+	else if(NOMEseq_mode && is_HCGD(pos)) {
 
-		//GCG CGC context
-		//Ignore return ref
+		logsum(0, 5) = -1 * std::numeric_limits<float>::infinity();
+		logsum(4, 1) = -1 * std::numeric_limits<float>::infinity();
 
-		g1 = static_cast<t_epi_base>(ref(pos)-1);
-		g2 = static_cast<t_epi_base>(ref(pos+1)-1);
+	}
 
+	else if(NOMEseq_mode && pos > 0 && (is_DGCH(pos-1) || is_HCGD(pos-1))) {
+		//ignor
 		return;
-
 	}
 
 	else {
 
-		//Non GpC context or normal mode
+		//Non GpC or CpG context or normal mode
 
 		//rule out half methylated genotypes
 		logsum(0, 5) = -1 * std::numeric_limits<float>::infinity();
 		logsum(4, 1) = -1 * std::numeric_limits<float>::infinity();
-
 
 	}
 
