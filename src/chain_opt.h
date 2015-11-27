@@ -3,10 +3,18 @@
 
 class haplo_chain_optimizer {
 
+	//Data
+	AlgorithmConfiguration const& config;
+	alignment_data const& data;
+	t_seq_bases const& ref;
+	t_seq_bases const& alt;
+
 	haplotype h;
 
 	//Algorithm configurations
 	t_count const max_iterations;
+
+	bool const dual_stage;
 
 	template<typename abort_checker>
 	t_count optimize_profile(abort_checker const& ac);
@@ -86,8 +94,14 @@ inline haplo_chain_optimizer::haplo_chain_optimizer(
 		t_seq_bases const& ref,
 		t_seq_bases const& alt,
 		bool use_paired_reads_dummy) :
+				config(config),
+				data(data),
+				ref(ref),
+				alt(alt),
 				h(config, data, ref, alt, config.min_overlap_length, config.haplochain_log_prior, find_read_pairs(data)),
-				max_iterations(config.max_iterations) {
+				dual_stage(config.dual_stage_mode),
+				max_iterations(config.max_iterations)
+				{
 }
 
 inline haplo_chain_optimizer::haplo_chain_optimizer(
@@ -95,7 +109,12 @@ inline haplo_chain_optimizer::haplo_chain_optimizer(
 		alignment_data const& data,
 		t_seq_bases const& ref,
 		t_seq_bases const& alt) :
+				config(config),
+				data(data),
+				ref(ref),
+				alt(alt),
 				h(config, data, ref, alt, config.min_overlap_length, config.haplochain_log_prior),
+				dual_stage(config.dual_stage_mode),
 				max_iterations(config.max_iterations) {
 }
 
@@ -108,6 +127,17 @@ inline void haplo_chain_optimizer::run(const abort_checker& ac) {
 	t_count change_count = optimize_profile(ac);
 
 //	cout << change_count << " : " << h.posterior() << endl;
+
+	h.chain_clean();
+
+	if(dual_stage) {
+
+		h.set_blocks(h);
+		h.set_haplochain_prior(config.haplochain_log_prior_2);
+		h.set_min_overlap(config.min_overlap_length_2);
+
+		optimize_profile(ac);
+	}
 
 	h.chain_clean();
 
@@ -139,7 +169,6 @@ inline t_count haplo_chain_optimizer::optimize_profile(
 
 			//field 0 - fwd , 1 - rev
 			field<t_loglike_vector> loglike = profile_posterior(id, feasible_haplotypes);
-
 
 			if (!is_finite(loglike(0)) || !is_finite(loglike(1))) {
 				throw std::runtime_error("optimize_profile - internal error");

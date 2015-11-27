@@ -73,5 +73,5 @@ typedef field<t_model> t_models;
 
 typedef Col<double>::fixed<15> t_prior_vector; //TODO
 
-static const std::vector<t_indices> null_read_pairs;
+static const std::vector<t_indices> null_read_blocks;
 #endif /* TYPES_HPP_ */

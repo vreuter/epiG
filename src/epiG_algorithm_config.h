@@ -67,12 +67,16 @@ public:
     const t_count reads_hard_limit;
 
 	const arma::Col<double> haplochain_log_prior;
+	const arma::Col<double> haplochain_log_prior_2;
 
     const double ref_prior;
 
     const t_position min_overlap_length;
+    const t_position min_overlap_length_2;
 
     bool const use_paired_reads;
+
+    bool const dual_stage_mode;
 
     bool const NOMEseq_mode;
 
@@ -94,13 +98,19 @@ public:
 
             haplochain_log_prior(getConfigAttribute<arma::Col<double> >(config, "log_haplo_prior")),
 
+            haplochain_log_prior_2(getConfigAttribute<arma::Col<double> >(config, "log_haplo_prior_2")),
+
             ref_prior(getConfigAttribute<double>(config, "ref_prior")),
 
             min_overlap_length(getConfigAttribute<t_position>(config, "min_overlap_length")),
 
+			min_overlap_length_2(getConfigAttribute<t_position>(config, "min_overlap_length_2")),
+
 			use_paired_reads(getConfigAttribute<bool>(config, "use_paired_reads")),
 
 			NOMEseq_mode(getConfigAttribute<bool>(config, "NOMEseq_mode")),
+
+			dual_stage_mode(getConfigAttribute<bool>(config, "dual_stage_mode")),
 
 			verbose(getConfigAttribute<bool>(config, "verbose")) {
 	}
