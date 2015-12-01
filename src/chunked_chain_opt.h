@@ -24,9 +24,10 @@ public:
 
 	t_count const max_threads;
 
-	AlgorithmConfiguration const config;
+	field<AlgorithmConfiguration> const configs;
 
 private:
+
 	std::string bam_file;
 
 	field<field<t_indices> > read_numbers; // one for each chunk
@@ -43,16 +44,17 @@ private:
 	t_positions chunk_start_pos;
 	t_positions chunk_end_pos;
 
-	long unsigned int n_reads_hard_limit;
-
 public:
 
-	chunk_haplo_chain_optimizer(std::string const& bam_file,
-			std::string const& refGenom_filename, std::string const& altGenom_filename,
+	chunk_haplo_chain_optimizer(
+			std::string const& bam_file,
+			std::string const& refGenom_filename,
+			std::string const& altGenom_filename,
 			field<std::string> const& refNames,
 			t_positions const& chunk_start_positions,
-			t_positions const& chunk_end_positions, t_count max_threads,
-			AlgorithmConfiguration const& config);
+			t_positions const& chunk_end_positions,
+			t_count max_threads,
+			field<AlgorithmConfiguration> const& configs);
 
 	void run();
 
@@ -103,21 +105,37 @@ public:
 };
 
 chunk_haplo_chain_optimizer::chunk_haplo_chain_optimizer(
-		std::string const& bam_file, std::string const& refGenom_filename, std::string const& altGenom_filename,
-		field<std::string> const& refNames, t_positions const& chunk_start_positions,
-		t_positions const& chunk_end_positions, t_count max_threads,
-		AlgorithmConfiguration const& config) :
-		number_of_chunks(chunk_start_positions.n_elem), refGenom_filename(refGenom_filename),
-		altGenom_filename(altGenom_filename), refNames(refNames), offset(
-				chunk_start_positions.min()), max_threads(max_threads), config(
-				config), bam_file(bam_file), read_numbers(number_of_chunks), read_ids(number_of_chunks), read_names(number_of_chunks), haplotypes(
-				number_of_chunks), strands(number_of_chunks), genotypes(number_of_chunks), loglikes(number_of_chunks),
-				chain_starts(number_of_chunks), chain_ends(number_of_chunks),
-				chunk_start_pos(chunk_start_positions), chunk_end_pos(chunk_end_positions),
-				n_reads_hard_limit(config.reads_hard_limit) {
+		std::string const& bam_file,
+		std::string const& refGenom_filename,
+		std::string const& altGenom_filename,
+		field<std::string> const& refNames,
+		t_positions const& chunk_start_positions,
+		t_positions const& chunk_end_positions,
+		t_count max_threads,
+		field<AlgorithmConfiguration> const& configs) :
+				number_of_chunks(chunk_start_positions.n_elem),
+				refGenom_filename(refGenom_filename),
+				altGenom_filename(altGenom_filename),
+				refNames(refNames),
+				offset(chunk_start_positions.min()),
+				max_threads(max_threads),
+				configs(configs),
+				bam_file(bam_file),
+				read_numbers(number_of_chunks),
+				read_ids(number_of_chunks),
+				read_names(number_of_chunks),
+				haplotypes(number_of_chunks),
+				strands(number_of_chunks),
+				genotypes(number_of_chunks),
+				loglikes(number_of_chunks),
+				chain_starts(number_of_chunks),
+				chain_ends(number_of_chunks),
+				chunk_start_pos(chunk_start_positions),
+				chunk_end_pos(chunk_end_positions) {
 
 	//TODO domain check consistency of chunk positions
 	//refnames length =n_chunks
+	// length configs = n_chunks
 
 	//Check refs avaialbe and build fai index files if needed
 	read_fasta(refGenom_filename, refNames(0), 1, 2);
@@ -127,7 +145,7 @@ chunk_haplo_chain_optimizer::chunk_haplo_chain_optimizer(
 void chunk_haplo_chain_optimizer::run() {
 
 	// create progress monitor
-	Progress p(number_of_chunks, config.verbose);
+	Progress p(number_of_chunks, configs(0).verbose);
 
 	//Warnings
 	omp_rwarn warnings;
@@ -137,6 +155,9 @@ void chunk_haplo_chain_optimizer::run() {
 #pragma omp parallel for schedule(dynamic)
 #endif
 	for (t_count i = 0; i < number_of_chunks; ++i) {
+
+		const AlgorithmConfiguration config(configs(i));
+		long unsigned int n_reads_hard_limit = config.reads_hard_limit;
 
 		if (!p.is_aborted()) {
 
@@ -254,10 +275,16 @@ void chunk_haplo_chain_optimizer::run() {
 
 }
 
-chunk_haplo_chain_optimizer create_base_chunk_optimizer(std::string const& bam_file,
-		std::string const& refGenom_filename, std::string const& altGenom_filename, std::string const& refName, t_position start_position, t_position end_position,
+
+chunk_haplo_chain_optimizer create_base_chunk_optimizer(
+		std::string const& bam_file,
+		std::string const& refGenom_filename,
+		std::string const& altGenom_filename,
+		std::string const& refName,
+		t_position start_position,
+		t_position end_position,
 		t_count max_threads, t_position chunk_size,
-		AlgorithmConfiguration const& config) {
+		field<AlgorithmConfiguration> const& configs) {
 
 	t_count number_of_chunks = ceil(
 			(end_position - start_position + 1)
@@ -284,7 +311,27 @@ chunk_haplo_chain_optimizer create_base_chunk_optimizer(std::string const& bam_f
 		refNames(i) = refName;
 	}
 
-	return chunk_haplo_chain_optimizer(bam_file, refGenom_filename, altGenom_filename, refNames, chunk_start_pos, chunk_end_pos, max_threads, config);
+	return chunk_haplo_chain_optimizer(bam_file, refGenom_filename, altGenom_filename, refNames, chunk_start_pos, chunk_end_pos, max_threads, configs);
+}
+
+
+chunk_haplo_chain_optimizer create_base_chunk_optimizer(
+		std::string const& bam_file,
+		std::string const& refGenom_filename,
+		std::string const& altGenom_filename,
+		std::string const& refName,
+		t_position start_position,
+		t_position end_position,
+		t_count max_threads,
+		t_position chunk_size,
+		AlgorithmConfiguration const & config) {
+
+	field<AlgorithmConfiguration> configs(1);
+	configs(0) = config;
+
+	return create_base_chunk_optimizer(bam_file, refGenom_filename, altGenom_filename,
+			refName, start_position, end_position,
+			max_threads, chunk_size, configs);
 }
 
 #endif /* CHUNK_OPTIMIZER_HPP_ */

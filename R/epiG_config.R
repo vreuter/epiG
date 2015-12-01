@@ -105,10 +105,40 @@ auto_config <- function(
 		chunk_size = 15000, 
 		delta = NULL, 
 		delta_2 = NULL, 
-		min_overlap = NULL) {
+		min_overlap = NULL,
+		min_overlap_2 = NULL) {
 
+	if(length(chr) != length(start) || length(chr) != length(end) || length(start) != length(end)) {
+		stop("length of chr, start and end must be equal")
+	}
+	
+	if(length(chr) > 1) {
+		
+		confs <- lapply(1:length(chr), function(i) auto_config(
+							bam_file, 
+							ref_file, 
+							alt_file, 
+							chr[i], 
+							start[i], 
+							end[i], 
+							use_paired_reads,
+							NOMEseq_mode,
+							chunk_size,
+							delta,
+							delta_2,
+							min_overlap,
+							min_overlap_2))
+		
+		
+		return(confs[ ! sapply(confs, is.null)])
+	}
+	
 	reads <- fetch_reads_info(bam_file, chr, start, end)
 	
+	if(nrow(reads) == 0) {
+		warning("No reads found") #TODO more info
+		return (NULL)
+	}
 	### Create bisulfite model
 	#TODO auto detimen bisulfite rates
 	model <- create_bisulfite_model(bisulfite_rate = .95, bisulfite_inap_rate = 0.05, Lmax = max(reads$length))
@@ -141,7 +171,7 @@ auto_config <- function(
 			log_haplo_prior_2 = if( ! is.null(delta_2)) create_haplo_prior(delta = delta_2, min(nrow(reads)+1, chunk_size + 5000)) else numeric(),
 			ref_prior = .99,
 			min_overlap_length = min_overlap,
-			min_overlap_length_2 = min_overlap,
+			min_overlap_length_2 = if(is.null(min_overlap_2)) min_overlap else min_overlap_2,
 			reads_hard_limit = chunk_size + 5000,
 			chunk_size = chunk_size,
 			use_paired_reads = use_paired_reads,
@@ -149,6 +179,8 @@ auto_config <- function(
 			ref.file = ref_file,
 			alt.file = alt_file
 	)
+	
+	config <- add_run_configuration(config, bam_file, chr, start, end)
 	
 	return(config)
 }	
@@ -240,6 +272,16 @@ epiG.algorithm.config <- function(
 	} 
 	
 	class(config) <- "epiG.config"
+	
+	return(config)
+}
+
+add_run_configuration <- function(config, filename, refname, start, end) {
+	
+	config$filename <- filename
+	config$start <- start
+	config$end <- end
+	config$refname <- refname
 	
 	return(config)
 }

@@ -56,31 +56,33 @@ class AlgorithmConfiguration {
 
 public:
 
-	const t_count max_iterations; //max number of iterations per optim loop
+	t_count max_iterations; //max number of iterations per optim loop
 
-	const t_models fwd_model;
-	const t_models rev_model;
+	t_models fwd_model;
+	t_models rev_model;
 
-	const t_models fwd_GpC_model;
-	const t_models rev_GpC_model;
+	t_models fwd_GpC_model;
+	t_models rev_GpC_model;
 
-    const t_count reads_hard_limit;
+    t_count reads_hard_limit;
 
-	const arma::Col<double> haplochain_log_prior;
-	const arma::Col<double> haplochain_log_prior_2;
+	arma::Col<double> haplochain_log_prior;
+	arma::Col<double> haplochain_log_prior_2;
 
-    const double ref_prior;
+    double ref_prior;
 
-    const t_position min_overlap_length;
-    const t_position min_overlap_length_2;
+    t_position min_overlap_length;
+    t_position min_overlap_length_2;
 
-    bool const use_paired_reads;
+    bool use_paired_reads;
 
-    bool const dual_stage_mode;
+    bool dual_stage_mode;
 
-    bool const NOMEseq_mode;
+    bool NOMEseq_mode;
 
-	bool const verbose;
+	bool verbose;
+
+	AlgorithmConfiguration() {}
 
 	AlgorithmConfiguration(rList const& config) :
 
@@ -114,6 +116,8 @@ public:
 
 			verbose(getConfigAttribute<bool>(config, "verbose")) {
 	}
+
+
 };
 
 #endif /* EPIG_ALGORITHM_CONFIG_H_ */

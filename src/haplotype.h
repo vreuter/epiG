@@ -218,7 +218,6 @@ public:
 void haplotype::set_blocks(haplotype const& h) {
 
 	DEBUG_ENTER
-	cout << "set blocks" << endl;
 
 	std::vector<t_indices> blocks;
 	t_haplochains const hc = h.haplotypes();
@@ -237,30 +236,40 @@ void haplotype::set_blocks(haplotype const& h) {
 		}
 	}
 
-	haplo = h.haplotypes();
-	read_strands = h.strands();
-
 	chain_start.set_size(blocks.size());
 	chain_end.set_size(blocks.size());
-
-	const_cast<std::vector<t_indices> &>(read_blocks) = blocks;
-	const_cast<bool&>(use_read_blocks) = true;
-	const_cast<t_count&>(n_elements) = blocks.size();
 
 	t_positions block_start_positions_tmp(data.n_reads);
 	t_positions block_end_positions_tmp(data.n_reads);
 
-	for(t_index i = 0; i < read_blocks.size(); ++i) {
+	for(t_index i = 0; i < blocks.size(); ++i) {
 
 				// set start and end of chain
-				chain_start(i) = min(data.reads_start_positions(read_blocks[i]));
-				chain_end(i) = max(data.reads_end_positions(read_blocks[i]));
+				chain_start(i) = min(data.reads_start_positions(blocks[i]));
+				chain_end(i) = max(data.reads_end_positions(blocks[i]));
 
 				// set block start position
-				block_start_positions_tmp(read_blocks[i]).fill(chain_start(i));
-				block_end_positions_tmp(read_blocks[i]).fill(chain_end(i));
+				block_start_positions_tmp(blocks[i]).fill(chain_start(i));
+				block_end_positions_tmp(blocks[i]).fill(chain_end(i));
 
 			}
+
+	//Reorder blocks such that they are arraigned with increasing start position
+	uvec idx = sort_index(chain_start);
+	std::vector<t_indices> blocks_ordered;
+	for(t_index i = 0; i < idx.n_elem; ++i) {
+		blocks_ordered.push_back(blocks[idx(i)]);
+		haplo(blocks[idx(i)]).fill(i);
+	}
+
+	read_strands = h.strands();
+
+	chain_start = chain_start(idx);
+	chain_end = chain_end(idx);
+
+	const_cast<bool&>(use_read_blocks) = true;
+	const_cast<t_count&>(n_elements) = blocks_ordered.size();
+	const_cast<std::vector<t_indices> &>(read_blocks) = blocks_ordered;
 
 	const_cast<t_positions&>(block_start_positions) = block_start_positions_tmp;
 	const_cast<t_positions&>(block_end_positions) = block_end_positions_tmp;

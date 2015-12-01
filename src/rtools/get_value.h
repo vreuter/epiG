@@ -21,10 +21,8 @@
 
 template<typename type>
 type get_value(SEXP exp) {
-	// no code should go here
-	// Type unsupported => error here
-	const type error_type_not_defined;
-	&error_type_not_defined = 0;
+	//deafult get_value
+	return type(exp);
 }
 
 template<>
@@ -142,6 +140,7 @@ arma::sp_mat get_value(SEXP exp) {
 	return m;
 }
 
+
 template<typename type>
 arma::field<type> get_field(SEXP exp) {
 
@@ -154,5 +153,6 @@ arma::field<type> get_field(SEXP exp) {
 
 	return res;
 }
+
 
 #endif /* GET_VALUE_H_ */

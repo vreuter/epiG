@@ -35,7 +35,14 @@
 #' @export
 #' @useDynLib epiG r_epiG_haplo_fit_filename
 #' @useDynLib epiG r_epiG_haplo_fit_filename_chunks
-epiG <- function(filename, refname, start, end, max_threads = 8L, config, refGenom_filename = config$ref.filename, altGenom_filename = config$alt.filename) {
+epiG <- function(config, max_threads = 8L) {
+	
+	refGenom_filename = config$ref.filename
+	altGenom_filename = config$alt.filename
+	start <- config$start
+	end <- config$end
+	refname <- config$refname
+	filename <- config$filename
 	
 	if( ! is.character(refname)) {
 		stop("refname must be a character string")
@@ -128,15 +135,22 @@ epiG <- function(filename, refname, start, end, max_threads = 8L, config, refGen
 #' @author martin
 #' @export
 #' @useDynLib epiG r_epiG_haplo_fit_filename_chunks
-epiG.chunks <- function(filename, refnames, chunks_start, chunks_end, max_threads = 8L, config, refGenom_filename = config$ref.filename, altGenom_filename = config$alt.filename) {
+epiG.chunks <- function(configs, max_threads = 8L) {
 	
-	refnames <- as.list(refnames)
-	
-	if(length(refnames) != length(chunks_start)) {
-		stop("length of refnames not equal to the number of chunks")
+	if(class(configs) == "epiG.config") {
+		stop("configs should be a list of configurations")
 	}
 	
-	res <- .Call(r_epiG_haplo_fit_filename_chunks, filename, refGenom_filename, altGenom_filename, refnames,  as.integer(chunks_start),  as.integer(chunks_end), as.integer(max_threads), config)
+	refGenom_filename = configs[[1]]$ref.filename
+	altGenom_filename = configs[[1]]$alt.filename
+	filename = configs[[1]]$filename
+	
+	chunks_start <- sapply(configs, function(x) x$start)
+	chunks_end <- sapply(configs, function(x) x$end)
+	refnames <- lapply(configs, function(x) x$refname)
+
+	
+	res <- .Call(r_epiG_haplo_fit_filename_chunks, filename, refGenom_filename, altGenom_filename, refnames,  as.integer(chunks_start),  as.integer(chunks_end), as.integer(max_threads), configs)
 	
 	n_chunks <- res$number_of_chunks
 	
@@ -149,7 +163,8 @@ epiG.chunks <- function(filename, refnames, chunks_start, chunks_end, max_thread
 		res.chunks[[i]]$epiG_version <- packageVersion("epiG")
 		res.chunks[[i]]$date <- date()
 		
-		res.chunks[[i]]$config <- config
+		res.chunks[[i]]$config <- configs[[i]]
+
 		res.chunks[[i]]$filename <- filename
 		res.chunks[[i]]$refname <- refnames[[i]]
 		
