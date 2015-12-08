@@ -59,6 +59,9 @@ epiG <- function(config, max_threads = 8L) {
 		res <- .Call(r_epiG_haplo_fit_filename, filename, refGenom_filename, altGenom_filename, refname,  as.integer(start),  as.integer(end), as.integer(max_threads), as.integer(config$chunk_size), config)
 		
 	} else if(config$chunk.method == "reads")  {
+		
+		#FIXME list of config files
+		
 		s <- compute_chunk_positions(filename, refname, as.integer(start), as.integer(end), as.integer(config$chunk_size))
 		
 		if(length(s) >= 2) {

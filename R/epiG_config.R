@@ -130,7 +130,7 @@ auto_config <- function(
 							min_overlap_2))
 		
 		
-		return(confs[ ! sapply(confs, is.null)])
+		return(confs)
 	}
 	
 	reads <- fetch_reads_info(bam_file, chr, start, end)
