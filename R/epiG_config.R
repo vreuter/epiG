@@ -142,9 +142,22 @@ auto_config <- function(
 	### Create bisulfite model
 	#TODO auto detimen bisulfite rates
 	model <- create_bisulfite_model(bisulfite_rate = .95, bisulfite_inap_rate = 0.05, Lmax = max(reads$length))
-	pcr.model <- create_pcr_model(rate = 0.25)
-	model$fwd <- lapply(model$fwd, function(x) pcr.model %*% x)
-	model$rev <- lapply(model$rev, function(x) pcr.model %*% x)
+	
+	#pcr.model <- create_pcr_model(rate = 0.25)
+	
+	model$fwd <- model$fwd #lapply(model$fwd, function(x) pcr.model %*% x)
+	model$rev <- model$rev #lapply(model$rev, function(x) pcr.model %*% x)
+	
+	#TODO auto nomeseq mode
+	model$fwd_HCGD <- model$fwd
+	model$rev_HCGD <- model$rev
+	
+	model$fwd_DGCH <- model$fwd
+	model$rev_DGCH <- model$rev 
+	
+	model$fwd_C_G <- model$fwd
+	model$rev_C_G <- model$rev
+	
 	
 	if(is.null(delta)) {
 		delta <- 1
@@ -236,9 +249,17 @@ epiG.algorithm.config <- function(
 	config$max_iterations <- as.integer(max_iterations)
 	
 	config$fwd_model <- model$fwd
-	
 	config$rev_model <- model$rev
 		
+	config$fwd_DGCH_model <- model$fwd_DGCH
+	config$rev_DGCH_model <- model$rev_DGCH
+	
+	config$fwd_HCGD_model <- model$fwd_HCGD 
+	config$rev_HCGD_model <- model$rev_HCGD
+	
+	config$fwd_C_G_model <- model$fwd_C_G 
+	config$rev_C_G_model <- model$rev_C_G
+	
 	config$chunk_size <- chunk_size
 	
 	config$chunk.method <- chunk_method

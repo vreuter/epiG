@@ -17,9 +17,14 @@ public:
 	t_models const fwd_model;
 	t_models const rev_model;
 
-	t_models const fwd_GpC_model;
-	t_models const rev_GpC_model;
+	t_models const fwd_DGCH_model;
+	t_models const rev_DGCH_model;
 
+	t_models const fwd_HCGD_model;
+	t_models const rev_HCGD_model;
+
+	t_models const fwd_C_G_model;
+	t_models const rev_C_G_model;
 
 	t_positions const reads_start_positions;
 	t_positions const reads_end_positions;
@@ -40,6 +45,14 @@ public:
 	t_indices const read_ids; //Reads ids
 	std::vector<std::string> const read_names; //name of reads -- matching with read_id
 
+	static bool is_HCGD(t_position pos, t_seq_bases const& ref) {
+		return (pos > 0 && ref(pos-1) != 2 && ref(pos) == 1 && ref(pos+1) == 2 && ref(pos+2) != 1);
+	}
+
+	static bool is_DGCH(t_position pos, t_seq_bases const& ref) {
+		return (pos > 0 && ref(pos-1) != 1 && ref(pos) == 2 && ref(pos+1) == 1 && ref(pos+2) != 2);
+	}
+
     alignment_data(
     		AlgorithmConfiguration const& config,
     		std::vector<aligned_read> const& reads,
@@ -58,8 +71,12 @@ inline alignment_data::alignment_data(
         		n_reads(min(static_cast<t_count>(reads.size()), hard_limit)),
 				fwd_model(config.fwd_model),
 				rev_model(config.rev_model),
-				fwd_GpC_model(config.fwd_GpC_model),
-				rev_GpC_model(config.rev_GpC_model),
+				fwd_DGCH_model(config.fwd_DGCH_model),
+				rev_DGCH_model(config.rev_DGCH_model),
+				fwd_HCGD_model(config.fwd_HCGD_model),
+				rev_HCGD_model(config.rev_HCGD_model),
+				fwd_C_G_model(config.fwd_C_G_model),
+				rev_C_G_model(config.rev_C_G_model),
 				offset(0),
 				sequence_length(0),
 				read_names(n_reads) {
@@ -92,7 +109,7 @@ inline alignment_data::alignment_data(
 	const_cast<t_positions&>(this->reads_end_positions) = ends - offset;
 
 	//Load ref
-    t_seq_bases ref = create_bases_vector(read_fasta(refGenom_filename, refName, offset, sequence_length+1));
+    t_seq_bases ref = create_bases_vector(read_fasta(refGenom_filename, refName, offset, sequence_length+2));
 
 
 	t_counts coverage(sequence_length, arma::fill::zeros);
@@ -153,18 +170,39 @@ inline alignment_data::alignment_data(
 
 			} else {
 
-				if(config.NOMEseq_mode && ((ref(j) == 2 && ref(j+1) == 1) || (j > 0 && ref(j-1) == 2 && ref(j) == 1)))	{
-
-					// GpC context
+				if(config.NOMEseq_mode && j > 0 && (is_DGCH(j, ref) || (j > 1 && is_DGCH(j-1, ref)))) {
+					//DGCH
 					//fwd strand
-					tmp_loglike_terms(i, 0).row(k) = log((1-4/static_cast<double>(3)*epsilon)*fwd_GpC_model(k).row(base-1) + epsilon/static_cast<double>(3));
+					tmp_loglike_terms(i, 0).row(k) = log((1-4/static_cast<double>(3)*epsilon)*fwd_DGCH_model(k).row(base-1) + epsilon/static_cast<double>(3));
 
 					//rev strand
-					tmp_loglike_terms(i, 1).row(k) = log((1-4/static_cast<double>(3)*epsilon)*rev_GpC_model(k).row(base-1) + epsilon/static_cast<double>(3));
+					tmp_loglike_terms(i, 1).row(k) = log((1-4/static_cast<double>(3)*epsilon)*rev_DGCH_model(k).row(base-1) + epsilon/static_cast<double>(3));
 
-					tmp_like_terms(i, 0).row(k) = (1-4/static_cast<double>(3)*epsilon)*fwd_GpC_model(k).row(base-1) + epsilon/static_cast<double>(3);
-					tmp_like_terms(i, 1).row(k) = (1-4/static_cast<double>(3)*epsilon)*rev_GpC_model(k).row(base-1) + epsilon/static_cast<double>(3);
+					tmp_like_terms(i, 0).row(k) = (1-4/static_cast<double>(3)*epsilon)*fwd_DGCH_model(k).row(base-1) + epsilon/static_cast<double>(3);
+					tmp_like_terms(i, 1).row(k) = (1-4/static_cast<double>(3)*epsilon)*rev_DGCH_model(k).row(base-1) + epsilon/static_cast<double>(3);
 
+				}
+
+				else if(config.NOMEseq_mode && j > 0 && (is_HCGD(j, ref) || (j > 1 && is_HCGD(j-1, ref)))) {
+					//HCGD
+					tmp_loglike_terms(i, 0).row(k) = log((1-4/static_cast<double>(3)*epsilon)*fwd_HCGD_model(k).row(base-1) + epsilon/static_cast<double>(3));
+
+					//rev strand
+					tmp_loglike_terms(i, 1).row(k) = log((1-4/static_cast<double>(3)*epsilon)*rev_HCGD_model(k).row(base-1) + epsilon/static_cast<double>(3));
+
+					tmp_like_terms(i, 0).row(k) = (1-4/static_cast<double>(3)*epsilon)*fwd_HCGD_model(k).row(base-1) + epsilon/static_cast<double>(3);
+					tmp_like_terms(i, 1).row(k) = (1-4/static_cast<double>(3)*epsilon)*rev_HCGD_model(k).row(base-1) + epsilon/static_cast<double>(3);
+				}
+
+				else if(config.NOMEseq_mode && (ref(j) == 1 || ref(j) == 2)) {
+					//GC CG or single C G
+					tmp_loglike_terms(i, 0).row(k) = log((1-4/static_cast<double>(3)*epsilon)*fwd_C_G_model(k).row(base-1) + epsilon/static_cast<double>(3));
+
+					//rev strand
+					tmp_loglike_terms(i, 1).row(k) = log((1-4/static_cast<double>(3)*epsilon)*rev_C_G_model(k).row(base-1) + epsilon/static_cast<double>(3));
+
+					tmp_like_terms(i, 0).row(k) = (1-4/static_cast<double>(3)*epsilon)*fwd_C_G_model(k).row(base-1) + epsilon/static_cast<double>(3);
+					tmp_like_terms(i, 1).row(k) = (1-4/static_cast<double>(3)*epsilon)*rev_C_G_model(k).row(base-1) + epsilon/static_cast<double>(3);
 				}
 
 				else {
@@ -180,6 +218,7 @@ inline alignment_data::alignment_data(
 					tmp_like_terms(i, 1).row(k) = (1-4/static_cast<double>(3)*epsilon)*rev_model(k).row(base-1) + epsilon/static_cast<double>(3);
 
 				}
+
 			}
 
 			//Position marks

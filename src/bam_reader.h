@@ -136,6 +136,14 @@ static int fetch_info_func(const bam1_t *b, void *data)
     return 0;
 }
 
+static int fetch_read_count_func(const bam1_t *b, void *data)
+{
+    int * count = static_cast<int*>(data);
+
+    * count = * count + 1;
+
+    return 0;
+}
 
 class bamReader {
 
@@ -151,6 +159,51 @@ public:
 
 	bamReader(std::string const& bam_file, std::string const& ref_name, t_position start_pos, t_position end_pos) :
 		file(bam_file), ref(ref_name), start(start_pos), end(end_pos), reads(), reads_raw(), infos() {}
+
+	int read_count() {
+
+		//Open bam file
+		samfile_t *file_handle = samopen(file.c_str(), "rb", 0);
+
+		if (file_handle == 0) {
+			throw std::runtime_error("Fail to open BAM file.\n");
+		}
+
+		//Open index file
+       bam_index_t *idx_handle = bam_index_load(file.c_str()); // load BAM index
+
+       if (idx_handle == 0) {
+
+    	   samclose(file_handle);
+
+    	   throw std::runtime_error("BAM indexing file is not available.\n");
+       }
+
+       //Get ref id
+       int ref_id;
+       int tmp_s;
+       int tmp_e;
+       bam_parse_region(file_handle->header, ref.c_str(), &ref_id, &tmp_s, &tmp_e); // parse the region
+
+       if (ref_id < 0) {
+
+    	   bam_index_destroy(idx_handle);
+    	   samclose(file_handle);
+
+    	   throw std::runtime_error("Invalid region \n");
+       }
+
+       //Fetch read count
+       int count = 0;
+       bam_fetch(file_handle->x.bam, idx_handle, ref_id, start, end, &count, fetch_read_count_func);
+
+       bam_index_destroy(idx_handle);
+
+       samclose(file_handle);
+
+       return count;
+
+	}
 
 	void fetch() {
 

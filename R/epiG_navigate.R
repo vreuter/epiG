@@ -365,6 +365,7 @@ position.info.epiG <- function(object, pos, ...) {
 							genotype = NA, 
 							fit.ratio = NA,
 							ref.ratio = NA,
+							alt.ratio = NA,
 							methylated = NA, 
 							nreads = NA, 
 							nreads.fwd = NA, 
@@ -388,6 +389,7 @@ position.info.epiG <- function(object, pos, ...) {
 				genotype = symbols(g)[as.character(cid)], 
 				fit.ratio = sapply(as.character(cid), function(x) .ratio(ll[,x], g[x])),
 				ref.ratio = NA,
+				alt.ratio = NA,
 				methylated =.methylation.status(genotype(object, pos, remove.meth = FALSE)[as.character(cid)], nfwd, nrev),  
 				nreads = sapply(cid, function(x) sum(chains == x)),
 				nreads.fwd = nfwd,
@@ -404,6 +406,7 @@ position.info.epiG <- function(object, pos, ...) {
 		if(!is.null(object[["alt"]])) {
 			alt <- object$alt[pos - object$offset + 1]
 			info.df$alt <- symbols(alt)			
+			info.df$alt.ratio = sapply(as.character(cid), function(x) .ratio(ll[,x], alt))
 		} 
 		
 		return(info.df)

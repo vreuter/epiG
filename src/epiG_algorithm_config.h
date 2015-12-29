@@ -61,8 +61,14 @@ public:
 	t_models fwd_model;
 	t_models rev_model;
 
-	t_models fwd_GpC_model;
-	t_models rev_GpC_model;
+	t_models fwd_DGCH_model;
+	t_models rev_DGCH_model;
+
+	t_models fwd_HCGD_model;
+	t_models rev_HCGD_model;
+
+	t_models fwd_C_G_model;
+	t_models rev_C_G_model;
 
     t_count reads_hard_limit;
 
@@ -92,9 +98,17 @@ public:
 
 			rev_model(getConfigList<t_model>(config, "rev_model")),
 
-			fwd_GpC_model(getConfigList<t_model>(config, "fwd_GpC_model")),
+			fwd_DGCH_model(getConfigList<t_model>(config, "fwd_DGCH_model")),
 
-			rev_GpC_model(getConfigList<t_model>(config, "rev_GpC_model")),
+			rev_DGCH_model(getConfigList<t_model>(config, "rev_DGCH_model")),
+
+			fwd_HCGD_model(getConfigList<t_model>(config, "fwd_HCGD_model")),
+
+			rev_HCGD_model(getConfigList<t_model>(config, "rev_HCGD_model")),
+
+			fwd_C_G_model(getConfigList<t_model>(config, "fwd_C_G_model")),
+
+			rev_C_G_model(getConfigList<t_model>(config, "rev_C_G_model")),
 
             reads_hard_limit(getConfigAttribute<t_count>(config, "reads_hard_limit")),
 

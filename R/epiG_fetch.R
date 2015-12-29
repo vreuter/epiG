@@ -68,6 +68,23 @@ fetch_reads_info <- function(filename, refname, start, end) {
 		)	
 }
 
+#' fetch_reads_info
+#' 
+#' @param filename 
+#' @param refname 
+#' @param start 
+#' @param end 
+#' @return info 
+#' 
+#' @author martin
+#' @export
+#' @useDynLib epiG r_epiG_fetch_reads_info
+fetch_read_count <- function(filename, refname, start, end) {
+	
+	.Call(r_epiG_fetch_read_count, filename, refname, as.integer(start), as.integer(end))
+	
+}
+
 #' fetch.reads.raw
 #' 
 #' @param filename 

@@ -6,6 +6,7 @@ extern "C" {
 SEXP r_epiG_fetch_reads(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end);
 SEXP r_epiG_fetch_reads_raw(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end);
 SEXP r_epiG_fetch_reads_info(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end);
+SEXP r_epiG_fetch_read_count(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end);
 
 SEXP r_epiG_fetch_header(SEXP r_filename);
 
@@ -225,6 +226,44 @@ SEXP r_epiG_fetch_reads_info(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP
     try {
 
         return epiG_fetch_reads_info(r_filename, r_refName, r_start, r_end);
+
+        //Catch unhandled exceptions
+
+    } catch (std::exception & e) {
+
+        if (e.what() != NULL) {
+            report_error(e.what());
+        }
+
+        else {
+            report_error("Unknown error");
+        }
+
+    } catch (...) {
+        report_error("Unknown error");
+    }
+
+    return R_NilValue; //Avoid compiler warnings
+}
+
+SEXP epiG_fetch_read_count(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end) {
+
+    const std::string filename = get_value<std::string>(r_filename);
+    const std::string refName = get_value<std::string>(r_refName);
+    const t_position start = get_value<t_position>(r_start);
+    const t_position end = get_value<t_position>(r_end);
+
+    bamReader reader(filename, refName, start, end);
+    int count = reader.read_count();
+
+    return rObject(count);
+}
+
+SEXP r_epiG_fetch_read_count(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end) {
+
+    try {
+
+        return epiG_fetch_read_count(r_filename, r_refName, r_start, r_end);
 
         //Catch unhandled exceptions
 

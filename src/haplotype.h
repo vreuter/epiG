@@ -116,14 +116,6 @@ private:
 
 	void init(double ref_prior);
 
-	bool is_CG(t_position pos) const {
-		return (ref(pos) == 1 && ref(pos+1) == 2);
-	}
-
-	bool is_GC(t_position pos) const {
-		return (ref(pos) == 2 && ref(pos+1) == 1);
-	}
-
 	bool is_HCGD(t_position pos) const {
 		return (pos > 0 && ref(pos-1) != 2 && ref(pos) == 1 && ref(pos+1) == 2 && ref(pos+2) != 1);
 	}
@@ -893,14 +885,14 @@ double haplotype::compute_logsum(
 
 	}
 
-	else if(NOMEseq_mode &&  (ref(pos) == 1 || ref(pos) == 2 || ref(pos+1) == 1 || ref(pos+1) == 2))	{
-
-		//GCG CGC context
-		//Ignore return 0
-
-		return 0;
-
-		}
+//	else if(NOMEseq_mode &&  (ref(pos) == 1 || ref(pos) == 2 || ref(pos+1) == 1 || ref(pos+1) == 2))	{
+//
+//		//GCG CGC or single G C context
+//		//Ignore return 0
+//
+//		return 0;
+//
+//		}
 
 	else {
 
@@ -1036,7 +1028,7 @@ void haplotype::compute_genotype(
 	}
 
 	else if(NOMEseq_mode && pos > 0 && (is_DGCH(pos-1) || is_HCGD(pos-1))) {
-		//ignor
+		//Ignore
 		return;
 	}
 
