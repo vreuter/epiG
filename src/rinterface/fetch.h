@@ -254,9 +254,14 @@ SEXP epiG_fetch_read_count(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r
     const t_position end = get_value<t_position>(r_end);
 
     bamReader reader(filename, refName, start, end);
-    int count = reader.read_count();
+    read_count rc = reader.fetch_read_count();
 
-    return rObject(count);
+    rList res;
+
+    res.attach(rObject(rc.count), "nreads");
+    res.attach(rObject(rc.bp_count), "bp.count");
+
+    return rObject(res);
 }
 
 SEXP r_epiG_fetch_read_count(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end) {

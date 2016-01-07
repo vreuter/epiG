@@ -136,11 +136,19 @@ static int fetch_info_func(const bam1_t *b, void *data)
     return 0;
 }
 
+struct read_count {
+	int count;
+	int bp_count;
+};
+
 static int fetch_read_count_func(const bam1_t *b, void *data)
 {
-    int * count = static_cast<int*>(data);
+	read_count * rc = static_cast<read_count*>(data);
 
-    * count = * count + 1;
+    int length = b->core.l_qseq;
+
+    rc->count = rc->count + 1;
+    rc->bp_count = rc->bp_count + length;
 
     return 0;
 }
@@ -160,7 +168,7 @@ public:
 	bamReader(std::string const& bam_file, std::string const& ref_name, t_position start_pos, t_position end_pos) :
 		file(bam_file), ref(ref_name), start(start_pos), end(end_pos), reads(), reads_raw(), infos() {}
 
-	int read_count() {
+	read_count fetch_read_count() {
 
 		//Open bam file
 		samfile_t *file_handle = samopen(file.c_str(), "rb", 0);
@@ -194,14 +202,17 @@ public:
        }
 
        //Fetch read count
-       int count = 0;
-       bam_fetch(file_handle->x.bam, idx_handle, ref_id, start, end, &count, fetch_read_count_func);
+       read_count rc;
+       rc.count = 0;
+       rc.bp_count = 0;
+
+       bam_fetch(file_handle->x.bam, idx_handle, ref_id, start, end, &rc, fetch_read_count_func);
 
        bam_index_destroy(idx_handle);
 
        samclose(file_handle);
 
-       return count;
+       return rc;
 
 	}
 

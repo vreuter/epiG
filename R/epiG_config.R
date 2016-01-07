@@ -87,12 +87,12 @@ create_haplo_prior <- function(delta, n_reads){
 	for(i in 3:n_reads) {
 		h[i] = 2*h[i-1]-h[i-2]-log_alpha[i-1]
 	}
-		
+				
 	return(h)
 
 } 
 
-
+#TODO auto config for chunked mode
 auto_config <- function(
 		bam_file,
 		ref_file, 
@@ -102,7 +102,6 @@ auto_config <- function(
 		end, 
 		use_paired_reads = FALSE, 
 		NOMEseq_mode = FALSE,
-		chunk_size = 15000, 
 		delta = NULL, 
 		delta_2 = NULL, 
 		min_overlap = NULL,
@@ -139,14 +138,17 @@ auto_config <- function(
 		warning("No reads found") #TODO more info
 		return (NULL)
 	}
+	
+	n_reads <- nrow(reads)
+	
 	### Create bisulfite model
 	#TODO auto detimen bisulfite rates
 	model <- create_bisulfite_model(bisulfite_rate = .95, bisulfite_inap_rate = 0.05, Lmax = max(reads$length))
 	
-	#pcr.model <- create_pcr_model(rate = 0.25)
-	
-	model$fwd <- model$fwd #lapply(model$fwd, function(x) pcr.model %*% x)
-	model$rev <- model$rev #lapply(model$rev, function(x) pcr.model %*% x)
+#	pcr.model <- create_pcr_model(rate = 0.01)
+#	
+#	model$fwd <- lapply(model$fwd, function(x) pcr.model %*% x)
+#	model$rev <- lapply(model$rev, function(x) pcr.model %*% x)
 	
 	#TODO auto nomeseq mode
 	model$fwd_HCGD <- model$fwd
@@ -166,27 +168,28 @@ auto_config <- function(
 	if(is.null(min_overlap)) {
 	
 		min_overlap <- max(mean(reads$length) - 
-					quantile(diff(reads$start[seq(from = 1, to = nrow(reads), length.out = nrow(reads)/2)]), p = 0.95), 25)
+					quantile(diff(reads$start[seq(from = 1, to = n_reads, length.out = n_reads/2)]), p = 0.95), 25)
 	}
 
 	#TODO only if verbose=TRUE + nicer output use data.frame + rounding
 	cat("Generating configuration with the following parameters:\n\n")
 	cat(paste(" bisulphite conversion rate (fixed) =", 0.95,"\n"))
 	cat(paste(" inappropriate bisulphite conversion rate (fixed) =", 0.05,"\n"))
-	cat(paste(" PCR error parameter (fixed) =", 0.25,"\n"))
+	cat(paste(" PCR error parameter (fixed) =", 0.01,"\n"))
 	cat(paste(" Reference prior (fixed) =", 0.99,"\n"))
 	cat(paste(" Min overlap length (computed) =", as.integer(min_overlap),"\n"))
-	cat(paste(" Structural prior delta (computed) =", delta,"\n"))
-
+	cat(paste(" Structural prior delta (computed) =", delta, "\n"))
+	cat(paste(" Number of reads =", n_reads,"\n"))
+	
 	config <- epiG.algorithm.config(
 			model = model,
-			log_haplo_prior = create_haplo_prior(delta = delta, min(nrow(reads)+1, chunk_size + 5000)),
-			log_haplo_prior_2 = if( ! is.null(delta_2)) create_haplo_prior(delta = delta_2, min(nrow(reads)+1, chunk_size + 5000)) else numeric(),
+			log_haplo_prior = create_haplo_prior(delta = delta, n_reads),
+			log_haplo_prior_2 = if( ! is.null(delta_2)) create_haplo_prior(delta = delta_2, n_reads) else numeric(),
 			ref_prior = .99,
 			min_overlap_length = min_overlap,
 			min_overlap_length_2 = if(is.null(min_overlap_2)) min_overlap else min_overlap_2,
-			reads_hard_limit = chunk_size + 5000,
-			chunk_size = chunk_size,
+			reads_hard_limit = n_reads + 1000,
+			chunk_size = n_reads,
 			use_paired_reads = use_paired_reads,
 			dual_stage_mode =  ! is.null(delta_2),
 			ref.file = ref_file,
@@ -222,7 +225,7 @@ auto_config <- function(
 epiG.algorithm.config <- function(
 		ref.file, 
 		alt.file, 
-		max_iterations = 1e5, 
+		max_iterations = 3e5, 
 		model, 
 		log_haplo_prior, 
 		log_haplo_prior_2 = numeric(),

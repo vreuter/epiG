@@ -81,8 +81,12 @@ fetch_reads_info <- function(filename, refname, start, end) {
 #' @useDynLib epiG r_epiG_fetch_reads_info
 fetch_read_count <- function(filename, refname, start, end) {
 	
-	.Call(r_epiG_fetch_read_count, filename, refname, as.integer(start), as.integer(end))
+	res <- .Call(r_epiG_fetch_read_count, filename, refname, as.integer(start), as.integer(end))
 	
+	data.frame(
+		nreads = res$nreads,
+		bp = res$bp.count
+	)
 }
 
 #' fetch.reads.raw
