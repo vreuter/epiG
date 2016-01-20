@@ -16,6 +16,7 @@
 #include <RcppArmadilloConfig.h>
 
 //#define DO_TIMING
+//#define CHECK_POSTERIOR
 //#define FUNC_ENTER
 #define EPIG_DEBUG
 #define EPIG_USE_OPENMP

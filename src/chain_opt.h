@@ -14,8 +14,6 @@ class haplo_chain_optimizer {
 	//Algorithm configurations
 	t_count const max_iterations;
 
-	bool const dual_stage;
-
 	template<typename abort_checker>
 	t_count optimize_profile(abort_checker const& ac);
 
@@ -98,8 +96,7 @@ inline haplo_chain_optimizer::haplo_chain_optimizer(
 				data(data),
 				ref(ref),
 				alt(alt),
-				h(config, data, ref, alt, config.min_overlap_length, config.haplochain_log_prior, find_read_pairs(data)),
-				dual_stage(config.dual_stage_mode),
+				h(config, data, ref, alt, config.min_overlap_length, find_read_pairs(data)),
 				max_iterations(config.max_iterations)
 				{
 }
@@ -113,8 +110,7 @@ inline haplo_chain_optimizer::haplo_chain_optimizer(
 				data(data),
 				ref(ref),
 				alt(alt),
-				h(config, data, ref, alt, config.min_overlap_length, config.haplochain_log_prior),
-				dual_stage(config.dual_stage_mode),
+				h(config, data, ref, alt, config.min_overlap_length),
 				max_iterations(config.max_iterations) {
 }
 
@@ -125,21 +121,27 @@ inline void haplo_chain_optimizer::run(const abort_checker& ac) {
 	TIMER_START
 
 	t_count change_count = optimize_profile(ac);
-
-//	cout << change_count << " : " << h.posterior() << endl;
-
 	h.chain_clean();
 
-	if(dual_stage) {
+	cout << change_count << " : " << h.posterior() << endl;
+
+	//TODO stage config
+	for(int stage = 1; stage < config.max_stages; stage++) {
 
 		h.set_blocks(h);
-		h.set_haplochain_prior(config.haplochain_log_prior_2);
-		h.set_min_overlap(config.min_overlap_length_2);
+		//h.set_min_overlap(config.min_overlap_length_2);
 
-		optimize_profile(ac);
+		t_count change_count = optimize_profile(ac);
+
+		cout << change_count << " : " << h.posterior() << endl;
+
+		h.chain_clean();
+
+		if(change_count <= 1) {
+			break;
+		}
+
 	}
-
-	h.chain_clean();
 
 }
 

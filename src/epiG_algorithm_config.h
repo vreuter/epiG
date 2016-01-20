@@ -72,17 +72,19 @@ public:
 
     t_count reads_hard_limit;
 
-	arma::Col<double> haplochain_log_prior;
-	arma::Col<double> haplochain_log_prior_2;
-
     double ref_prior;
 
     t_position min_overlap_length;
-    t_position min_overlap_length_2;
+
+    t_count min_CG_count;
+    t_count min_HCGD_count;
+	t_count min_DGCH_count;
+
+    t_count max_stages;
+
+    double structual_prior_scale;
 
     bool use_paired_reads;
-
-    bool dual_stage_mode;
 
     bool NOMEseq_mode;
 
@@ -112,21 +114,21 @@ public:
 
             reads_hard_limit(getConfigAttribute<t_count>(config, "reads_hard_limit")),
 
-            haplochain_log_prior(getConfigAttribute<arma::Col<double> >(config, "log_haplo_prior")),
-
-            haplochain_log_prior_2(getConfigAttribute<arma::Col<double> >(config, "log_haplo_prior_2")),
-
             ref_prior(getConfigAttribute<double>(config, "ref_prior")),
 
             min_overlap_length(getConfigAttribute<t_position>(config, "min_overlap_length")),
 
-			min_overlap_length_2(getConfigAttribute<t_position>(config, "min_overlap_length_2")),
+		    min_CG_count(getConfigAttribute<t_count>(config, "min_CG_count")),
+		    min_HCGD_count(getConfigAttribute<t_count>(config, "min_HCGD_count")),
+			min_DGCH_count(getConfigAttribute<t_count>(config, "min_DGCH_count")),
+
+		    max_stages(getConfigAttribute<t_count>(config, "max_stages")),
+
+		    structual_prior_scale(getConfigAttribute<double>(config, "structual_prior_scale")),
 
 			use_paired_reads(getConfigAttribute<bool>(config, "use_paired_reads")),
 
 			NOMEseq_mode(getConfigAttribute<bool>(config, "NOMEseq_mode")),
-
-			dual_stage_mode(getConfigAttribute<bool>(config, "dual_stage_mode")),
 
 			verbose(getConfigAttribute<bool>(config, "verbose")) {
 	}

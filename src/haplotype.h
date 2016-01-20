@@ -10,6 +10,8 @@ private:
 	t_strands read_strands; //vector of size n_reads
 	t_positions chain_start;
 	t_positions chain_end;
+	double prior;
+
 
 	//Data
 	alignment_data const& data;
@@ -25,10 +27,14 @@ private:
 	double const ref_no_match_prior_log;
 	double const ref_match_prior_log;
 
-	vec const haplochain_log_prior;
-
 	field<vec> const ref_priores;
 
+
+	bool is_feasible(
+			t_position read_start,
+			t_position read_end,
+			t_position chain_start,
+			t_position chain_end) const;
 
 	//Update old haplotype chain to ensure that it is still feasible (after removal of read_number)
 	void update_haplotype_chain(
@@ -45,6 +51,7 @@ private:
 			t_strands & s,
 			t_positions & c_start,
 			t_positions & c_end,
+			double & prior,
 			t_index id,
 			t_strand strand,
 			t_haplochain to) const;
@@ -54,6 +61,7 @@ private:
 			t_strands & s,
 			t_positions & c_start,
 			t_positions & c_end,
+			double & prior,
 			t_indices const& block,
 			t_strand strand,
 			t_haplochain to) const;
@@ -95,16 +103,26 @@ private:
 
 	double compute_prior_chain(
 			t_haplochains const& h,
+			t_positions const& c_start,
+			t_positions const& c_end,
 			t_haplochain chain) const;
 
 	double compute_posterior(
 			t_haplochains const& h,
+			t_positions const& c_start,
+			t_positions const& c_end,
 			t_strands const& strands) const;
 
 	double compute_delta(
 			t_haplochains const& h,
+			t_positions const& c_start,
+			t_positions const& c_end,
+			double prior,
 			t_strands const& s,
 			t_haplochains const& new_h,
+			t_positions const& new_c_start,
+			t_positions const& new_c_end,
+			double new_prior,
 			t_strands const& new_s,
 			t_indices const& reads_in_region,
 			t_position region_start,
@@ -124,6 +142,33 @@ private:
 		return (pos > 0 && ref(pos-1) != 1 && ref(pos) == 2 && ref(pos+1) == 1 && ref(pos+2) != 2);
 	}
 
+	t_count count_CpG(t_position start, t_position end) const {
+		return sum(ref.subvec(start, end) == 1 && ref.subvec(start+1, end+1) == 2);
+	}
+
+	t_count count_HCGD(t_position start, t_position end) const {
+
+		if(start == 0) {
+			start = 1;
+		}
+
+		return sum(ref.subvec(start-1, end-1) != 2
+				&& ref.subvec(start, end) == 1
+				&& ref.subvec(start+1, end+1) == 2
+				&& ref.subvec(start+2, end+2) != 1);
+	}
+
+	t_count count_DGCH(t_position start, t_position end) const {
+
+		if(start == 0) {
+			start = 1;
+		}
+
+		return sum(ref.subvec(start-1, end-1) != 1
+				&& ref.subvec(start, end) == 2
+				&& ref.subvec(start+1, end+1) == 1
+				&& ref.subvec(start+2, end+2) != 2);
+	}
 
 public:
 
@@ -133,6 +178,11 @@ public:
 	t_count const n_elements;
 
 	t_position const min_overlap_length;
+	t_count const min_CG_count;
+	t_count const min_HCGD_count;
+	t_count const min_DGCH_count;
+
+	double const prior_adjust;
 
 	haplotype(
 			AlgorithmConfiguration const& config,
@@ -140,7 +190,6 @@ public:
 			t_seq_bases const& ref,
 			t_seq_bases const& alt,
 			t_position min_overlap_length,
-			arma::Col<double> haplochain_log_prior,
 			std::vector<t_indices> const& read_blocks);
 
 	haplotype(
@@ -148,8 +197,7 @@ public:
 			alignment_data const& data,
 			t_seq_bases const& ref,
 			t_seq_bases const& alt,
-			t_position min_overlap_length,
-			arma::Col<double> haplochain_log_prior);
+			t_position min_overlap_length);
 
 	void move(
 			t_index id,
@@ -246,7 +294,7 @@ void haplotype::set_blocks(haplotype const& h) {
 
 			}
 
-	//Reorder blocks such that they are arraigned with increasing start position
+	//Reorder blocks such that they are ordered with increasing start position
 	uvec idx = sort_index(chain_start);
 	std::vector<t_indices> blocks_ordered;
 	for(t_index i = 0; i < idx.n_elem; ++i) {
@@ -266,10 +314,6 @@ void haplotype::set_blocks(haplotype const& h) {
 	const_cast<t_positions&>(block_start_positions) = block_start_positions_tmp;
 	const_cast<t_positions&>(block_end_positions) = block_end_positions_tmp;
 
-}
-
-void haplotype::set_haplochain_prior(vec const& log_prior) {
-	const_cast<vec&>(haplochain_log_prior) = log_prior;
 }
 
 void haplotype::set_min_overlap(t_position min_overlap) {
@@ -320,6 +364,13 @@ void haplotype::init(double ref_prior) {
 		}
 	}
 
+	//Init structural prior
+	prior = 0;
+	for (t_index i = 0; i < haplo.n_elem; ++i) {
+		//Compute prior
+		prior += compute_prior_chain(haplo, chain_start, chain_end, i);
+	}
+
 	//Init ref prior
 	const_cast<double&>(ref_no_match_prior_log) = log(1-ref_prior);
 	const_cast<double&>(ref_match_prior_log) = log(ref_prior);
@@ -334,7 +385,6 @@ haplotype::haplotype(
 		const t_seq_bases& ref,
 		const t_seq_bases& alt,
 		t_position min_overlap_length,
-		arma::Col<double> haplochain_log_prior,
 		const std::vector<t_indices>& read_blocks) :
 				haplo(data.n_reads, fill::zeros),
 				read_strands(data.n_reads, fill::zeros),
@@ -344,12 +394,15 @@ haplotype::haplotype(
 				alt(alt),
 				ref_no_match_prior_log(),
 				ref_match_prior_log(),
-				haplochain_log_prior(config.haplochain_log_prior),
 				ref_priores(),
 				use_read_blocks(true),
 				NOMEseq_mode(config.NOMEseq_mode),
 				n_elements(read_blocks.size()),
-				min_overlap_length(config.min_overlap_length)
+				min_overlap_length(config.min_overlap_length),
+				min_CG_count(config.min_CG_count),
+				min_HCGD_count(config.min_HCGD_count),
+				min_DGCH_count(config.min_DGCH_count),
+				prior_adjust(config.structual_prior_scale)
 			 {
 
 	init(config.ref_prior);
@@ -361,8 +414,7 @@ haplotype::haplotype(
 		const alignment_data& data,
 		const t_seq_bases& ref,
 		const t_seq_bases& alt,
-		t_position min_overlap_length,
-		arma::Col<double> haplochain_log_prior) :
+		t_position min_overlap_length) :
 				haplo(data.n_reads, fill::zeros),
 				read_strands(data.n_reads, fill::zeros),
 				data(data),
@@ -371,13 +423,17 @@ haplotype::haplotype(
 				alt(alt),
 				ref_no_match_prior_log(),
 				ref_match_prior_log(),
-				haplochain_log_prior(config.haplochain_log_prior),
 				ref_priores(),
 				use_read_blocks(false),
 				NOMEseq_mode(config.NOMEseq_mode),
 				n_elements(data.n_reads),
-				min_overlap_length(config.min_overlap_length)
+				min_overlap_length(config.min_overlap_length),
+				min_CG_count(config.min_CG_count),
+				min_HCGD_count(config.min_HCGD_count),
+				min_DGCH_count(config.min_DGCH_count),
+				prior_adjust(config.structual_prior_scale)
 			 {
+
 	init(config.ref_prior);
 }
 
@@ -387,11 +443,11 @@ void haplotype::move(
 		t_haplochain to) {
 
 	if(use_read_blocks) {
-		move_read_block(haplo, read_strands, chain_start, chain_end, read_blocks[id], strand, to);
+		move_read_block(haplo, read_strands, chain_start, chain_end, prior, read_blocks[id], strand, to);
 		return;
 	}
 
-	move_read(haplo, read_strands, chain_start, chain_end, id, strand, to);
+	move_read(haplo, read_strands, chain_start, chain_end, prior, id, strand, to);
 }
 
 double haplotype::delta_posterior(
@@ -412,6 +468,7 @@ void haplotype::move_read(
 		t_strands & s,
 		t_positions & c_start,
 		t_positions & c_end,
+		double & prior,
 		t_index id,
 		t_strand strand,
 		t_haplochain to) const {
@@ -424,6 +481,10 @@ void haplotype::move_read(
 	if(from == to && strand == s(id)) {
 		return;
 	}
+
+	//update prior
+	prior -= compute_prior_chain(h, c_start, c_end, from);
+	prior -= compute_prior_chain(h, c_start, c_end, to);
 
 	//Update haplo and strand
 	t_haplochain max_chain_old = max(h);
@@ -458,7 +519,22 @@ void haplotype::move_read(
 		t_indices reads(find(h == chain)); //TODO this could properly be done more efficient
 		c_start(chain) = min(data.reads_start_positions(reads));
 		c_end(chain) =  max(data.reads_end_positions(reads));
+	}
 
+	//update prior
+	for(t_haplochain chain = max_chain_old + 1; chain <= max(h); ++chain) {
+
+		if(chain == from) {
+			continue;
+		}
+
+		prior += compute_prior_chain(h, c_start, c_end, chain);
+	}
+
+	prior += compute_prior_chain(h, c_start, c_end, from);
+
+	if(to <= max_chain_old) {
+		prior += compute_prior_chain(h, c_start, c_end, to);
 	}
 }
 
@@ -468,6 +544,7 @@ void haplotype::move_read_block(
 		t_strands & s,
 		t_positions & c_start,
 		t_positions & c_end,
+		double & prior,
 		t_indices const& block,
 		t_strand strand,
 		t_haplochain to) const {
@@ -480,6 +557,10 @@ void haplotype::move_read_block(
 	if(from == to && strand == s(block(0))) {
 		return;
 	}
+
+	//update prior
+	prior -= compute_prior_chain(h, c_start, c_end, from);
+	prior -= compute_prior_chain(h, c_start, c_end, to);
 
 	//Update haplo and strand
 	t_haplochain max_chain_old = max(h);
@@ -516,8 +597,55 @@ void haplotype::move_read_block(
 		c_end(chain) =  max(data.reads_end_positions(reads));
 
 	}
+
+	//update prior
+	for(t_haplochain chain = max_chain_old + 1; chain <= max(h); ++chain) {
+
+		if(chain == from) {
+			continue;
+		}
+
+		prior += compute_prior_chain(h, c_start, c_end, chain);
+	}
+
+	prior += compute_prior_chain(h, c_start, c_end, from);
+
+	if(to <= max_chain_old) {
+		prior += compute_prior_chain(h, c_start, c_end, to);
+	}
 }
 
+bool haplotype::is_feasible(
+		t_position read_start,
+		t_position read_end,
+		t_position chain_start,
+		t_position chain_end) const {
+
+	t_position overlap_start = max(read_start, chain_start);
+	t_position overlap_end = min(read_end, chain_end);
+
+	if(overlap_end - overlap_start + 1 < min_overlap_length) {
+		return false;
+	}
+
+//	cout << overlap_end << " : " << overlap_start << endl;
+//	cout << overlap_end + 1 << " >= " << min_overlap_length + overlap_start<< endl;
+//
+	if(min_CG_count > 0 && count_CpG(overlap_start, overlap_end) >= min_CG_count) {
+		return true;
+	}
+
+	if(min_HCGD_count > 0 && count_HCGD(overlap_start, overlap_end) >= min_HCGD_count) {
+		return true;
+	}
+
+	if(min_DGCH_count > 0 && count_DGCH(overlap_start, overlap_end) >= min_DGCH_count) {
+		return true;
+	}
+
+	return false;
+
+}
 
 void haplotype::update_haplotype_chain(
 		t_haplochains & haplotype,
@@ -537,9 +665,12 @@ void haplotype::update_haplotype_chain(
 
 		t_index read = reads_in_chain(i);
 
-		t_position overlap_length = chain_end - data.reads_start_positions(read) + 1;
-		if(overlap_length < min_overlap_length) {
-			//reads not overlapping => new chain
+		if(! is_feasible(data.reads_start_positions(read),
+				data.reads_end_positions(read),
+				data.reads_start_positions(read),
+				chain_end)) {
+
+			//not feasible => new chain
 			chain = max(haplotype) + 1;
 
 			haplotype(read) = chain;
@@ -575,15 +706,16 @@ void haplotype::update_haplotype_chain(
 		}
 
 		if(first_read_block) {
-			chain_end = max(data.reads_end_positions(read_blocks[i]));
+			chain_end = block_end_positions(read_blocks[i](0));// max(data.reads_end_positions(read_blocks[i]));
 			first_read_block = false;
 			continue;
 		}
 
-		t_position start = min(data.reads_start_positions(read_blocks[i]));
+		t_position start = block_start_positions(read_blocks[i](0));//min(data.reads_start_positions(read_blocks[i]));
+		t_position end = block_end_positions(read_blocks[i](0)); //max(data.reads_end_positions(read_blocks[i]));
 
-		if (start > chain_end - min_overlap_length + 1) {
-			//reads not overlapping => new chain
+		if(! is_feasible(start, end, start, chain_end)) {
+			//not feasible=> new chain
 			chain = max(haplotype) + 1;
 
 			haplotype(read_blocks[i]).fill(chain);
@@ -594,9 +726,7 @@ void haplotype::update_haplotype_chain(
 
 		else {
 			haplotype(read_blocks[i]).fill(chain);
-
-			t_position read_block_end = max(data.reads_end_positions(read_blocks[i]));
-			chain_end = max(chain_end, read_block_end);
+			chain_end = max(chain_end, end);
 		}
 	}
 }
@@ -635,6 +765,7 @@ double haplotype::compute_delta_posterior(
 	t_strands new_strands(read_strands); //TODO this is alot of copying
 	t_positions new_starts(chain_start);
 	t_positions new_ends(chain_end);
+	double new_prior = prior;
 
 	t_haplochain current_chain = haplo(read_number);
 
@@ -649,11 +780,13 @@ double haplotype::compute_delta_posterior(
 
 
 	//Create new haplo
-	move_read(new_haplo, new_strands, new_starts, new_ends, read_number, strand, new_chain);
+	move_read(new_haplo, new_strands, new_starts, new_ends, new_prior, read_number, strand, new_chain);
 
 	//Compute posterior
 
-	return compute_delta(haplo, read_strands, new_haplo, new_strands, reads_in_region, region_start, region_end, current_chain, new_chain);
+	return compute_delta(haplo, chain_start, chain_end, prior, read_strands,
+			new_haplo, new_starts, new_ends, new_prior, new_strands,
+			reads_in_region, region_start, region_end, current_chain, new_chain);
 }
 
 double haplotype::compute_delta_posterior(
@@ -669,6 +802,7 @@ double haplotype::compute_delta_posterior(
 	t_strands new_strands(read_strands); //TODO this is alot of copying
 	t_positions new_starts(chain_start);
 	t_positions new_ends(chain_end);
+	double new_prior = prior;
 
 	t_haplochain current_chain = haplo(block(0));
 
@@ -682,17 +816,25 @@ double haplotype::compute_delta_posterior(
 	t_indices reads_in_region = find(block_start_positions <= region_end && block_end_positions >= region_start);
 
 	//create new haplo
-	move_read_block(new_haplo, new_strands, new_starts, new_ends, block, strand, new_chain);
+	move_read_block(new_haplo, new_strands, new_starts, new_ends, new_prior, block, strand, new_chain);
 
 	//Compute posterior
-	return compute_delta(haplo, read_strands, new_haplo, new_strands, reads_in_region, region_start, region_end, current_chain, new_chain);
+	return compute_delta(haplo, chain_start, chain_end, prior, read_strands,
+			new_haplo, new_starts, new_ends, new_prior, new_strands,
+			reads_in_region, region_start, region_end, current_chain, new_chain);
 }
 
 
 double haplotype::compute_delta(
 		t_haplochains const& h,
+		t_positions const& c_start,
+		t_positions const& c_end,
+		double prior,
 		t_strands const& s,
 		t_haplochains const& new_h,
+		t_positions const& new_c_start,
+		t_positions const& new_c_end,
+		double new_prior,
 		t_strands const& new_s,
 		t_indices const& reads_in_region,
 		t_position region_start,
@@ -705,22 +847,21 @@ double haplotype::compute_delta(
 
 	double delta_posterior = 0;
 
+	//prior
+	delta_posterior -= prior_adjust*prior;
+	delta_posterior += prior_adjust*new_prior;
 
-	//current posterior
-	delta_posterior -= compute_prior_chain(h, current_chain);
+	//current loglike
 	delta_posterior -= compute_chain_loglike(h, s, current_chain, reads_in_region, region_start, region_end);
 
-	//new posterior
-	delta_posterior += compute_prior_chain(new_h, current_chain);
+	//new loglike
 	delta_posterior += compute_chain_loglike(new_h, new_s, current_chain, reads_in_region, region_start, region_end);
 
 	if(new_chain != current_chain) {
-		//current posterior
-		delta_posterior -= compute_prior_chain(h, new_chain);
+		//current loglike
 		delta_posterior -= compute_chain_loglike(h, s, new_chain, reads_in_region, region_start, region_end);
 
-		//new posterior
-		delta_posterior += compute_prior_chain(new_h, new_chain);
+		//new loglike
 		delta_posterior += compute_chain_loglike(new_h, new_s, new_chain, reads_in_region, region_start, region_end);
 
 	}
@@ -731,15 +872,17 @@ double haplotype::compute_delta(
 			continue;
 		}
 
-		delta_posterior += compute_prior_chain(new_h, chain);
 		delta_posterior += compute_chain_loglike(new_h, new_s, chain, reads_in_region, region_start, region_end);
-
 	}
 
-	//TODO debug guards
-//	if(fabs(delta_posterior - compute_posterior(new_h, new_s) + compute_posterior(h, s)) > 1e-5) {
-//		throw std::runtime_error("compute_delta_posterior 1: Error");
-//	}
+#ifdef CHECK_POSTERIOR
+
+	double delta = compute_posterior(new_h, new_c_start, new_c_end, new_s) - compute_posterior(h, c_start, c_end, s);
+	if(fabs(delta_posterior - delta) > 1e-5) {
+
+		throw std::runtime_error("compute_delta_posterior Error");
+	}
+#endif
 
 	return delta_posterior;
 }
@@ -820,8 +963,6 @@ double haplotype::compute_chain_loglike(
 	t_position chain_start = min(starts);
 	t_position chain_end = max(ends);
 
-	double logsum = 0;
-
 	mat loglike_term(chain_end - chain_start + 1, 6, fill::zeros);
 
 	t_indices::const_iterator r = reads_in_chain.begin();
@@ -841,6 +982,8 @@ double haplotype::compute_chain_loglike(
 	if(region_start < chain_start) {
 		region_start = chain_start;
 	}
+
+	double logsum = 0;
 
 	for (t_position pos = region_start; pos <= region_end; ++pos) {
 		logsum += compute_logsum(loglike_term.rows(pos - chain_start, pos - chain_start + 1), pos);
@@ -1104,9 +1247,7 @@ t_haplochains haplotype::compute_feasible_haplotypes(t_index id) const {
 
 	for (t_index i = 0; i < unique_chains.n_elem; ++i) {
 
-		t_position overlap_length = pos(end-start + 1 - pos(chain_start(unique_chains(i)) - start) - pos(end-chain_end(unique_chains(i))));
-
-		if(overlap_length >= min_overlap_length) {
+		if(is_feasible(start, end, chain_start(unique_chains(i)), chain_end(unique_chains(i)))) {
 			feasible_haplotypes.resize(feasible_haplotypes.n_elem + 1);
 			feasible_haplotypes(feasible_haplotypes.n_elem - 1) = unique_chains(i);
 		}
@@ -1123,44 +1264,57 @@ t_haplochains haplotype::compute_feasible_haplotypes(t_index id) const {
 
 double haplotype::compute_prior_chain(
 		t_haplochains const& h,
+		t_positions const& c_start,
+		t_positions const& c_end,
 		t_haplochain chain) const {
 
 	TIMER_START
 	DEBUG_ENTER
 
-	t_count reads_in_chain = sum(h == chain);
+	uvec idx = find(h == chain);
 
-	if(reads_in_chain == 0) {
+	if(idx.n_elem == 0) {
 		return 0;
 	}
 
-	return haplochain_log_prior(reads_in_chain);
+	double x = sum(data.reads_end_positions(idx) - data.reads_start_positions(idx) + 1);
+	//double c = mean(data.read_depth.subvec(c_start(chain),c_end(chain)));
+	double l = c_end(chain) - c_start(chain)+1;
+	//double max_l = max(c_end-c_start)+1;
+
+	//cout << x << " : " << c << " : " << l << " : " << square(1/c*x/l) << endl;
+
+	return static_cast<double>(idx.n_elem) * (log(l)+log(x));
 
 }
 
 double haplotype::compute_posterior(
 		t_haplochains const& h,
+		t_positions const& c_start,
+		t_positions const& c_end,
 		t_strands const& strands) const {
 
 	TIMER_START
 
-	//Compute prior
-
 	double posterior = 0;
+	double p = 0;
 
-	// Compute likelihood
 	t_haplochains unique_chains = unique(h);
 	for (t_index i = 0; i < unique_chains.n_elem; ++i) {
-		posterior += compute_prior_chain(h, unique_chains(i));
+
+		//Compute prior
+		p += compute_prior_chain(h, c_start, c_end, unique_chains(i));
+
+		// Compute likelihood
 		posterior += compute_chain_loglike(h, strands, unique_chains(i));
 
 	}
 
-	return posterior;
+	return posterior + prior_adjust*p;
 }
 
 double haplotype::posterior() const {
-	return compute_posterior(haplo, read_strands);
+	return compute_posterior(haplo, chain_start, chain_end, read_strands);
 }
 
 #endif /* HAPLOTYPE_HPP_ */

@@ -77,19 +77,8 @@ create_bisulfite_model <- function(bisulfite_rates, bisulfite_inap_rate, Lmax) {
 }
 
 create_haplo_prior <- function(delta, n_reads){
-		
 	# Compute log haplochain prior values
-	log_alpha <- -1/(1:n_reads)^delta	
-	
-	h <- vector()
-	h[1] <- log_alpha[1]
-	h[2] <- 2*h[1] - log_alpha[1]
-	for(i in 3:n_reads) {
-		h[i] = 2*h[i-1]-h[i-2]-log_alpha[i-1]
-	}
-				
-	return(h)
-
+	return((0:n_reads)^2/n_reads)
 } 
 
 #TODO auto config for chunked mode
@@ -100,12 +89,8 @@ auto_config <- function(
 		chr, 
 		start, 
 		end, 
-		use_paired_reads = FALSE, 
-		NOMEseq_mode = FALSE,
-		delta = NULL, 
-		delta_2 = NULL, 
 		min_overlap = NULL,
-		min_overlap_2 = NULL) {
+		...) {
 
 	if(length(chr) != length(start) || length(chr) != length(end) || length(start) != length(end)) {
 		stop("length of chr, start and end must be equal")
@@ -123,10 +108,7 @@ auto_config <- function(
 							use_paired_reads,
 							NOMEseq_mode,
 							chunk_size,
-							delta,
-							delta_2,
-							min_overlap,
-							min_overlap_2))
+							min_overlap))
 		
 		
 		return(confs[ ! sapply(confs, is.null)])
@@ -161,10 +143,6 @@ auto_config <- function(
 	model$rev_C_G <- model$rev
 	
 	
-	if(is.null(delta)) {
-		delta <- 1
-	}
-	
 	if(is.null(min_overlap)) {
 	
 		min_overlap <- max(mean(reads$length) - 
@@ -175,25 +153,19 @@ auto_config <- function(
 	cat("Generating configuration with the following parameters:\n\n")
 	cat(paste(" bisulphite conversion rate (fixed) =", 0.95,"\n"))
 	cat(paste(" inappropriate bisulphite conversion rate (fixed) =", 0.05,"\n"))
-	cat(paste(" PCR error parameter (fixed) =", 0.01,"\n"))
 	cat(paste(" Reference prior (fixed) =", 0.99,"\n"))
 	cat(paste(" Min overlap length (computed) =", as.integer(min_overlap),"\n"))
-	cat(paste(" Structural prior delta (computed) =", delta, "\n"))
 	cat(paste(" Number of reads =", n_reads,"\n"))
 	
 	config <- epiG.algorithm.config(
 			model = model,
-			log_haplo_prior = create_haplo_prior(delta = delta, n_reads),
-			log_haplo_prior_2 = if( ! is.null(delta_2)) create_haplo_prior(delta = delta_2, n_reads) else numeric(),
 			ref_prior = .99,
 			min_overlap_length = min_overlap,
-			min_overlap_length_2 = if(is.null(min_overlap_2)) min_overlap else min_overlap_2,
 			reads_hard_limit = n_reads + 1000,
 			chunk_size = n_reads,
-			use_paired_reads = use_paired_reads,
-			dual_stage_mode =  ! is.null(delta_2),
 			ref.file = ref_file,
-			alt.file = alt_file
+			alt.file = alt_file,
+			...
 	)
 	
 	config <- add_run_configuration(config, bam_file, chr, start, end)
@@ -223,20 +195,21 @@ auto_config <- function(
 #' @author martin
 #' @export
 epiG.algorithm.config <- function(
+		model, 
 		ref.file, 
 		alt.file, 
 		max_iterations = 3e5, 
-		model, 
-		log_haplo_prior, 
-		log_haplo_prior_2 = numeric(),
 		ref_prior = 0.9, 
-		min_overlap_length = 1,
-		min_overlap_length_2 = 1,
+		min_overlap_length = 50,
+		min_CG_count = 1,
+		min_HCGD_count = 0,
+		min_DGCH_count = 0,
+		max_stages = 1,
+		structual_prior_scale = 1,
 		chunk_size = 5000, 
 		chunk_method = "reads", 
 		reads_hard_limit = 7500,
 		use_paired_reads = FALSE,
-		dual_stage_mode = FALSE,
 		NOMEseq_mode = FALSE,
 		verbose = TRUE) {
 	
@@ -273,19 +246,19 @@ epiG.algorithm.config <- function(
 	
 	config$min_overlap_length <- as.integer(min_overlap_length)
 	
-	config$min_overlap_length_2 <- as.integer(min_overlap_length_2)
+	config$min_CG_count <- as.integer(min_CG_count)
+	config$min_HCGD_count <- as.integer(min_HCGD_count)
+	config$min_DGCH_count <- as.integer(min_DGCH_count)
 	
+	config$max_stages <- as.integer(max_stages)
+	
+	config$structual_prior_scale <- structual_prior_scale
+		
 	config$use_paired_reads <- use_paired_reads
-	
-	config$dual_stage_mode <- dual_stage_mode
-	
+		
 	config$NOMEseq_mode <- NOMEseq_mode
 		
 	config$verbose <- verbose
-	
-	config$log_haplo_prior <- log_haplo_prior
-	
-	config$log_haplo_prior_2 <- log_haplo_prior_2
 	
 	config$fwd_GpC_model <- list(matrix(0))
 	config$rev_GpC_model <- list(matrix(0))

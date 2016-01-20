@@ -208,24 +208,24 @@ void chunk_haplo_chain_optimizer::run() {
 	        alignment_data data(config, reads, refGenom_filename, refNames(i), n_reads_hard_limit);
 
 			//Load ref
-	        t_seq_bases ref = create_bases_vector(read_fasta(refGenom_filename, refNames(i), data.offset, data.sequence_length+1));
+	        t_seq_bases ref = create_bases_vector(read_fasta(refGenom_filename, refNames(i), data.offset, data.sequence_length+2));
 
 	        //TODO append 0's (unknowns) + error -> warning
-	        if (ref.n_elem != static_cast<unsigned int>(data.sequence_length+1)) {
+	        if (ref.n_elem != static_cast<unsigned int>(data.sequence_length+2)) {
 				throw std::runtime_error("Problem with refGenom"); //TODO error msg
 			}
 
 	        //Load alt
-	        t_seq_bases alt = create_bases_vector(read_fasta(altGenom_filename, refNames(i), data.offset, data.sequence_length));
+	        t_seq_bases alt = create_bases_vector(read_fasta(altGenom_filename, refNames(i), data.offset, data.sequence_length+2));
 
 	        //TODO append 0's (no snp) + error -> warning
-	        if (alt.n_elem != static_cast<unsigned int>(data.sequence_length)) {
+	        if (alt.n_elem != static_cast<unsigned int>(data.sequence_length+2)) {
 	        	std::ostringstream msg;
 	        	msg << "Problem with altGenom"; //TODO warning msg
 	        	warnings.add(msg.str());
 
 	        	int old_n_elem = alt.n_elem;
-	        	alt.resize(data.sequence_length);
+	        	alt.resize(data.sequence_length+2);
 	        	alt.subvec(old_n_elem, alt.n_elem-1).zeros();
 			}
 

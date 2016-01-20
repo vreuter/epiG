@@ -367,6 +367,7 @@ position.info.epiG <- function(object, pos, ...) {
 							ref.ratio = NA,
 							alt.ratio = NA,
 							methylated = NA, 
+							CpG = NA,
 							nreads = NA, 
 							nreads.fwd = NA, 
 							nreads.rev = NA))
@@ -391,15 +392,18 @@ position.info.epiG <- function(object, pos, ...) {
 				ref.ratio = NA,
 				alt.ratio = NA,
 				methylated =.methylation.status(genotype(object, pos, remove.meth = FALSE)[as.character(cid)], nfwd, nrev),  
+				CpG = NA,
 				nreads = sapply(cid, function(x) sum(chains == x)),
 				nreads.fwd = nfwd,
 				nreads.rev = nrev
 		)
 				
 		if(!is.null(object[["ref"]])) {
-			ref <- object$ref[pos - object$offset + 1]
-			info.df$ref <- symbols(ref)
-			info.df$ref.ratio = sapply(as.character(cid), function(x) .ratio(ll[,x], ref))
+			ref0 <- object$ref[pos - object$offset + 1]
+			ref1 <- object$ref[pos - object$offset + 2]
+			info.df$ref <- symbols(ref0)
+			info.df$CpG <- ref0 == 1 & ref1 == 2
+			info.df$ref.ratio = sapply(as.character(cid), function(x) .ratio(ll[,x], ref0))
 			
 		} 
 		
@@ -455,17 +459,21 @@ chain.info.epiG <- function(object, ...) {
 		
 		chains <- sort(unique(object$haplotype$chain))
 		
+		total.bp = sapply(chains, function(i) sum(object$reads$length[object$haplotype$chain == i]))
+		depth <- sapply(1:length(chains), function(i) 
+						sum(object$reads$length[(object$reads$positions + object$offset) %in% object$haplotype$start[i]:object$haplotype$end[i]])
+						)
+						
 		return(data.frame(chain.id = chains, 
 						start = object$haplotype$start, 
 						end = object$haplotype$end, 
-						length = object$haplotype$end - object$haplotype$start + 1, 
+						length = object$haplotype$end - object$haplotype$start + 1,
 						nreads = as.vector(table(object$haplotype$chain)), 
 						nreads.fwd = sapply(chains, function(i) sum(object$strands[object$haplotype$chain == i] == "fwd")),
-						nreads.rev = sapply(chains, function(i) sum(object$strands[object$haplotype$chain == i] == "rev"))
-		
+						nreads.rev = sapply(chains, function(i) sum(object$strands[object$haplotype$chain == i] == "rev")),
+						depth.fraction = total.bp/depth
 				))
 	}
-	
 	
 	if(paste(class(object), collapse = ".") == "epiG.chunks") {
 		tmp <- lapply(object, function(x) chain.info(x, ...))		
