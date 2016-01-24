@@ -3,16 +3,22 @@
 
 class haplo_chain_optimizer {
 
-	//Data
+	//Algorithm configurations
 	AlgorithmConfiguration const& config;
+
+	//Data
 	alignment_data const& data;
 	t_seq_bases const& ref;
 	t_seq_bases const& alt;
 
+	//Holds haplotype model
 	haplotype h;
 
-	//Algorithm configurations
+	//max iterations
 	t_count const max_iterations;
+
+	//Report warnings to R
+	omp_rwarn & warnings;
 
 	template<typename abort_checker>
 	t_count optimize_profile(abort_checker const& ac);
@@ -30,13 +36,15 @@ public:
 			alignment_data const& data,
 			t_seq_bases const& ref,
 			t_seq_bases const& alt,
+			omp_rwarn & warnings,
 			bool use_paired_reads_dummy);
 
 	haplo_chain_optimizer(
 			AlgorithmConfiguration const& config,
 			alignment_data const& data,
 			t_seq_bases const& ref,
-			t_seq_bases const& alt);
+			t_seq_bases const& alt,
+			omp_rwarn & warnings);
 
 	template<typename abort_checker>
 	void run(abort_checker const& ac);
@@ -72,15 +80,16 @@ public:
 			alignment_data const& data,
 			t_seq_bases const& ref,
 			t_seq_bases const& alt,
+			omp_rwarn & warnings,
 			bool use_paired_reads) {
 
 		DEBUG_ENTER
 
 		if(use_paired_reads) {
-			return haplo_chain_optimizer(config, data, ref, alt, use_paired_reads);
+			return haplo_chain_optimizer(config, data, ref, alt, warnings, use_paired_reads);
 		}
 
-		return haplo_chain_optimizer(config, data, ref, alt);
+		return haplo_chain_optimizer(config, data, ref, alt, warnings);
 	}
 };
 
@@ -91,27 +100,32 @@ inline haplo_chain_optimizer::haplo_chain_optimizer(
 		alignment_data const& data,
 		t_seq_bases const& ref,
 		t_seq_bases const& alt,
+		omp_rwarn & warnings,
 		bool use_paired_reads_dummy) :
 				config(config),
 				data(data),
 				ref(ref),
 				alt(alt),
 				h(config, data, ref, alt, config.min_overlap_length, find_read_pairs(data)),
-				max_iterations(config.max_iterations)
-				{
+				max_iterations(config.max_iterations),
+				warnings(warnings)
+		{
 }
 
 inline haplo_chain_optimizer::haplo_chain_optimizer(
 		AlgorithmConfiguration const& config,
 		alignment_data const& data,
 		t_seq_bases const& ref,
-		t_seq_bases const& alt) :
+		t_seq_bases const& alt,
+		omp_rwarn & warnings) :
 				config(config),
 				data(data),
 				ref(ref),
 				alt(alt),
 				h(config, data, ref, alt, config.min_overlap_length),
-				max_iterations(config.max_iterations) {
+				max_iterations(config.max_iterations),
+				warnings(warnings)
+		{
 }
 
 template<typename abort_checker>
@@ -123,21 +137,17 @@ inline void haplo_chain_optimizer::run(const abort_checker& ac) {
 	t_count change_count = optimize_profile(ac);
 	h.chain_clean();
 
-	cout << change_count << " : " << h.posterior() << endl;
+	//cout << change_count << " : " << h.posterior() << endl;
 
-	//TODO stage config
 	for(int stage = 1; stage < config.max_stages; stage++) {
 
 		h.set_blocks(h);
-		//h.set_min_overlap(config.min_overlap_length_2);
+		//h.set_min_overlap(); TODO different min_overlap for stages
 
 		t_count change_count = optimize_profile(ac);
-
-		cout << change_count << " : " << h.posterior() << endl;
-
 		h.chain_clean();
 
-		if(change_count <= 1) {
+		if(change_count <= 0) {
 			break;
 		}
 
@@ -210,7 +220,7 @@ inline t_count haplo_chain_optimizer::optimize_profile(
 	}
 
 	if (i == max_iterations) {
-		report_error("Max iteration limit reached");
+		warnings.add("Max iteration limit reached");
 	}
 
 	return i;

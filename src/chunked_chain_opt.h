@@ -230,7 +230,7 @@ void chunk_haplo_chain_optimizer::run() {
 			}
 
 			//Init haplo optimizer
-			haplo_chain_optimizer opt = haplo_chain_optimizer::create(config, data, ref, alt, config.use_paired_reads);
+			haplo_chain_optimizer opt = haplo_chain_optimizer::create(config, data, ref, alt, warnings, config.use_paired_reads);
 
 			opt.run(p);
 

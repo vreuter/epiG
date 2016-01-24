@@ -170,7 +170,7 @@ inline alignment_data::alignment_data(
 
 			} else {
 
-				if(config.NOMEseq_mode && j > 0 && (is_DGCH(j, ref) || (j > 1 && is_DGCH(j-1, ref)))) {
+				if(config.split_mode && j > 0 && (is_DGCH(j, ref) || (j > 1 && is_DGCH(j-1, ref)))) {
 					//DGCH
 					//fwd strand
 					tmp_loglike_terms(i, 0).row(k) = log((1-4/static_cast<double>(3)*epsilon)*fwd_DGCH_model(k).row(base-1) + epsilon/static_cast<double>(3));
@@ -183,7 +183,7 @@ inline alignment_data::alignment_data(
 
 				}
 
-				else if(config.NOMEseq_mode && j > 0 && (is_HCGD(j, ref) || (j > 1 && is_HCGD(j-1, ref)))) {
+				else if(config.split_mode && j > 0 && (is_HCGD(j, ref) || (j > 1 && is_HCGD(j-1, ref)))) {
 					//HCGD
 					tmp_loglike_terms(i, 0).row(k) = log((1-4/static_cast<double>(3)*epsilon)*fwd_HCGD_model(k).row(base-1) + epsilon/static_cast<double>(3));
 
@@ -194,7 +194,7 @@ inline alignment_data::alignment_data(
 					tmp_like_terms(i, 1).row(k) = (1-4/static_cast<double>(3)*epsilon)*rev_HCGD_model(k).row(base-1) + epsilon/static_cast<double>(3);
 				}
 
-				else if(config.NOMEseq_mode && (ref(j) == 1 || ref(j) == 2)) {
+				else if(config.split_mode && (ref(j) == 1 || ref(j) == 2)) {
 					//GC CG or single C G
 					tmp_loglike_terms(i, 0).row(k) = log((1-4/static_cast<double>(3)*epsilon)*fwd_C_G_model(k).row(base-1) + epsilon/static_cast<double>(3));
 

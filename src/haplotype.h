@@ -8,8 +8,8 @@ private:
 	//May only be update through move_read
 	t_haplochains haplo; //vector of size n_reads
 	t_strands read_strands; //vector of size n_reads
-	t_positions chain_start;
-	t_positions chain_end;
+	t_positions chain_start; //vector of size n chais
+	t_positions chain_end; //vector of size n chais
 	double prior;
 
 
@@ -173,7 +173,7 @@ private:
 public:
 
 	bool const use_read_blocks;
-	bool const NOMEseq_mode;
+	bool const split_mode;
 
 	t_count const n_elements;
 
@@ -181,6 +181,7 @@ public:
 	t_count const min_CG_count;
 	t_count const min_HCGD_count;
 	t_count const min_DGCH_count;
+	t_position margin;
 
 	double const prior_adjust;
 
@@ -276,36 +277,34 @@ void haplotype::set_blocks(haplotype const& h) {
 		}
 	}
 
-	chain_start.set_size(blocks.size());
-	chain_end.set_size(blocks.size());
+	t_positions block_start(blocks.size());
 
 	t_positions block_start_positions_tmp(data.n_reads);
 	t_positions block_end_positions_tmp(data.n_reads);
 
 	for(t_index i = 0; i < blocks.size(); ++i) {
 
-				// set start and end of chain
-				chain_start(i) = min(data.reads_start_positions(blocks[i]));
-				chain_end(i) = max(data.reads_end_positions(blocks[i]));
+				// get start and end of block
+				t_position start = min(data.reads_start_positions(blocks[i]));
+				t_position end = max(data.reads_end_positions(blocks[i]));
 
 				// set block start position
-				block_start_positions_tmp(blocks[i]).fill(chain_start(i));
-				block_end_positions_tmp(blocks[i]).fill(chain_end(i));
+				block_start(i) = start;
+
+				// set block positions
+				block_start_positions_tmp(blocks[i]).fill(start);
+				block_end_positions_tmp(blocks[i]).fill(end);
 
 			}
 
 	//Reorder blocks such that they are ordered with increasing start position
-	uvec idx = sort_index(chain_start);
+	uvec idx = sort_index(block_start);
 	std::vector<t_indices> blocks_ordered;
 	for(t_index i = 0; i < idx.n_elem; ++i) {
-		blocks_ordered.push_back(blocks[idx(i)]);
-		haplo(blocks[idx(i)]).fill(i);
+
+		//order blocks
+		blocks_ordered.push_back(blocks[idx(i)]);;
 	}
-
-	read_strands = h.strands();
-
-	chain_start = chain_start(idx);
-	chain_end = chain_end(idx);
 
 	const_cast<bool&>(use_read_blocks) = true;
 	const_cast<t_count&>(n_elements) = blocks_ordered.size();
@@ -313,7 +312,6 @@ void haplotype::set_blocks(haplotype const& h) {
 
 	const_cast<t_positions&>(block_start_positions) = block_start_positions_tmp;
 	const_cast<t_positions&>(block_end_positions) = block_end_positions_tmp;
-
 }
 
 void haplotype::set_min_overlap(t_position min_overlap) {
@@ -396,12 +394,13 @@ haplotype::haplotype(
 				ref_match_prior_log(),
 				ref_priores(),
 				use_read_blocks(true),
-				NOMEseq_mode(config.NOMEseq_mode),
+				split_mode(config.split_mode),
 				n_elements(read_blocks.size()),
 				min_overlap_length(config.min_overlap_length),
 				min_CG_count(config.min_CG_count),
 				min_HCGD_count(config.min_HCGD_count),
 				min_DGCH_count(config.min_DGCH_count),
+				margin(config.margin),
 				prior_adjust(config.structual_prior_scale)
 			 {
 
@@ -425,12 +424,13 @@ haplotype::haplotype(
 				ref_match_prior_log(),
 				ref_priores(),
 				use_read_blocks(false),
-				NOMEseq_mode(config.NOMEseq_mode),
+				split_mode(config.split_mode),
 				n_elements(data.n_reads),
 				min_overlap_length(config.min_overlap_length),
 				min_CG_count(config.min_CG_count),
 				min_HCGD_count(config.min_HCGD_count),
 				min_DGCH_count(config.min_DGCH_count),
+				margin(config.margin),
 				prior_adjust(config.structual_prior_scale)
 			 {
 
@@ -625,6 +625,14 @@ bool haplotype::is_feasible(
 	t_position overlap_end = min(read_end, chain_end);
 
 	if(overlap_end - overlap_start + 1 < min_overlap_length) {
+		return false;
+	}
+
+	//TODO configable margin
+	overlap_start = overlap_start + margin;
+	overlap_end = overlap_end - margin;
+
+	if(overlap_start < 0 || overlap_end <= overlap_start) {
 		return false;
 	}
 
@@ -1012,7 +1020,7 @@ double haplotype::compute_logsum(
 	logsum.each_row() = trans(ref_priores(ref(pos+1), alt(pos+1))) + loglike_term.row(1);
 	logsum.each_col() += ref_priores(ref(pos), alt(pos)) + trans(loglike_term.row(0));
 
-	if(NOMEseq_mode && is_DGCH(pos)) {
+	if(split_mode && is_DGCH(pos)) {
 
 		// DGCH
 		//rule out half methylated genotypes
@@ -1021,14 +1029,14 @@ double haplotype::compute_logsum(
 
 	}
 
-	else if(NOMEseq_mode && is_HCGD(pos)) {
+	else if(split_mode && is_HCGD(pos)) {
 
 		logsum(0, 5) = -1 * std::numeric_limits<float>::infinity();
 		logsum(4, 1) = -1 * std::numeric_limits<float>::infinity();
 
 	}
 
-//	else if(NOMEseq_mode &&  (ref(pos) == 1 || ref(pos) == 2 || ref(pos+1) == 1 || ref(pos+1) == 2))	{
+//	else if(split_mode &&  (ref(pos) == 1 || ref(pos) == 2 || ref(pos+1) == 1 || ref(pos+1) == 2))	{
 //
 //		//GCG CGC or single G C context
 //		//Ignore return 0
@@ -1154,7 +1162,7 @@ void haplotype::compute_genotype(
 	logsum.each_row() = trans(ref_priores(ref(pos+1), alt(pos+1))) + loglike_term.row(1);
 	logsum.each_col() += ref_priores(ref(pos), alt(pos)) + trans(loglike_term.row(0));
 
-	if(NOMEseq_mode && is_DGCH(pos)) {
+	if(split_mode && is_DGCH(pos)) {
 
 		// DGCH
 		//rule out half methylated genotypes
@@ -1163,14 +1171,14 @@ void haplotype::compute_genotype(
 
 	}
 
-	else if(NOMEseq_mode && is_HCGD(pos)) {
+	else if(split_mode && is_HCGD(pos)) {
 
 		logsum(0, 5) = -1 * std::numeric_limits<float>::infinity();
 		logsum(4, 1) = -1 * std::numeric_limits<float>::infinity();
 
 	}
 
-	else if(NOMEseq_mode && pos > 0 && (is_DGCH(pos-1) || is_HCGD(pos-1))) {
+	else if(split_mode && pos > 0 && (is_DGCH(pos-1) || is_HCGD(pos-1))) {
 		//Ignore
 		return;
 	}

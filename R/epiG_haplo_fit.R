@@ -165,13 +165,15 @@ epiG.chunks <- function(configs, max_threads = 8L) {
 		res.chunks[[i]]$date <- date()
 		
 		res.chunks[[i]]$config <- configs[[i]]
-
 		res.chunks[[i]]$filename <- filename
 		res.chunks[[i]]$refname <- refnames[[i]]
 		
 		res.chunks[[i]]$offset <- res$chunks_start[i]
 		
 		res.chunks[[i]]$read_ids <- lapply(res$read_id[[i]], function(x) x + 1)
+		res.chunks[[i]]$read_unique_chunk_ids <- sapply(res$read_unique_chunk_ids[[i]], function(x) x + 1)
+		res.chunks[[i]]$read_names <- res$read_names
+		
 		res.chunks[[i]]$haplotype$chain <- as.integer(factor(res$haplotype[[i]]))
 		res.chunks[[i]]$haplotype$start <- res$chain_start[[i]]
 		res.chunks[[i]]$haplotype$end <- res$chain_end[[i]]
@@ -185,6 +187,7 @@ epiG.chunks <- function(configs, max_threads = 8L) {
 		res.chunks[[i]]$length <- as.integer(res$chunks_end[i] - res.chunks[[i]]$offset + 1)
 		
 		class(res.chunks[[i]]) <- "epiG"
+
 	}
 	
 	if(n_chunks == 1) {

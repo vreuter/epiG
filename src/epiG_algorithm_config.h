@@ -79,6 +79,7 @@ public:
     t_count min_CG_count;
     t_count min_HCGD_count;
 	t_count min_DGCH_count;
+	t_position margin;
 
     t_count max_stages;
 
@@ -86,7 +87,7 @@ public:
 
     bool use_paired_reads;
 
-    bool NOMEseq_mode;
+    bool split_mode;
 
 	bool verbose;
 
@@ -121,6 +122,7 @@ public:
 		    min_CG_count(getConfigAttribute<t_count>(config, "min_CG_count")),
 		    min_HCGD_count(getConfigAttribute<t_count>(config, "min_HCGD_count")),
 			min_DGCH_count(getConfigAttribute<t_count>(config, "min_DGCH_count")),
+			margin(getConfigAttribute<t_position>(config, "margin")),
 
 		    max_stages(getConfigAttribute<t_count>(config, "max_stages")),
 
@@ -128,7 +130,7 @@ public:
 
 			use_paired_reads(getConfigAttribute<bool>(config, "use_paired_reads")),
 
-			NOMEseq_mode(getConfigAttribute<bool>(config, "NOMEseq_mode")),
+			split_mode(getConfigAttribute<bool>(config, "split_mode")),
 
 			verbose(getConfigAttribute<bool>(config, "verbose")) {
 	}
