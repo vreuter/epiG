@@ -1122,7 +1122,7 @@ mat haplotype::compute_chain_loglike(t_haplochain const chain) const {
 	t_indices reads_in_chain = find(haplo == chain);
 
 	if (reads_in_chain.n_elem == 0) {
-		return 0;
+		throw std::runtime_error("compute_chain_loglike : chain empty");
 	}
 
 	//find start, end pos of chain
@@ -1286,13 +1286,9 @@ double haplotype::compute_prior_chain(
 	}
 
 	double x = sum(data.reads_end_positions(idx) - data.reads_start_positions(idx) + 1);
-	//double c = mean(data.read_depth.subvec(c_start(chain),c_end(chain)));
 	double l = c_end(chain) - c_start(chain)+1;
-	//double max_l = max(c_end-c_start)+1;
 
-	//cout << x << " : " << c << " : " << l << " : " << square(1/c*x/l) << endl;
-
-	return static_cast<double>(idx.n_elem) * (log(l)+log(x));
+	return static_cast<double>(idx.n_elem) * (log(l)+2*log(x));
 
 }
 

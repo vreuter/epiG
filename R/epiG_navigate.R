@@ -747,7 +747,7 @@ subregion.epiG <- function(object, start, end, chop.reads = FALSE, ...) {
 				chain_rel_end_pos <- min(end, object$haplotype$end[i]) - object$haplotype$start[i]
 				
 				new_object$genotypes[[length(new_object$genotypes)+1]] <- object$genotypes[[i]][chain_rel_start_pos:chain_rel_end_pos+1]		
-				new_object$loglikes[[length(new_object$loglikes)+1]] <- object$loglikes[[i]][chain_rel_start_pos:chain_rel_end_pos+1,]				
+				new_object$loglikes[[length(new_object$loglikes)+1]] <- object$loglikes[[i]][chain_rel_start_pos:chain_rel_end_pos+1,, drop = FALSE]				
 		}
 	
 		# Reads
