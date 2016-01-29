@@ -457,6 +457,10 @@ chain.info.epiG <- function(object, ...) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
 		
+		if(nchain(object) == 0) {
+			stop("Contains no chains")
+		}
+		
 		chains <- sort(unique(object$haplotype$chain))
 		
 		total.bp = sapply(chains, function(i) sum(object$reads$length[object$haplotype$chain == i]))
@@ -720,6 +724,10 @@ subregion.epiG <- function(object, start, end, chop.reads = FALSE, ...) {
 		new_id <- 1:length(remaining_read_ids)
 		names(new_id) <- remaining_read_ids
 		new_object$read_ids <- lapply(new_object$read_ids, function(x) as.integer(new_id[as.character(x)]))
+		
+		if(length(remaining_read_ids)) {
+			warning("Region is empty")
+		}
 		
 		# Ref and alt
 		

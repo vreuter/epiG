@@ -97,7 +97,7 @@ auto_config <- function(
 							min_overlap,
 							...))
 		
-		return(confs[ ! sapply(confs, is.null)])
+		return(confs)
 	}
 	
 	# Fetch information about file
