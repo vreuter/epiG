@@ -153,7 +153,7 @@ auto_config <- function(
 		model$rev_C_G <- lapply(model$rev, function(x) x %*% ignor.me)
 		
 		min_CG_count <- 0
-		min_HCGD_count <- 2
+		min_HCGD_count <- 1
 		min_DGCH_count <- 2
 	
 	} else {
