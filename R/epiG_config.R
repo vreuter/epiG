@@ -2,6 +2,9 @@
 # 
 # Author: martin
 ###############################################################################
+
+#FIXME names use . not _
+
 #' create_error_distributions
 #' 
 #' @param bisulfite_rate 
@@ -169,6 +172,8 @@ auto_config <- function(
 	cat(paste(" Min overlap length (computed) =", as.integer(min_overlap),"\n"))
 	cat(paste(" Number of reads =", n_reads,"\n"))
 	cat(paste(" Use paired reads =", use_paired_reads,"\n"))
+	
+	#TODO max chunk_size
 	
 	config <- epiG.algorithm.config(
 			model = model,
