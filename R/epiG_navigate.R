@@ -725,7 +725,7 @@ subregion.epiG <- function(object, start, end, chop.reads = FALSE, ...) {
 		names(new_id) <- remaining_read_ids
 		new_object$read_ids <- lapply(new_object$read_ids, function(x) as.integer(new_id[as.character(x)]))
 		
-		if(length(remaining_read_ids)) {
+		if(length(remaining_read_ids) == 0) {
 			warning("Region is empty")
 		}
 		
