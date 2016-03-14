@@ -206,6 +206,12 @@ fetch_alt <- function(object) {
 	return(object)
 }
 
+#' fetch_header
+#'  
+#' @param filename 
+#' 
+#' @author martin
+#' @export
 fetch_header <- function(filename) {
  	
 	tmp <- .Call(r_epiG_fetch_header, filename)
@@ -213,6 +219,12 @@ fetch_header <- function(filename) {
 	data.frame(ref = tmp$refname, length = tmp$lengths, stringsAsFactors = FALSE)	
 }
 
+#' fetch_file_info
+#' 
+#' @param filename 
+#' 
+#' @author martin
+#' @export
 fetch_file_info <- function(filename) {
 	
 	info <- fetch_header(filename)

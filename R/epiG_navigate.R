@@ -530,12 +530,23 @@ read.info.epiG <- function(object, inc.symbols = FALSE, ...) {
 						name = object$reads$name[idx], 
 						position = object$reads$position[idx]:(object$reads$position[idx]+object$reads$length[idx]-1) + object$offset, 
 						symbol = symbols(object$reads$reads[[idx]]), 
+						ref = NA,
 						read.id = idx, quality = object$reads$quality[[idx]],
 						chain.id = object$haplotype$chain[idx], 
 						strand = object$strands[idx])
 			
 				info <- rbind(info, tmp)	
 			}
+			
+			if(!("ref" %in% names(object))) {
+				object <- fetch.ref(object)
+			}
+			
+			# Add ref
+			rel.pos <- info$position-object$offset+1
+			in.range <- (rel.pos > 0) & (rel.pos <= length(object$ref))
+			info$ref[in.range] <- symbols(object$ref[rel.pos[in.range]])
+			
 		} else {
 			info <- data.frame(
 						name = object$reads$name, 
@@ -576,6 +587,14 @@ read.info.epiG <- function(object, inc.symbols = FALSE, ...) {
 	
 }
 
+#' read.info.epiG_reads
+#' 
+#' @param object 
+#' @param inc.symbols 
+#' @param ... 
+#' 
+#' @author martin
+#' @export
 read.info.epiG_reads <- function(object, inc.symbols = FALSE, ...) {
 	
 	info <- NULL

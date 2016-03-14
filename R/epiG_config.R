@@ -74,6 +74,21 @@ create_bisulfite_model <- function(bisulfite_rates, bisulfite_inap_rate, Lmax) {
 }
 
 #TODO auto config for chunked mode
+#' auto_config
+#' 
+#' @param ref_file 
+#' @param alt_file 
+#' @param NOMEseq 
+#' @param bam_file 
+#' @param chr 
+#' @param start 
+#' @param end 
+#' @param use_paired_reads 
+#' @param min_overlap 
+#' @param ... 
+#' 
+#' @author martin
+#' @export
 auto_config <- function(
 		ref_file, 
 		alt_file, 
@@ -312,6 +327,16 @@ epiG.algorithm.config <- function(
 	return(config)
 }
 
+#' add_run_configuration
+#' 
+#' @param config 
+#' @param filename 
+#' @param refname 
+#' @param start 
+#' @param end 
+#' 
+#' @author martin
+#' @export
 add_run_configuration <- function(config, filename, refname, start, end) {
 	
 	config$filename <- filename
