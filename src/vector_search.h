@@ -10,9 +10,8 @@ arma::uvec locate(arma::uvec const& pattern, arma::uvec const& text) {
 
 	arma::uvec pos;
 
-	arma::u32 p = 0;
 	arma::uvec::const_iterator pi = pattern.begin();
-	for(arma::uvec::const_iterator ti = text.begin(); ti != text.end(); ++ti, ++p) {
+	for(arma::uvec::const_iterator ti = text.begin(); ti != text.end(); ++ti) {
 
 		if (*pi == *ti) {
 
@@ -20,12 +19,13 @@ arma::uvec locate(arma::uvec const& pattern, arma::uvec const& text) {
 
 			if(pi == pattern.end()) {
 				pos.resize(pos.n_elem+1);
-				pos(pos.n_elem - 1) = p - pattern.n_elem + 1;
+				pos(pos.n_elem - 1) = ti-text.begin() - pattern.n_elem + 1;
 				pi = pattern.begin();
 			}
 		}
 
 		else {
+			ti = ti - (pi - pattern.begin());
 			pi = pattern.begin();
 		}
 
