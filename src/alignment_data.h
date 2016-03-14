@@ -23,6 +23,9 @@ public:
 	t_models const fwd_HCGD_model;
 	t_models const rev_HCGD_model;
 
+	t_models const fwd_CH_model;
+	t_models const rev_CH_model;
+
 	t_models const fwd_C_G_model;
 	t_models const rev_C_G_model;
 
@@ -53,6 +56,10 @@ public:
 		return (pos > 0 && ref(pos-1) != 1 && ref(pos) == 2 && ref(pos+1) == 1 && ref(pos+2) != 2);
 	}
 
+	static bool is_CH(t_position pos, t_seq_bases const& ref) {
+		return (ref(pos) == 1 && ref(pos+1) != 2);
+	}
+
     alignment_data(
     		AlgorithmConfiguration const& config,
     		std::vector<aligned_read> const& reads,
@@ -75,6 +82,8 @@ inline alignment_data::alignment_data(
 				rev_DGCH_model(config.rev_DGCH_model),
 				fwd_HCGD_model(config.fwd_HCGD_model),
 				rev_HCGD_model(config.rev_HCGD_model),
+				fwd_CH_model(config.fwd_CH_model),
+				rev_CH_model(config.rev_CH_model),
 				fwd_C_G_model(config.fwd_C_G_model),
 				rev_C_G_model(config.rev_C_G_model),
 				offset(0),
@@ -192,6 +201,18 @@ inline alignment_data::alignment_data(
 
 					tmp_like_terms(i, 0).row(k) = (1-4/static_cast<double>(3)*epsilon)*fwd_HCGD_model(k).row(base-1) + epsilon/static_cast<double>(3);
 					tmp_like_terms(i, 1).row(k) = (1-4/static_cast<double>(3)*epsilon)*rev_HCGD_model(k).row(base-1) + epsilon/static_cast<double>(3);
+				}
+
+				else if(config.split_mode && is_CH(j, ref)) {
+					//CH
+					tmp_loglike_terms(i, 0).row(k) = log((1-4/static_cast<double>(3)*epsilon)*fwd_CH_model(k).row(base-1) + epsilon/static_cast<double>(3));
+
+					//rev strand
+					tmp_loglike_terms(i, 1).row(k) = log((1-4/static_cast<double>(3)*epsilon)*rev_CH_model(k).row(base-1) + epsilon/static_cast<double>(3));
+
+					tmp_like_terms(i, 0).row(k) = (1-4/static_cast<double>(3)*epsilon)*fwd_CH_model(k).row(base-1) + epsilon/static_cast<double>(3);
+					tmp_like_terms(i, 1).row(k) = (1-4/static_cast<double>(3)*epsilon)*rev_CH_model(k).row(base-1) + epsilon/static_cast<double>(3);
+
 				}
 
 				else if(config.split_mode && (ref(j) == 1 || ref(j) == 2)) {

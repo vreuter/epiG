@@ -164,6 +164,9 @@ auto_config <- function(
 		model$fwd_DGCH <- model$fwd
 		model$rev_DGCH <- model$rev
 		
+		model$fwd_CH <- lapply(model$fwd, function(x) x %*% ignor.me)
+		model$rev_CH <- lapply(model$rev, function(x) x %*% ignor.me)
+		
 		model$fwd_C_G <- lapply(model$fwd, function(x) x %*% ignor.me)
 		model$rev_C_G <- lapply(model$rev, function(x) x %*% ignor.me)
 		
@@ -280,6 +283,9 @@ epiG.algorithm.config <- function(
 	
 		config$fwd_HCGD_model <- model$fwd_HCGD 
 		config$rev_HCGD_model <- model$rev_HCGD
+		
+		config$fwd_CH_model <- model$fwd_CH 
+		config$rev_CH_model <- model$rev_CH
 	
 		config$fwd_C_G_model <- model$fwd_C_G 
 		config$rev_C_G_model <- model$rev_C_G
@@ -291,6 +297,9 @@ epiG.algorithm.config <- function(
 		
 		config$fwd_HCGD_model <- list(matrix(0))
 		config$rev_HCGD_model <- list(matrix(0))
+		
+		config$fwd_CH_model <- list(matrix(0))
+		config$rev_CH_model <- list(matrix(0))
 		
 		config$fwd_C_G_model <- list(matrix(0))
 		config$rev_C_G_model <- list(matrix(0))

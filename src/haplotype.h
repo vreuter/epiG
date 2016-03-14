@@ -1036,15 +1036,6 @@ double haplotype::compute_logsum(
 
 	}
 
-//	else if(split_mode &&  (ref(pos) == 1 || ref(pos) == 2 || ref(pos+1) == 1 || ref(pos+1) == 2))	{
-//
-//		//GCG CGC or single G C context
-//		//Ignore return 0
-//
-//		return 0;
-//
-//		}
-
 	else {
 
 		//Non GpC or CpG context or normal mode

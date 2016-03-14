@@ -67,6 +67,9 @@ public:
 	t_models fwd_HCGD_model;
 	t_models rev_HCGD_model;
 
+	t_models fwd_CH_model;
+	t_models rev_CH_model;
+
 	t_models fwd_C_G_model;
 	t_models rev_C_G_model;
 
@@ -108,6 +111,10 @@ public:
 			fwd_HCGD_model(getConfigList<t_model>(config, "fwd_HCGD_model")),
 
 			rev_HCGD_model(getConfigList<t_model>(config, "rev_HCGD_model")),
+
+			fwd_CH_model(getConfigList<t_model>(config, "fwd_CH_model")),
+
+			rev_CH_model(getConfigList<t_model>(config, "rev_CH_model")),
 
 			fwd_C_G_model(getConfigList<t_model>(config, "fwd_C_G_model")),
 
