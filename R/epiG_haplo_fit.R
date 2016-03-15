@@ -142,6 +142,11 @@ epiG.chunks <- function(configs, max_threads = 8L) {
 		stop("configs should be a list of configurations")
 	}
 	
+	if(sum(sapply(configs, is.null)) > 0) {
+		warning("removing null configurations")
+		configs <- configs[ ! sapply(configs, is.null)]
+	}
+	
 	refGenom_filename = configs[[1]]$ref.filename
 	altGenom_filename = configs[[1]]$alt.filename
 	filename = configs[[1]]$filename
