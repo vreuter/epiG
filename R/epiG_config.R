@@ -61,14 +61,14 @@ create_error_distributions <- function(bisulfite_rate, bisulfite_inap_rate) {
 #' 
 #' @author Martin Vincent
 #' @export
-create_bisulfite_model <- function(bisulfite_rates, bisulfite_inap_rate, Lmax) {
+create_bisulfite_model <- function(bisulfite_rate, bisulfite_inap_rate, Lmax) {
 	
-	bisulfite_rates <- rep(bisulfite_rates, Lmax)
-	bisulfite_inap_rate <- rep(bisulfite_inap_rate, Lmax)
+	bisulfite_rates <- rep(bisulfite_rate, Lmax)
+	bisulfite_inap_rates <- rep(bisulfite_inap_rate, Lmax)
 	
 	model <- list()
-	model$fwd <-lapply(1:Lmax, function(i) create_error_distributions(bisulfite_rates[i], bisulfite_inap_rate[i])$fwd) 
-	model$rev <-lapply(1:Lmax, function(i) create_error_distributions(bisulfite_rates[i], bisulfite_inap_rate[i])$rev) 
+	model$fwd <-lapply(1:Lmax, function(i) create_error_distributions(bisulfite_rates[i], bisulfite_inap_rates[i])$fwd) 
+	model$rev <-lapply(1:Lmax, function(i) create_error_distributions(bisulfite_rates[i], bisulfite_inap_rates[i])$rev) 
 	
 	return(model)
 }
@@ -85,6 +85,7 @@ create_bisulfite_model <- function(bisulfite_rates, bisulfite_inap_rate, Lmax) {
 #' @param end 
 #' @param use_paired_reads 
 #' @param min_overlap 
+#' @param bisulfite_model
 #' @param ... 
 #' 
 #' @author martin
@@ -99,6 +100,8 @@ auto_config <- function(
 		end = NULL, 
 		use_paired_reads = NULL,
 		min_overlap = NULL,
+		bisulfite_rate = .95, 
+		bisulfite_inap_rate = 0.05, 
 		...) {
 
 	if( ! is.null(chr) && length(chr) > 1) {
@@ -113,6 +116,8 @@ auto_config <- function(
 							end[i], 
 							use_paired_reads,
 							min_overlap,
+							bisulfite_rate = bisulfite_rate,
+							bisulfite_inap_rate = bisulfite_inap_rate,
 							...))
 		
 		return(confs)
@@ -146,8 +151,8 @@ auto_config <- function(
 	### Create bisulfite model
 	#TODO auto detimen bisulfite rates
 	model <- create_bisulfite_model(
-			bisulfite_rate = .95, 
-			bisulfite_inap_rate = 0.05, 
+			bisulfite_rate = bisulfite_rate, 
+			bisulfite_inap_rate = bisulfite_inap_rate, 
 			Lmax = max(reads$length))
 
 	if(NOMEseq) {
@@ -185,8 +190,8 @@ auto_config <- function(
 
 	#TODO only if verbose=TRUE + nicer output use data.frame + rounding
 	cat("Generating configuration with the following parameters:\n\n")
-	cat(paste(" bisulphite conversion rate (fixed) =", 0.95,"\n"))
-	cat(paste(" inappropriate bisulphite conversion rate (fixed) =", 0.05,"\n"))
+	cat(paste(" bisulphite conversion rate =", bisulfite_rate,"\n"))
+	cat(paste(" inappropriate bisulphite conversion rate =", bisulfite_inap_rate,"\n"))
 	cat(paste(" Min overlap length (computed) =", as.integer(min_overlap),"\n"))
 	cat(paste(" Number of reads =", n_reads,"\n"))
 	cat(paste(" Use paired reads =", use_paired_reads,"\n"))
