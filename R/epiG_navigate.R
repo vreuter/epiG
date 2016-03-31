@@ -368,9 +368,9 @@ position.info.epiG <- function(object, pos, ...) {
 							alt.ratio = NA,
 							methylated = NA, 
 							CpG = NA,
-							nreads = NA, 
-							nreads.fwd = NA, 
-							nreads.rev = NA))
+							nreads = 0, 
+							nreads.fwd = 0, 
+							nreads.rev = 0))
 		}	
 		
 		chains <- object$haplotype$chain[object$read_ids[[pos - start(object)+1]]]
