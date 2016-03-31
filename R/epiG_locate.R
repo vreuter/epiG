@@ -93,6 +93,16 @@ locate.DGCH <- function(object) {
 		
 		pos <- vector.search(c(2,1), object$ref)
 		
+		# Remove pos <= 1 
+		if(any(pos == 1)) {
+			pos <- pos[pos > 1]
+		}
+		
+		# Remove pos > length(object$ref)-2
+		if(any(pos > length(object$ref)-2)) {
+			pos <- pos[pos < (length(object$ref)-2)]
+		}
+		
 		# Remove GCG
 		tmp <- vector.search(2, object$ref[pos+2])
 		
@@ -132,6 +142,16 @@ locate.HCGD <- function(object) {
 		}
 		
 		pos <- vector.search(c(1, 2), object$ref)
+		
+		# Remove pos = 1 
+		if(any(pos == 1)) {
+			pos <- pos[pos > 1]
+		}
+		
+		# Remove pos > length(object$ref)-2
+		if(any(pos > length(object$ref)-2)) {
+			pos <- pos[pos < (length(object$ref)-2)]
+		}
 		
 		# Remove GCG
 		tmp <- vector.search(2, object$ref[pos-1])
