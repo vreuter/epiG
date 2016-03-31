@@ -210,6 +210,8 @@ public:
 			t_strand strand,
 			t_haplochain to) const;
 
+	std::vector<t_indices> get_feasible_blocks(t_indices const& reads) const;
+
 	void set_blocks(haplotype const& h);
 
 	void set_haplochain_prior(vec const& log_prior);
@@ -256,6 +258,42 @@ public:
 	}
 };
 
+std::vector<t_indices> haplotype::get_feasible_blocks(t_indices const& reads) const {
+
+	std::vector<t_indices> blocks;
+
+	t_indices block;
+	block << reads(0);
+
+	t_position chain_end = data.reads_end_positions(reads(0));
+
+	for (t_index i = 1; i < reads.n_elem; ++i) {
+
+		t_index read = reads(i);
+
+		if(! is_feasible(data.reads_start_positions(read),
+				data.reads_end_positions(read),
+				data.reads_start_positions(read),
+				chain_end)) {
+
+			//not feasible => new chain
+			blocks.push_back(block);
+			block.reset();
+			block << read;
+
+			chain_end = data.reads_end_positions(read);
+		}
+
+		else {
+			block << read;
+
+			chain_end = max(chain_end, data.reads_end_positions(read));
+		}
+	}
+
+	return blocks;
+}
+
 void haplotype::set_blocks(haplotype const& h) {
 
 	DEBUG_ENTER
@@ -268,15 +306,25 @@ void haplotype::set_blocks(haplotype const& h) {
 
 		t_indices block_fwd = find(hc == i && rs == strand_fwd);
 		if(block_fwd.n_elem != 0) {
-			blocks.push_back(block_fwd);
+
+			std::vector<t_indices> tmp = get_feasible_blocks(block_fwd);
+			blocks.insert(blocks.end(), tmp.begin(), tmp.end());
+
+			//blocks.push_back(block_fwd);
 		}
 
 		t_indices block_rev = find(hc == i && rs == strand_rev);
 		if(block_rev.n_elem != 0) {
-			blocks.push_back(block_rev);
+
+
+			std::vector<t_indices> tmp = get_feasible_blocks(block_rev);
+			blocks.insert(blocks.end(), tmp.begin(), tmp.end());
+
+			//blocks.push_back(block_rev);
 		}
 	}
 
+	//Get block positions
 	t_positions block_start(blocks.size());
 
 	t_positions block_start_positions_tmp(data.n_reads);
