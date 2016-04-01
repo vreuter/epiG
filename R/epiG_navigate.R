@@ -292,6 +292,7 @@ position.info <- function(object, pos, ... ) UseMethod("position.info")
 
 .methylation.status <- function(genotype.code, nfwd, nrev) {
 	sapply(1:length(genotype.code), function(i) {
+				
 				if(genotype.code[i] %in% c(5,6)) return(TRUE)
 				
 				if(genotype.code[i] == 1 && nfwd[i] > 0) return(FALSE)
@@ -403,7 +404,7 @@ position.info.epiG <- function(object, pos, ...) {
 			ref1 <- object$ref[pos - object$offset + 1]
 			ref2 <- object$ref[pos - object$offset + 2]
 			info.df$ref <- symbols(ref1)
-			info.df$CpG <- (ref1 == 1 & ref2 == 2) | (ref0 = 1 & ref1 == 2)
+			info.df$CpG <- (ref1 == 1 & ref2 == 2) | (ref0 == 1 & ref1 == 2)
 			info.df$ref.ratio = sapply(as.character(cid), function(x) .ratio(ll[,x], ref1))
 			
 		} 
