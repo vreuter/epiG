@@ -404,7 +404,7 @@ position.info.epiG <- function(object, pos, ...) {
 			ref1 <- object$ref[pos - object$offset + 1]
 			ref2 <- object$ref[pos - object$offset + 2]
 			info.df$ref <- symbols(ref1)
-			info.df$CpG <- (ref1 == 1 & ref2 == 2) | (ref0 == 1 & ref1 == 2)
+			info.df$CpG <- (ref1 == 1 && ref2 == 2) || (ref0 == 1 && ref1 == 2)
 			info.df$ref.ratio = sapply(as.character(cid), function(x) .ratio(ll[,x], ref1))
 			
 		} 
