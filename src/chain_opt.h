@@ -5,6 +5,7 @@ class haplo_chain_optimizer {
 
 	//Algorithm configurations
 	AlgorithmConfiguration const& config;
+	bool use_paired_reads;
 
 	//Data
 	alignment_data const& data;
@@ -103,6 +104,7 @@ inline haplo_chain_optimizer::haplo_chain_optimizer(
 		omp_rwarn & warnings,
 		bool use_paired_reads_dummy) :
 				config(config),
+				use_paired_reads(true),
 				data(data),
 				ref(ref),
 				alt(alt),
@@ -119,6 +121,7 @@ inline haplo_chain_optimizer::haplo_chain_optimizer(
 		t_seq_bases const& alt,
 		omp_rwarn & warnings) :
 				config(config),
+				use_paired_reads(false),
 				data(data),
 				ref(ref),
 				alt(alt),
@@ -134,18 +137,35 @@ inline void haplo_chain_optimizer::run(const abort_checker& ac) {
 	DEBUG_ENTER
 	TIMER_START
 
-	t_count change_count = optimize_profile(ac);
-	h.chain_clean();
+	std::vector<t_indices> read_pairs;
 
-	//cout << change_count << " : " << h.posterior() << endl;
+	//TODO fix double work : some of this work was already done in the init
+
+	if(use_paired_reads) {
+		read_pairs = find_read_pairs(data);
+	}
 
 	for(int stage = 1; stage < config.max_stages; stage++) {
 
+
+		if(use_paired_reads) {
+			h.set_blocks(read_pairs);
+		}
+
+		else {
+			h.set_blocks();
+		}
+
+		optimize_profile(ac);
+
+		h.chain_clean();
 		h.set_blocks(h);
 		//h.set_min_overlap(); TODO different min_overlap for stages
 
 		t_count change_count = optimize_profile(ac);
 		h.chain_clean();
+
+		//cout << change_count << " : " << h.posterior() << endl;
 
 		if(change_count <= 0) {
 			break;
@@ -197,10 +217,10 @@ inline t_count haplo_chain_optimizer::optimize_profile(
 			//Update haplotype chain
 			if(loglike(0)(i_fwd) > loglike(1)(i_rev)) {
 
-				if(1e-5 >= loglike(0)(i_fwd)) {
-					//No improvement
-
-				}
+//				if(1e-5 >= loglike(0)(i_fwd)) {
+//					//No improvement
+//
+//				}
 
 				h.move(id, strand_fwd, feasible_haplotypes(i_fwd));
 			}

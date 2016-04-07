@@ -15,9 +15,7 @@ private:
 
 	//Data
 	alignment_data const& data;
-	std::vector<t_indices> const read_blocks;
-	t_positions const block_start_positions; //vector of size n_reads,
-	t_positions const block_end_positions; //vector of size n_reads
+
 
 	//Refs
 	t_seq_bases const& ref;
@@ -113,6 +111,12 @@ private:
 			t_positions const& c_end,
 			t_strands const& strands) const;
 
+	double compute_prior(
+			t_haplochains const& h,
+			t_positions const& c_start,
+			t_positions const& c_end,
+			t_strands const& strands) const;
+
 	double compute_delta(
 			t_haplochains const& h,
 			t_positions const& c_start,
@@ -172,6 +176,10 @@ private:
 
 public:
 
+	std::vector<t_indices> const read_blocks;
+	t_positions const block_start_positions; //vector of size n_reads,
+	t_positions const block_end_positions; //vector of size n_reads
+
 	bool const use_read_blocks;
 	bool const split_mode;
 
@@ -210,9 +218,11 @@ public:
 			t_strand strand,
 			t_haplochain to) const;
 
-	std::vector<t_indices> get_feasible_blocks(t_indices const& reads) const;
-
 	void set_blocks(haplotype const& h);
+
+	void set_blocks(std::vector<t_indices> const& blocks);
+
+	void set_blocks();
 
 	void set_haplochain_prior(vec const& log_prior);
 
@@ -258,42 +268,6 @@ public:
 	}
 };
 
-std::vector<t_indices> haplotype::get_feasible_blocks(t_indices const& reads) const {
-
-	std::vector<t_indices> blocks;
-
-	t_indices block;
-	block << reads(0);
-
-	t_position chain_end = data.reads_end_positions(reads(0));
-
-	for (t_index i = 1; i < reads.n_elem; ++i) {
-
-		t_index read = reads(i);
-
-		if(! is_feasible(data.reads_start_positions(read),
-				data.reads_end_positions(read),
-				data.reads_start_positions(read),
-				chain_end)) {
-
-			//not feasible => new chain
-			blocks.push_back(block);
-			block.reset();
-			block << read;
-
-			chain_end = data.reads_end_positions(read);
-		}
-
-		else {
-			block << read;
-
-			chain_end = max(chain_end, data.reads_end_positions(read));
-		}
-	}
-
-	return blocks;
-}
-
 void haplotype::set_blocks(haplotype const& h) {
 
 	DEBUG_ENTER
@@ -306,22 +280,32 @@ void haplotype::set_blocks(haplotype const& h) {
 
 		t_indices block_fwd = find(hc == i && rs == strand_fwd);
 		if(block_fwd.n_elem != 0) {
-
-			std::vector<t_indices> tmp = get_feasible_blocks(block_fwd);
-			blocks.insert(blocks.end(), tmp.begin(), tmp.end());
-
-			//blocks.push_back(block_fwd);
+			blocks.push_back(block_fwd);
 		}
 
 		t_indices block_rev = find(hc == i && rs == strand_rev);
 		if(block_rev.n_elem != 0) {
-
-
-			std::vector<t_indices> tmp = get_feasible_blocks(block_rev);
-			blocks.insert(blocks.end(), tmp.begin(), tmp.end());
-
-			//blocks.push_back(block_rev);
+			blocks.push_back(block_rev);
 		}
+	}
+
+	set_blocks(blocks);
+}
+
+void haplotype::set_blocks(std::vector<t_indices> const& blocks) {
+
+	//Test validity of blocks'
+	//TODO debug guard
+	t_positions read_present(data.n_reads, arma::fill::zeros);
+	for(t_index i = 0; i < blocks.size(); ++i) {
+		if(sum(read_present(blocks[i])) > 0) {
+			throw std::runtime_error("set_blocks - blocks not unique error");
+		}
+		read_present(blocks[i]).ones();
+	}
+
+	if(any(read_present == 0)) {
+		throw std::runtime_error("set_blocks - blocks not compete error");
 	}
 
 	//Get block positions
@@ -351,7 +335,7 @@ void haplotype::set_blocks(haplotype const& h) {
 	for(t_index i = 0; i < idx.n_elem; ++i) {
 
 		//order blocks
-		blocks_ordered.push_back(blocks[idx(i)]);;
+		blocks_ordered.push_back(blocks[idx(i)]);
 	}
 
 	const_cast<bool&>(use_read_blocks) = true;
@@ -360,7 +344,14 @@ void haplotype::set_blocks(haplotype const& h) {
 
 	const_cast<t_positions&>(block_start_positions) = block_start_positions_tmp;
 	const_cast<t_positions&>(block_end_positions) = block_end_positions_tmp;
+
 }
+
+void haplotype::set_blocks() {
+	const_cast<bool&>(use_read_blocks) = false;
+	const_cast<t_count&>(n_elements) = data.n_reads;
+}
+
 
 void haplotype::set_min_overlap(t_position min_overlap) {
 	const_cast<t_position&>(min_overlap_length) = min_overlap;
@@ -661,6 +652,14 @@ void haplotype::move_read_block(
 	if(to <= max_chain_old) {
 		prior += compute_prior_chain(h, c_start, c_end, to);
 	}
+
+//#ifdef CHECK_POSTERIOR
+//	double p = compute_prior(h, c_start, c_end, s);
+//	if(fabs(p - prior) > 1e-5) {
+//		throw std::runtime_error("move_read_block Error");
+//	}
+//#endif
+
 }
 
 bool haplotype::is_feasible(
@@ -866,7 +865,7 @@ double haplotype::compute_delta_posterior(
 		return 0;
 	}
 
-	t_position region_start = min(data.reads_start_positions(block))-1;
+	t_position region_start = min(data.reads_start_positions(block))-1; //FIXME
 	t_position region_end = max(data.reads_end_positions(block))+1;
 
 	t_indices reads_in_region = find(block_start_positions <= region_end && block_end_positions >= region_start);
@@ -935,6 +934,10 @@ double haplotype::compute_delta(
 
 	double delta = compute_posterior(new_h, new_c_start, new_c_end, new_s) - compute_posterior(h, c_start, c_end, s);
 	if(fabs(delta_posterior - delta) > 1e-5) {
+
+		cout << " ............ " << endl;
+		cout << compute_chain_loglike(new_h, new_s, current_chain, reads_in_region, region_start, region_end)- compute_chain_loglike(h, s, current_chain, reads_in_region, region_start, region_end) << endl;
+		cout << compute_chain_loglike(new_h, new_s, current_chain)- compute_chain_loglike(h, s, current_chain) << endl;
 
 		throw std::runtime_error("compute_delta_posterior Error");
 	}
@@ -1354,6 +1357,26 @@ double haplotype::compute_posterior(
 	}
 
 	return posterior + prior_adjust*p;
+}
+
+double haplotype::compute_prior(
+		t_haplochains const& h,
+		t_positions const& c_start,
+		t_positions const& c_end,
+		t_strands const& strands) const {
+
+	double p = 0;
+
+	t_haplochains unique_chains = unique(h);
+	for (t_index i = 0; i < unique_chains.n_elem; ++i) {
+
+		//Compute prior
+		p += compute_prior_chain(h, c_start, c_end, unique_chains(i));
+
+	}
+
+	return p;
+
 }
 
 double haplotype::posterior() const {
