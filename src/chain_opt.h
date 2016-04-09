@@ -145,9 +145,27 @@ inline void haplo_chain_optimizer::run(const abort_checker& ac) {
 		read_pairs = find_read_pairs(data);
 	}
 
+	//Initial fit
+	optimize_profile(ac);
+	h.chain_clean();
+//	cout << "init = " << h.posterior() << endl;
+
+	haplotype_state old_state = h.get_state();
+	double old_posterior = h.posterior();
+
+	//Stage fits
+	//TODO different min_overlap for stages h.set_min_overlap(65)
 	for(int stage = 1; stage < config.max_stages; stage++) {
 
+		//Set haplotypes = feasible blocks and opt
+		h.set_blocks(h);
+		h.reset_haplotype();
 
+		optimize_profile(ac);
+		h.chain_clean();
+	//	cout << h.posterior();
+
+		//Set blocks = read pairs and opt
 		if(use_paired_reads) {
 			h.set_blocks(read_pairs);
 		}
@@ -156,21 +174,23 @@ inline void haplo_chain_optimizer::run(const abort_checker& ac) {
 			h.set_blocks();
 		}
 
-		optimize_profile(ac);
-
-		h.chain_clean();
-		h.set_blocks(h);
-		//h.set_min_overlap(); TODO different min_overlap for stages
-
 		t_count change_count = optimize_profile(ac);
 		h.chain_clean();
 
-		//cout << change_count << " : " << h.posterior() << endl;
+		//cout <<  " : " << h.posterior() << " : " << change_count << endl;
+
+		double new_posterior = h.posterior();
+		if(old_posterior >= new_posterior) {
+			h.set_state(old_state);
+			break;
+		}
 
 		if(change_count <= 0) {
 			break;
 		}
 
+		old_state = h.get_state();;
+		old_posterior = new_posterior;
 	}
 
 }

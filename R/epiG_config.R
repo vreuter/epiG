@@ -141,11 +141,16 @@ auto_config <- function(
 			use_paired_reads <- FALSE
 		}
 	}
-	
+
+	#TODO REMOVE ?
 	# Min overlap length
+#	if(is.null(min_overlap)) {
+#		min_overlap <- max(mean(reads$length) - 
+#							quantile(diff(reads$start[seq(from = 1, to = nrow(reads), length.out = nrow(reads)/2)]), p = 0.99), 25)
+#	}
+
 	if(is.null(min_overlap)) {
-		min_overlap <- max(mean(reads$length) - 
-							quantile(diff(reads$start[seq(from = 1, to = nrow(reads), length.out = nrow(reads)/2)]), p = 0.95), 25)
+		min_overlap <- 50
 	}
 	
 	### Create bisulfite model
@@ -252,7 +257,7 @@ epiG.algorithm.config <- function(
 		ref.file, 
 		alt.file, 
 		max_iterations = 1e5, 
-		ref_prior = 0.99, 
+		ref_prior = 1-1e-4, 
 		min_overlap_length = 50,
 		min_CG_count = 1,
 		min_HCGD_count = 0,
