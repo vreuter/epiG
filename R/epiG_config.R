@@ -186,10 +186,14 @@ auto_config <- function(
 	
 	} else {
 		
-		min_CG_count <- 1
+		if(use_paired_reads) {
+			min_CG_count <- 3
+		} else {
+			min_CG_count <- 1
+		}
+		
 		min_HCGD_count <- 0
 		min_DGCH_count <- 0
-		
 	}
 	
 
