@@ -556,6 +556,8 @@ read.info.epiG <- function(object, inc.symbols = FALSE, ...) {
 			
 			}
 			
+			info$name <- factor(info$name)
+			
 			if(!("ref" %in% names(object))) {
 				object <- fetch.ref(object)
 			}
