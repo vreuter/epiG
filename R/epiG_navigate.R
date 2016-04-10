@@ -537,7 +537,7 @@ read.info.epiG <- function(object, inc.symbols = FALSE, ...) {
 					read.id = NA, 
 					quality = NA,
 					chain.id = NA, 
-					strand = NA)
+					strand = factor(NA, levels=c("fwd", "rev")))
 			
 			j <- 0
 			
