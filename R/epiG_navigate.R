@@ -527,17 +527,33 @@ read.info.epiG <- function(object, inc.symbols = FALSE, ...) {
 		info <- NULL
 		
 		if(inc.symbols) {
-			for(idx in 1:nread(object)) {
-				tmp <- data.frame(
-						name = object$reads$name[idx], 
-						position = object$reads$position[idx]:(object$reads$position[idx]+object$reads$length[idx]-1) + object$offset, 
-						symbol = symbols(object$reads$reads[[idx]]), 
-						ref = NA,
-						read.id = idx, quality = object$reads$quality[[idx]],
-						chain.id = object$haplotype$chain[idx], 
-						strand = object$strands[idx])
 			
-				info <- rbind(info, tmp)	
+			# Init holder
+			info <- data.frame(
+					name = rep(NA, sum(object$reads$length)), 
+					position = NA, 
+					symbol = NA, 
+					ref = NA,
+					read.id = NA, 
+					quality = NA,
+					chain.id = NA, 
+					strand = NA)
+			
+			j <- 0
+			
+			for(idx in 1:nread(object)) {
+				
+				i <- j + 1
+				j <- i + object$reads$length[idx] - 1
+				
+				info$name[i:j] = object$reads$name[idx]
+				info$position[i:j] = object$reads$position[idx]:(object$reads$position[idx]+object$reads$length[idx]-1) + object$offset 
+				info$symbol[i:j] = symbols(object$reads$reads[[idx]])
+				info$read.id[i:j] = idx
+				info$quality[i:j] = object$reads$quality[[idx]]
+				info$chain.id[i:j] = object$haplotype$chain[idx] 
+				info$strand[i:j] = object$strands[idx]
+			
 			}
 			
 			if(!("ref" %in% names(object))) {
