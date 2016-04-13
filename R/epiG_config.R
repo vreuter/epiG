@@ -148,10 +148,6 @@ auto_config <- function(
 #		min_overlap <- max(mean(reads$length) - 
 #							quantile(diff(reads$start[seq(from = 1, to = nrow(reads), length.out = nrow(reads)/2)]), p = 0.99), 25)
 #	}
-
-	if(is.null(min_overlap)) {
-		min_overlap <- 50
-	}
 	
 	### Create bisulfite model
 	#TODO auto detimen bisulfite rates
@@ -184,16 +180,31 @@ auto_config <- function(
 		min_HCGD_count <- 1
 		min_DGCH_count <- 2
 	
+		structual_prior_scale <- 1
+	
+		
 	} else {
 		
 		if(use_paired_reads) {
-			min_CG_count <- 3
+			min_CG_count <- 2
+			
+			if(is.null(min_overlap)) {
+				min_overlap <- 100
+			}
+			
 		} else {
 			min_CG_count <- 1
+			
+			if(is.null(min_overlap)) {
+				min_overlap <- 50
+			}
+			
 		}
 		
 		min_HCGD_count <- 0
 		min_DGCH_count <- 0
+		
+		structual_prior_scale <- 1
 	}
 	
 
@@ -217,6 +228,7 @@ auto_config <- function(
 			min_CG_count = min_CG_count,
 			min_HCGD_count = min_HCGD_count,
 			min_DGCH_count = min_DGCH_count,
+			structual_prior_scale = structual_prior_scale,
 			use_paired_reads = use_paired_reads,
 			split_mode = NOMEseq,
 			...
