@@ -43,10 +43,14 @@ private:
 
 	field<vec> const ref_priores;
 
-
-	bool is_feasible(
+	bool is_read_feasible(
 			t_position read_start,
 			t_position read_end,
+			t_position chain_start,
+			t_position chain_end) const;
+
+	bool is_block_feasible(
+			t_indices const& block,
 			t_position chain_start,
 			t_position chain_end) const;
 
@@ -270,6 +274,7 @@ public:
 	}
 
 	t_strand strand(t_index id) const {
+
 		if(use_read_blocks) {
 			return state.read_strands(read_blocks[id](0));
 		}
@@ -333,7 +338,7 @@ std::vector<t_indices> haplotype::get_feasible_blocks(t_indices const& reads) co
 
 		t_index read = reads(i);
 
-		if(! is_feasible(data.reads_start_positions(read),
+		if(! is_read_feasible(data.reads_start_positions(read),
 				data.reads_end_positions(read),
 				data.reads_start_positions(read),
 				chain_end)) {
@@ -374,7 +379,7 @@ std::vector<t_indices> haplotype::get_feasible_blocks(std::vector<t_indices> con
 		t_position start = block_start_positions(rblocks[i](0));
 		t_position end = block_end_positions(rblocks[i](0));
 
-		if(! is_feasible(start, end, start, chain_end)) {
+		if(! is_block_feasible(rblocks[i], start, chain_end)) {
 
 			//not feasible => new chain
 			blocks.push_back(block);
@@ -838,7 +843,7 @@ void haplotype::move_read_block(
 
 }
 
-bool haplotype::is_feasible(
+bool haplotype::is_read_feasible(
 		t_position read_start,
 		t_position read_end,
 		t_position chain_start,
@@ -878,6 +883,80 @@ bool haplotype::is_feasible(
 
 }
 
+bool haplotype::is_block_feasible(
+		t_indices const& block,
+		t_position chain_start,
+		t_position chain_end) const {
+
+	t_position block_start = block_start_positions(block(0));
+	t_position block_end = block_end_positions(block(0));
+
+	t_position block_overlap_start = max(block_start, chain_start);
+	t_position block_overlap_end = min(block_end, chain_end);
+
+	if(block_overlap_end - block_overlap_start + 1 < min_overlap_length) {
+		return false;
+	}
+
+	//TODO configable margin
+	block_overlap_start = block_overlap_start + margin;
+	block_overlap_end = block_overlap_end - margin;
+
+	if(block_overlap_start < 0 || block_overlap_end <= block_overlap_start) {
+		return false;
+	}
+
+	//	cout << overlap_end << " : " << overlap_start << endl;
+	//	cout << overlap_end + 1 << " >= " << min_overlap_length + overlap_start<< endl;
+
+	t_count c_GC = 0;
+	t_count c_HCGD = 0;
+	t_count c_DGCH = 0;
+
+
+	for(t_count i = 0; i < block.n_elem; ++i) {
+
+		t_position start = data.reads_end_positions(block(i));
+		t_position end = data.reads_start_positions(block(i));
+
+		t_position overlap_start = max(block_start, chain_start);
+		t_position overlap_end = min(block_end, chain_end);
+
+		overlap_start = overlap_start + margin;
+		overlap_end = overlap_end - margin;
+
+		if(overlap_start >= 0 || overlap_end > overlap_start) {
+
+			if(min_CG_count > 0) {
+				c_GC += count_CpG(overlap_start, overlap_end);
+
+				if(c_GC >= min_CG_count) {
+					return true;
+				}
+			}
+
+			if(min_HCGD_count > 0) {
+				c_HCGD += count_HCGD(overlap_start, overlap_end);
+
+				if(c_HCGD >= min_HCGD_count) {
+					return true;
+				}
+			}
+
+			if(min_DGCH_count > 0) {
+				c_DGCH += count_DGCH(overlap_start, overlap_end);
+
+				if(c_DGCH >= min_DGCH_count) {
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+
+}
+
 void haplotype::update_haplotype_chain(
 		t_haplochains & haplotype,
 		t_haplochain const old_chain) const {
@@ -896,7 +975,7 @@ void haplotype::update_haplotype_chain(
 
 		t_index read = reads_in_chain(i);
 
-		if(! is_feasible(data.reads_start_positions(read),
+		if(! is_read_feasible(data.reads_start_positions(read),
 				data.reads_end_positions(read),
 				data.reads_start_positions(read),
 				chain_end)) {
@@ -943,9 +1022,9 @@ void haplotype::update_haplotype_chain(
 		}
 
 		t_position start = block_start_positions(read_blocks[i](0));//min(data.reads_start_positions(read_blocks[i]));
-		t_position end = block_end_positions(read_blocks[i](0)); //max(data.reads_end_positions(read_blocks[i]));
+		t_position end = block_end_positions(read_blocks[i](0));
 
-		if(! is_feasible(start, end, start, chain_end)) {
+		if(! is_block_feasible(read_blocks[i], start, chain_end)) {
 			//not feasible=> new chain
 			chain = max(haplotype) + 1;
 
@@ -1454,30 +1533,32 @@ t_haplochains haplotype::compute_feasible_haplotypes(t_index id) const {
 
 	t_haplochains feasible_haplotypes;
 
-	t_position start;
-	t_position end;
-
-	if(use_read_blocks) {
-		t_indices block = read_blocks[id];
-		start = min(data.reads_start_positions(block));
-		end = max(data.reads_end_positions(block));
-	}
-
-	else {
-		start = data.reads_start_positions(id);
-		end = data.reads_end_positions(id);
-	}
-
 	//Compute for each chain the number of bases overlapping
 	t_haplochains unique_chains = unique(state.haplo);
 
 	for (t_index i = 0; i < unique_chains.n_elem; ++i) {
 
-		if(is_feasible(start, end, state.chain_start(unique_chains(i)), state.chain_end(unique_chains(i)))) {
-			feasible_haplotypes.resize(feasible_haplotypes.n_elem + 1);
-			feasible_haplotypes(feasible_haplotypes.n_elem - 1) = unique_chains(i);
+		if(use_read_blocks) {
+			t_indices block = read_blocks[id];
+
+			if(is_block_feasible(block, state.chain_start(unique_chains(i)), state.chain_end(unique_chains(i)))) {
+				feasible_haplotypes.resize(feasible_haplotypes.n_elem + 1);
+				feasible_haplotypes(feasible_haplotypes.n_elem - 1) = unique_chains(i);
+			}
+
 		}
 
+		else {
+
+			t_position start = data.reads_start_positions(id);
+			t_position end = data.reads_end_positions(id);
+
+			if(is_read_feasible(start, end, state.chain_start(unique_chains(i)), state.chain_end(unique_chains(i)))) {
+				feasible_haplotypes.resize(feasible_haplotypes.n_elem + 1);
+				feasible_haplotypes(feasible_haplotypes.n_elem - 1) = unique_chains(i);
+			}
+
+		}
 	}
 
 	//Add free haplo chain , i.e. a haplo chain with no reads
