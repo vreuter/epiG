@@ -155,17 +155,17 @@ genotype.epiG <- function(object, pos, remove.meth = FALSE, ...) {
 			stop("Position not in range")
 		}
 	
-		collected <- sapply(1:length(object$genotype), 
-				function(i) if((pos - object$haplotype$start)[i] >= 0 && (object$haplotype$end[i] - pos) >= 0) 
-						object$genotype[[i]][(pos - object$haplotype$start)[i]+1] else NA)
+		inrange <- which(pos >= object$haplotype$start & object$haplotype$end >= pos)
 		
-		names(collected) <- 1:length(object$genotype)
+		collected <- sapply(inrange, function(i) object$genotype[[i]][(pos - object$haplotype$start)[i]+1])
+		
+		names(collected) <- inrange
 		
 		if(remove.meth) {
 			collected[collected %in% c(5,6)] <-  collected[collected %in% c(5,6)] %% 4
 		}
 		
-		return(collected[!is.na(collected)])
+		return(collected)
 	}
 	
 	
@@ -177,7 +177,7 @@ genotype.epiG <- function(object, pos, remove.meth = FALSE, ...) {
 	
 }
 
-#' genotype
+#' loglike
 #' @param object 
 #' @param pos 
 #' @param ... 
@@ -210,15 +210,15 @@ loglike.epiG <- function(object, pos, ...) {
 			stop("Position not in range")
 		}
 		
-		collected <- sapply(1:length(object$loglike), 
-				function(i) if((pos - object$haplotype$start)[i] >= 0 && (object$haplotype$end[i] - pos) >= 0) 
-						object$loglike[[i]][(pos - object$haplotype$start)[i]+1,] else rep(NA,6))
+		inrange <- which(pos >= object$haplotype$start & object$haplotype$end >= pos)
 		
-		colnames(collected) <- 1:length(object$loglike)
+		collected <- sapply(inrange, function(i) object$loglike[[i]][(pos - object$haplotype$start)[i]+1,])
+		
+		colnames(collected) <- inrange
 		
 		rownames(collected) <- c("C", "G", "A", "T", "c", "g")
 		
-		return(collected[,apply(collected, 2, function(x) all(!is.na(x))), drop = FALSE])
+		return(collected)
 	}
 	
 	

@@ -3,6 +3,7 @@
 S3method(chain.info,epiG)
 S3method(coverage,epiG)
 S3method(end,epiG)
+S3method(loglike,epiG)
 S3method(genotype,epiG)
 S3method(length,epiG)
 S3method(nchain,epiG)
