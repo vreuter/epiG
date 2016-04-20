@@ -177,11 +177,14 @@ auto_config <- function(
 		model$rev_C_G <- lapply(model$rev, function(x) x %*% ignor.me)
 		
 		min_CG_count <- 0
-		min_HCGD_count <- 1
+		min_HCGD_count <- 0
 		min_DGCH_count <- 2
 	
 		structual_prior_scale <- 1
 	
+		if(is.null(min_overlap)) {
+			min_overlap <- 40
+		}
 		
 	} else {
 		
@@ -189,14 +192,14 @@ auto_config <- function(
 			min_CG_count <- 2
 			
 			if(is.null(min_overlap)) {
-				min_overlap <- 100
+				min_overlap <- 50
 			}
 			
 		} else {
 			min_CG_count <- 1
 			
 			if(is.null(min_overlap)) {
-				min_overlap <- 50
+				min_overlap <- 40
 			}
 			
 		}
@@ -279,11 +282,12 @@ epiG.algorithm.config <- function(
 		min_HCGD_count = 0,
 		min_DGCH_count = 0,
 		margin = 5,
-		max_stages = 25,
+		max_stages = 1,
 		structual_prior_scale = 1,
 		chunk_size = 5000, 
 		chunk_method = "reads", 
 		reads_hard_limit = 7500,
+		quality_threshold = 0.020,
 		use_paired_reads = FALSE,
 		split_mode = FALSE,
 		verbose = TRUE) {
@@ -337,6 +341,8 @@ epiG.algorithm.config <- function(
 	config$chunk.method <- chunk_method
 	
 	config$reads_hard_limit <- as.integer(reads_hard_limit)
+	
+	config$quality_threshold <- quality_threshold
 	
 	config$ref_prior <- ref_prior
 	

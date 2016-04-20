@@ -175,6 +175,9 @@ private:
 	}
 
 	t_count count_CpG(t_position start, t_position end) const {
+
+	//	cout << ref.n_elem << " : " << start << " : " << end << endl;
+
 		return sum(ref.subvec(start, end) == 1 && ref.subvec(start+1, end+1) == 2);
 	}
 
@@ -252,7 +255,10 @@ public:
 
 	void set_haplochain_prior(vec const& log_prior);
 
-	void set_min_overlap(t_position min_overlap);
+	void set_min(t_position overlap,
+			t_count CG_count,
+			t_count HCGD_count,
+			t_count DGCH_count);
 
 	t_haplochains compute_feasible_haplotypes(t_index id) const;
 
@@ -499,8 +505,16 @@ void haplotype::set_blocks() {
 }
 
 
-void haplotype::set_min_overlap(t_position min_overlap) {
-	const_cast<t_position&>(min_overlap_length) = min_overlap;
+void haplotype::set_min(t_position overlap,
+		t_count CG_count,
+		t_count HCGD_count,
+		t_count DGCH_count) {
+
+	const_cast<t_position&>(min_overlap_length) = overlap;
+	const_cast<t_count&>(min_CG_count) = CG_count;
+	const_cast<t_count&>(min_HCGD_count) = HCGD_count;
+	const_cast<t_count&>(min_DGCH_count) = DGCH_count;
+
 }
 
 void haplotype::init(double ref_prior) {
@@ -913,19 +927,27 @@ bool haplotype::is_block_feasible(
 	t_count c_HCGD = 0;
 	t_count c_DGCH = 0;
 
+	t_position end_old = 0;
 
 	for(t_count i = 0; i < block.n_elem; ++i) {
 
-		t_position start = data.reads_end_positions(block(i));
-		t_position end = data.reads_start_positions(block(i));
+		t_position start = data.reads_start_positions(block(i));
+		t_position end = data.reads_end_positions(block(i));
 
-		t_position overlap_start = max(block_start, chain_start);
-		t_position overlap_end = min(block_end, chain_end);
+		if(end <= end_old) {
+			continue;
+		}
+
+		start = max(start, end_old);
+		end_old = end;
+
+		t_position overlap_start = max(start, chain_start);
+		t_position overlap_end = min(end, chain_end);
 
 		overlap_start = overlap_start + margin;
 		overlap_end = overlap_end - margin;
 
-		if(overlap_start >= 0 || overlap_end > overlap_start) {
+		if(overlap_start >= 0 && overlap_end > overlap_start) {
 
 			if(min_CG_count > 0) {
 				c_GC += count_CpG(overlap_start, overlap_end);
@@ -1370,7 +1392,6 @@ field<vec> haplotype::compute_ref_priors() const {
 		}
 	}
 
-
 	return priores;
 }
 
@@ -1401,7 +1422,6 @@ t_genotype haplotype::compute_chain_genotype(t_haplochain const chain) const {
 		loglike_term.rows(read_start - chain_start, read_end - chain_start) += data.loglike_terms(*r, state.read_strands(*r));
 	}
 
-	t_epi_base g;
 	for (t_position pos = chain_start; pos <= chain_end-1; ++pos) {
 		compute_genotype(
 				loglike_term.rows(pos - chain_start, pos - chain_start + 1),
@@ -1587,7 +1607,7 @@ double haplotype::compute_prior_chain(
 	double x = sum(data.reads_end_positions(idx) - data.reads_start_positions(idx) + 1);
 	double l = c_end(chain) - c_start(chain)+1;
 
-	return static_cast<double>(idx.n_elem) * (log(l)+2*log(x));
+	return static_cast<double>(idx.n_elem) * (0.5*log(l)+2*log(x));
 
 }
 

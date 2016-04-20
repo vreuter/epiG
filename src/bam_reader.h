@@ -155,10 +155,10 @@ static int fetch_read_count_func(const bam1_t *b, void *data)
 
 class bamReader {
 
-	std::string file;
-	std::string ref;
-	t_position start;
-	t_position end;
+	std::string const file;
+	std::string const ref;
+	t_position const start;
+	t_position const end;
 	std::vector<aligned_read> reads;
 	std::vector<aligned_read_raw> reads_raw;
     std::vector<read_info> infos;
@@ -167,6 +167,24 @@ public:
 
 	bamReader(std::string const& bam_file, std::string const& ref_name, t_position start_pos, t_position end_pos) :
 		file(bam_file), ref(ref_name), start(start_pos), end(end_pos), reads(), reads_raw(), infos() {}
+
+	void remove_low_quality(double threshold) {
+
+		if(! reads.empty()) {
+
+			std::vector<aligned_read>::iterator iter;
+			for (iter = reads.begin(); iter != reads.end(); ) {
+			    if (mean((*iter).epsilon) > threshold) {
+			    	iter = reads.erase(iter);
+			    }
+			    else {
+			    	++iter;
+			    }
+			}
+
+		}
+
+	}
 
 	read_count fetch_read_count() {
 

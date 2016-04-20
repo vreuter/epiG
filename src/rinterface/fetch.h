@@ -3,7 +3,8 @@
 
 extern "C" {
 
-SEXP r_epiG_fetch_reads(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end);
+SEXP r_epiG_fetch_reads(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end, SEXP r_quality_threshold);
+
 SEXP r_epiG_fetch_reads_raw(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end);
 SEXP r_epiG_fetch_reads_info(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end);
 SEXP r_epiG_fetch_read_count(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end);
@@ -54,15 +55,20 @@ SEXP r_epiG_read_fasta(SEXP r_filename, SEXP r_ref, SEXP r_position, SEXP r_leng
 
 
 
-SEXP epiG_fetch_reads(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end) {
+SEXP epiG_fetch_reads(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end, SEXP r_quality_threshold) {
 
 	const std::string filename = get_value<std::string>(r_filename);
 	const std::string refName = get_value<std::string>(r_refName);
 	const t_position start = get_value<t_position>(r_start);
 	const t_position end = get_value<t_position>(r_end);
+	const double quality_threshold = get_value<double>(r_quality_threshold);
 
+	//fetch reads
 	bamReader reader(filename, refName, start, end);
 	reader.fetch();
+
+	//remove low quality reads
+	reader.remove_low_quality(quality_threshold);
 
     std::vector<aligned_read> const& reads = reader.get_reads();
 
@@ -96,11 +102,11 @@ SEXP epiG_fetch_reads(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end)
     return rObject(res);
 }
 
-SEXP r_epiG_fetch_reads(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end) {
+SEXP r_epiG_fetch_reads(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end, SEXP r_quality_threshold) {
 
 	try {
 
-		return epiG_fetch_reads(r_filename, r_refName, r_start, r_end);
+		return epiG_fetch_reads(r_filename, r_refName, r_start, r_end, r_quality_threshold);
 
 		//Catch unhandled exceptions
 

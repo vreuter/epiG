@@ -295,10 +295,8 @@ position.info <- function(object, pos, ... ) UseMethod("position.info")
 				
 				if(genotype.code[i] %in% c(5,6)) return(TRUE)
 				
-				if(genotype.code[i] == 1 && nfwd[i] > 0) return(FALSE)
-				
-				if(genotype.code[i] == 2 && nrev[i] > 0) return(FALSE)
-				
+				if(genotype.code[i] %in% c(1,2)) return(FALSE)
+								
 				return(NA)
 			})
 }

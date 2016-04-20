@@ -137,60 +137,80 @@ inline void haplo_chain_optimizer::run(const abort_checker& ac) {
 	DEBUG_ENTER
 	TIMER_START
 
-	std::vector<t_indices> read_pairs;
-
-	//TODO fix double work : some of this work was already done in the init
-
-	if(use_paired_reads) {
-		read_pairs = find_read_pairs(data);
-	}
-
-	//Initial fit
-	optimize_profile(ac);
-	h.chain_clean();
-//	cout << "init = " << h.posterior() << endl;
-
-	haplotype_state old_state = h.get_state();
-	double old_posterior = h.posterior();
-
-	//Stage fits
-	//TODO different min_overlap for stages h.set_min_overlap(65)
-	for(int stage = 1; stage < config.max_stages; stage++) {
-
-		//Set haplotypes = feasible blocks and opt
-		h.set_blocks(h);
-		h.reset_haplotype();
+	if(config.max_stages <= 1) {
 
 		optimize_profile(ac);
 		h.chain_clean();
-	//	cout << h.posterior();
 
-		//Set blocks = read pairs and opt
+	} else {
+
+		//NOTE experimental stage optimization scheme
+
+		std::vector<t_indices> read_pairs;
+
+		//TODO fix double work : some of this work was already done in the init
+
 		if(use_paired_reads) {
-			h.set_blocks(read_pairs);
+			read_pairs = find_read_pairs(data);
 		}
 
-		else {
-			h.set_blocks();
-		}
-
-		t_count change_count = optimize_profile(ac);
+		//Initial fit
+		optimize_profile(ac);
 		h.chain_clean();
+		//	cout << "init = " << h.posterior() << endl;
 
-		//cout <<  " : " << h.posterior() << " : " << change_count << endl;
+		haplotype_state old_state = h.get_state();
+		double old_posterior = h.posterior();
 
-		double new_posterior = h.posterior();
-		if(old_posterior >= new_posterior) {
-			h.set_state(old_state);
-			break;
+		//Stage fits
+		//TODO different min_overlap for stages h.set_min_overlap(65)
+		for(int stage = 1; stage < config.max_stages; stage++) {
+
+			//Set haplotypes = feasible blocks and opt
+			h.set_blocks(h);
+			h.reset_haplotype();
+			//TODO configable
+			h.set_min(2*config.min_overlap_length,
+					4*config.min_CG_count,
+					4*config.min_HCGD_count,
+					4*config.min_DGCH_count);
+
+			optimize_profile(ac);
+			h.chain_clean();
+			//	cout << h.posterior();
+
+			//Set blocks = read pairs and opt
+			if(use_paired_reads) {
+				h.set_blocks(read_pairs);
+			}
+
+			else {
+				h.set_blocks();
+			}
+
+			h.set_min(config.min_overlap_length,
+					config.min_CG_count,
+					config.min_HCGD_count,
+					config.min_DGCH_count);
+
+			t_count change_count = optimize_profile(ac);
+			h.chain_clean();
+
+			//	cout <<  " : " << h.posterior() << " : " << change_count << endl;
+
+			double new_posterior = h.posterior();
+			if(old_posterior >= new_posterior) {
+				h.set_state(old_state);
+				break;
+			}
+
+			if(change_count <= 0) {
+				break;
+			}
+
+			old_state = h.get_state();;
+			old_posterior = new_posterior;
 		}
-
-		if(change_count <= 0) {
-			break;
-		}
-
-		old_state = h.get_state();;
-		old_posterior = new_posterior;
 	}
 
 }

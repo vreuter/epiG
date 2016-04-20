@@ -75,6 +75,8 @@ public:
 
     t_count reads_hard_limit;
 
+    double quality_threshold;
+
     double ref_prior;
 
     t_position min_overlap_length;
@@ -101,26 +103,23 @@ public:
 			max_iterations(getConfigAttribute<t_count>(config, "max_iterations")),
 
 			fwd_model(getConfigList<t_model>(config, "fwd_model")),
-
 			rev_model(getConfigList<t_model>(config, "rev_model")),
 
 			fwd_DGCH_model(getConfigList<t_model>(config, "fwd_DGCH_model")),
-
 			rev_DGCH_model(getConfigList<t_model>(config, "rev_DGCH_model")),
 
 			fwd_HCGD_model(getConfigList<t_model>(config, "fwd_HCGD_model")),
-
 			rev_HCGD_model(getConfigList<t_model>(config, "rev_HCGD_model")),
 
 			fwd_CH_model(getConfigList<t_model>(config, "fwd_CH_model")),
-
 			rev_CH_model(getConfigList<t_model>(config, "rev_CH_model")),
 
 			fwd_C_G_model(getConfigList<t_model>(config, "fwd_C_G_model")),
-
 			rev_C_G_model(getConfigList<t_model>(config, "rev_C_G_model")),
 
             reads_hard_limit(getConfigAttribute<t_count>(config, "reads_hard_limit")),
+
+			quality_threshold(getConfigAttribute<double>(config, "quality_threshold")),
 
             ref_prior(getConfigAttribute<double>(config, "ref_prior")),
 

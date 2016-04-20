@@ -181,6 +181,9 @@ void chunk_haplo_chain_optimizer::run() {
 
 				reader.fetch(); //Load reads
 
+				//remove low quality reads
+				reader.remove_low_quality(config.quality_threshold);
+
 				//Check that chunk is non empty
 				if (reader.get_reads().empty()) {
 					read_ids(i).set_size(0);

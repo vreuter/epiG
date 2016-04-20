@@ -119,7 +119,7 @@ fetch.reads.raw <- function(filename, refname, start, end) {
 fetch.reads <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
-		reads <- .Call(r_epiG_fetch_reads, object$filename, object$refname, start(object), end(object))
+		reads <- .Call(r_epiG_fetch_reads, object$filename, object$refname, start(object), end(object), object$config$quality_threshold)
 
 		reads <- lapply(reads, function(x) x[object$read_unique_chunk_id])
 		reads$positions <- reads$positions - object$offset

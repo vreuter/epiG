@@ -25,6 +25,33 @@ vector.search <- function(pattern, text) {
 	return(res)
 }
 
+#' locate C positions
+#' @param object 
+#' @return ??
+#' 
+#' @author Martin Vincent
+#' @export
+locate.C <- function(object) {
+	
+	if(paste(class(object), collapse = ".") == "epiG") {
+		
+		if(is.null(object[["ref"]])) {
+			stop("No ref genom found")
+		}
+		
+		pos <- which(object$ref == 1)
+		
+		return(pos + object$offset - 1L)	
+	}
+	
+	if(paste(class(object), collapse = ".") == "epiG.chunks") {
+		return(unlist(lapply(object, function(x) locate.C(x))))
+	}
+	
+	stop("Unknown class")
+}
+
+
 #' locate GC positions
 #' @param object 
 #' @return ??
