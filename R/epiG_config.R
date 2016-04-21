@@ -102,6 +102,7 @@ auto_config <- function(
 		min_overlap = NULL,
 		bisulfite_rate = .95, 
 		bisulfite_inap_rate = 0.05, 
+		quality_threshold = 0.020,
 		...) {
 
 	if( ! is.null(chr) && length(chr) > 1) {
@@ -118,6 +119,7 @@ auto_config <- function(
 							min_overlap,
 							bisulfite_rate = bisulfite_rate,
 							bisulfite_inap_rate = bisulfite_inap_rate,
+							quality_threshold = quality_threshold,
 							...))
 		
 		return(confs)
@@ -234,6 +236,7 @@ auto_config <- function(
 			structual_prior_scale = structual_prior_scale,
 			use_paired_reads = use_paired_reads,
 			split_mode = NOMEseq,
+			quality_threshold = quality_threshold,
 			...
 	)
 	
