@@ -49,9 +49,10 @@ start.epiG <- function(object, ...) {
 
 #' end
 #' 
-#' @param object 
+#' @param object fitted model (epiG object)
 #' @param ...
-#' @return numeric
+#' 
+#' @return end position (bp) of region contined in model 
 #' 
 #' @author Martin Vincent
 #' @method end epiG
@@ -102,7 +103,7 @@ nread <- function(object, ... ) UseMethod("nread")
 #' Number of reads in model
 #' @param object 
 #' @param ... 
-#' @return ??
+#' @return number of reads contined in model
 #' 
 #' @author Martin Vincent
 #' @method nread epiG
@@ -121,29 +122,10 @@ nread.epiG <- function(object, ...)  {
 	
 }
 
-#' genotype
-#' @param object 
-#' @param pos 
-#' @param remove.meth 
-#' @param ... 
-#' @return ??
-#' 
-#' @author Martin Vincent
-#' @export
-genotype <- function(object, pos, remove.meth, ... ) UseMethod("genotype")
-
-#' genotype
-#' codeing C = 1, G = 2, A = 3, T = 4
-#' @param object 
-#' @param pos 
-#' @param remove.meth 
-#' @param ... 
-#' @return ??
-#' 
-#' @author Martin Vincent
-#' @method genotype epiG
-#' @export
-genotype.epiG <- function(object, pos, remove.meth = FALSE, ...) {
+# Retrive genotype information
+# codeing C = 1, G = 2, A = 3, T = 4 C^me = 5 G_me = 6
+# use .symbol command to convert
+.genotype <- function(object, pos, remove.meth = FALSE, ...) {
 	
 	if(length(pos) > 1) {
 		stop("pos must have length 1")
@@ -177,28 +159,8 @@ genotype.epiG <- function(object, pos, remove.meth = FALSE, ...) {
 	
 }
 
-#' loglike
-#' @param object 
-#' @param pos 
-#' @param ... 
-#' @return ??
-#' 
-#' @author Martin Vincent
-#' @export
-loglike <- function(object, pos, ... ) UseMethod("loglike")
-
-#' genotype
-#' codeing C = 1, G = 2, A = 3, T = 4
-#' @param object 
-#' @param pos 
-#' @param remove.meth 
-#' @param ... 
-#' @return ??
-#' 
-#' @author Martin Vincent
-#' @method genotype epiG
-#' @export
-loglike.epiG <- function(object, pos, ...) {
+# Retrive log-likelihood information
+.loglike <- function(object, pos, ...) {
 	
 	if(length(pos) > 1) {
 		stop("pos must have length 1")
@@ -230,7 +192,8 @@ loglike.epiG <- function(object, pos, ...) {
 	
 }
 
-#' coverage
+#' read_depth
+#' 
 #' @param object 
 #' @param pos 
 #' @param ... 
@@ -238,21 +201,22 @@ loglike.epiG <- function(object, pos, ...) {
 #' 
 #' @author Martin Vincent
 #' @export
-coverage <- function(object, pos = NULL, ... ) UseMethod("coverage")
+read_depth <- function(object, pos = NULL, ... ) UseMethod("read_depth")
 
-#' coverage
+#' read_depth
+#' 
 #' @param object 
 #' @param pos 
 #' @param ... 
 #' @return ??
 #' 
 #' @author Martin Vincent
-#' @method coverage epiG
+#' @method read_depth epiG
 #' @export
-coverage.epiG <- function(object, pos = NULL, ...) {
+read_depth.epiG <- function(object, pos = NULL, ...) {
 	
 	if(is.null(pos)) {
-		return(sapply(start(object):end(object), function(pos) coverage(object, pos)))
+		return(sapply(start(object):end(object), function(pos) read_depth(object, pos)))
 	}
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -280,7 +244,7 @@ coverage.epiG <- function(object, pos = NULL, ...) {
 	
 }
 
-#' position.info
+#' position_info
 #' @param object 
 #' @param pos 
 #' @param ... 
@@ -288,7 +252,7 @@ coverage.epiG <- function(object, pos = NULL, ...) {
 #' 
 #' @author Martin Vincent
 #' @export
-position.info <- function(object, pos, ... ) UseMethod("position.info")
+position_info <- function(object, pos, ... ) UseMethod("position_info")
 
 .methylation.status <- function(genotype.code, nfwd, nrev) {
 	sapply(1:length(genotype.code), function(i) {
@@ -326,16 +290,17 @@ position.info <- function(object, pos, ... ) UseMethod("position.info")
 	stop("Internal errro")
 }
 
-#' position.info
+#' position_info
+#' 
 #' @param object 
 #' @param pos 
 #' @param ... 
 #' @return ??
 #' 
 #' @author Martin Vincent
-#' @method position.info epiG
+#' @method position_info epiG
 #' @export
-position.info.epiG <- function(object, pos, ...) {
+position_info.epiG <- function(object, pos, ...) {
 	
 	if(length(pos) == 0) {
 		return(NULL)
@@ -348,13 +313,13 @@ position.info.epiG <- function(object, pos, ...) {
 			info.df <- NULL
 			
 			for(p in pos) {
-				info.df <- rbind(info.df, position.info(object, p))
+				info.df <- rbind(info.df, position_info(object, p))
 			}
 			
 			return(info.df)
 		}
 		
-		if(coverage(object, pos) == 0) {
+		if(read_depth(object, pos) == 0) {
 			#Return data.frame
 			return(data.frame(
 							position = pos, 
@@ -378,19 +343,19 @@ position.info.epiG <- function(object, pos, ...) {
 		cid <- sort(unique(chains))
 		nfwd <- sapply(cid, function(i) sum(strands[chains == i] == "fwd"))
 		nrev <- sapply(cid, function(i) sum(strands[chains == i] == "rev"))
-		g <- genotype(object, pos, remove.meth = TRUE)
-		ll <- loglike(object, pos)
+		g <- .genotype(object, pos, remove.meth = TRUE)
+		ll <- .loglike(object, pos)
 		
 		info.df <- data.frame(
 				position = pos, 
 				chain.id = cid, 
 				ref = NA, 
 				alt = NA, 
-				genotype = symbols(g)[as.character(cid)], 
+				genotype = .symbols(g)[as.character(cid)], 
 				fit.ratio = sapply(as.character(cid), function(x) .ratio(ll[,x], g[x])),
 				ref.ratio = NA,
 				alt.ratio = NA,
-				methylated =.methylation.status(genotype(object, pos, remove.meth = FALSE)[as.character(cid)], nfwd, nrev),  
+				methylated =.methylation.status(.genotype(object, pos, remove.meth = FALSE)[as.character(cid)], nfwd, nrev),  
 				CpG = NA,
 				nreads = sapply(cid, function(x) sum(chains == x)),
 				nreads.fwd = nfwd,
@@ -401,7 +366,7 @@ position.info.epiG <- function(object, pos, ...) {
 			ref0 <- object$ref[pos - object$offset]
 			ref1 <- object$ref[pos - object$offset + 1]
 			ref2 <- object$ref[pos - object$offset + 2]
-			info.df$ref <- symbols(ref1)
+			info.df$ref <- .symbols(ref1)
 			info.df$CpG <- (ref1 == 1 && ref2 == 2) || (ref0 == 1 && ref1 == 2)
 			info.df$ref.ratio = sapply(as.character(cid), function(x) .ratio(ll[,x], ref1))
 			
@@ -409,7 +374,7 @@ position.info.epiG <- function(object, pos, ...) {
 		
 		if(!is.null(object[["alt"]])) {
 			alt <- object$alt[pos - object$offset + 1]
-			info.df$alt <- symbols(alt)			
+			info.df$alt <- .symbols(alt)			
 			info.df$alt.ratio = sapply(as.character(cid), function(x) .ratio(ll[,x], alt))
 		} 
 		
@@ -420,7 +385,7 @@ position.info.epiG <- function(object, pos, ...) {
 	
 	if(paste(class(object), collapse = ".") == "epiG.chunks") {
 		
-		tmp <- lapply(object, function(x) position.info(x, pos[pos %in% start(x):end(x)]), ...)		
+		tmp <- lapply(object, function(x) position_info(x, pos[pos %in% start(x):end(x)]), ...)		
 		
 		# Adjust chain.id
 		chain.id.offset = 0
@@ -436,24 +401,25 @@ position.info.epiG <- function(object, pos, ...) {
 	
 }
 
-#' chain.info
+#' chain_info
 #' @param object 
 #' @param ... 
 #' @return ??
 #' 
 #' @author Martin Vincent
 #' @export
-chain.info <- function(object, ... ) UseMethod("chain.info")
+chain_info <- function(object, ... ) UseMethod("chain.info")
 
-#' chain.info
+#' chain_info
+#' 
 #' @param object 
 #' @param ... 
 #' @return ??
 #' 
 #' @author Martin Vincent
-#' @method chain.info epiG
+#' @method chain_info epiG
 #' @export
-chain.info.epiG <- function(object, ...) {
+chain_info.epiG <- function(object, ...) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
 		
@@ -480,7 +446,7 @@ chain.info.epiG <- function(object, ...) {
 	}
 	
 	if(paste(class(object), collapse = ".") == "epiG.chunks") {
-		tmp <- lapply(object, function(x) chain.info(x, ...))		
+		tmp <- lapply(object, function(x) chain_info(x, ...))		
 			
 		# Adjust chain.id
 		chain.id.offset = 0
@@ -496,25 +462,25 @@ chain.info.epiG <- function(object, ...) {
 	
 }
 
-#' read.info
+#' read_info
 #' @param object 
 #' @param ... 
 #' @return ??
 #' 
 #' @author Martin Vincent
 #' @export
-read.info <- function(object, ... ) UseMethod("read.info")
+read_info <- function(object, ... ) UseMethod("read_info")
 
-#' read.info
+#' read_info
 #' @param object 
 #' @param  inc.symbols 
 #' @param ... 
 #' @return ??
 #' 
 #' @author Martin Vincent
-#' @method read.info epiG
+#' @method read_info epiG
 #' @export
-read.info.epiG <- function(object, inc.symbols = FALSE, ...) {
+read_info.epiG <- function(object, inc.symbols = FALSE, ...) {
 		
 	if(paste(class(object), collapse = ".") == "epiG") {
 
@@ -546,7 +512,7 @@ read.info.epiG <- function(object, inc.symbols = FALSE, ...) {
 				
 				info$name[i:j] = object$reads$name[idx]
 				info$position[i:j] = object$reads$position[idx]:(object$reads$position[idx]+object$reads$length[idx]-1) + object$offset 
-				info$symbol[i:j] = symbols(object$reads$reads[[idx]])
+				info$symbol[i:j] = .symbols(object$reads$reads[[idx]])
 				info$read.id[i:j] = idx
 				info$quality[i:j] = object$reads$quality[[idx]]
 				info$chain.id[i:j] = object$haplotype$chain[idx] 
@@ -563,7 +529,7 @@ read.info.epiG <- function(object, inc.symbols = FALSE, ...) {
 			# Add ref
 			rel.pos <- info$position-object$offset+1
 			in.range <- (rel.pos > 0) & (rel.pos <= length(object$ref))
-			info$ref[in.range] <- symbols(object$ref[rel.pos[in.range]])
+			info$ref[in.range] <- .symbols(object$ref[rel.pos[in.range]])
 			
 		} else {
 			info <- data.frame(
@@ -582,7 +548,7 @@ read.info.epiG <- function(object, inc.symbols = FALSE, ...) {
 	
 	
 	if(paste(class(object), collapse = ".") == "epiG.chunks") {
-		tmp <- lapply(object, function(x) read.info(x, inc.symbols, ...))
+		tmp <- lapply(object, function(x) read_info(x, inc.symbols, ...))
 		
 		# Adjust chain.id read.id
 		chain.id.offset = 0
@@ -605,15 +571,15 @@ read.info.epiG <- function(object, inc.symbols = FALSE, ...) {
 	
 }
 
-#' read.info.epiG_reads
+#' read_info.epiG_reads
 #' 
 #' @param object 
 #' @param inc.symbols 
 #' @param ... 
 #' 
-#' @author martin
+#' @author Martin Vincent
 #' @export
-read.info.epiG_reads <- function(object, inc.symbols = FALSE, ...) {
+read_info.epiG_reads <- function(object, inc.symbols = FALSE, ...) {
 	
 	info <- NULL
 	
@@ -622,7 +588,7 @@ read.info.epiG_reads <- function(object, inc.symbols = FALSE, ...) {
 			tmp <- data.frame(
 					name = object$names[idx], 
 					position = object$position[idx]:(object$position[idx]+object$length[idx]-1), 
-					symbol = symbols(object$reads[[idx]]),
+					symbol = .symbols(object$reads[[idx]]),
 					quality = object$quality[[idx]],
 					read.id = idx
 					)
@@ -853,14 +819,8 @@ subregion.epiG <- function(object, start, end, chop.reads = FALSE, ...) {
 	}
 }
 	
-#' symbols
-#' 
-#' @param g 
-#' @return symbols
-#' 
-#' @author martin
-#' @export
-symbols <- function(g) {
+# Convert internal int code to symbol
+.symbols <- function(g) {
 		return(unlist(sapply(g, function(x) c("N", "C", "G", "A", "T", "c", "g")[x+1])))
 }
 	

@@ -16,6 +16,6 @@ epiG model
 fetch_alt
 }
 \author{
-martin
+Martin Vincent
 }
 

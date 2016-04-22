@@ -21,6 +21,6 @@ add_run_configuration(config, filename, refname, start, end)
 add_run_configuration
 }
 \author{
-martin
+Martin Vincent
 }
 

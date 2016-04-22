@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG_fetch.R
 \name{fetch_read_count}
 \alias{fetch_read_count}
-\title{fetch_reads_info}
+\title{fetch_read_count}
 \usage{
 fetch_read_count(filename, refname, start, end)
 }
@@ -19,9 +19,9 @@ fetch_read_count(filename, refname, start, end)
 info
 }
 \description{
-fetch_reads_info
+fetch_read_count
 }
 \author{
-martin
+Martin Vincent
 }
 

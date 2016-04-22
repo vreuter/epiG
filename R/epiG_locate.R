@@ -1,17 +1,33 @@
-# TODO: Add comment
+#
+#     Description of this R script:
+#     TODO
+#
+#     Intended for use with R.
+#     Copyright (C) 2016 Martin Vincent
 # 
-# Author: martin
-###############################################################################
+#     This program is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+# 
+#     This program is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+# 
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>
+#
 
-
-#' vector search
+#' vector_search
+#' 
 #' @param pattern 
 #' @param text 
 #' @return ??
 #' @author Martin Vincent
 #' @useDynLib epiG r_epiG_locate
 #' @export
-vector.search <- function(pattern, text) {
+vector_search <- function(pattern, text) {
 	
 	#TODO check input
 	
@@ -31,7 +47,7 @@ vector.search <- function(pattern, text) {
 #' 
 #' @author Martin Vincent
 #' @export
-locate.C <- function(object) {
+locate_C <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
 		
@@ -45,7 +61,7 @@ locate.C <- function(object) {
 	}
 	
 	if(paste(class(object), collapse = ".") == "epiG.chunks") {
-		return(unlist(lapply(object, function(x) locate.C(x))))
+		return(unlist(lapply(object, function(x) locate_C(x))))
 	}
 	
 	stop("Unknown class")
@@ -58,7 +74,7 @@ locate.C <- function(object) {
 #' 
 #' @author Martin Vincent
 #' @export
-locate.GC <- function(object) {
+locate_GC <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
 		
@@ -66,13 +82,13 @@ locate.GC <- function(object) {
 			stop("No ref genom found")
 		}
 		
-		pos <- vector.search(c(2,1), object$ref)
+		pos <- vector_search(c(2,1), object$ref)
 		
 		return(pos + object$offset - 1L)	
 	}
 	
 	if(paste(class(object), collapse = ".") == "epiG.chunks") {
-		return(unlist(lapply(object, function(x) locate.GC(x))))
+		return(unlist(lapply(object, function(x) locate_GC(x))))
 	}
 	
 	stop("Unknown class")
@@ -84,7 +100,7 @@ locate.GC <- function(object) {
 #' 
 #' @author Martin Vincent
 #' @export
-locate.CG <- function(object) {
+locate_CG <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
 		
@@ -92,25 +108,28 @@ locate.CG <- function(object) {
 			stop("No ref genom found")
 		}
 		
-		pos <- vector.search(c(1,2), object$ref)
+		pos <- vector_search(c(1,2), object$ref)
 		
 		return(pos + object$offset - 1L)	
 	}
 	
 	if(paste(class(object), collapse = ".") == "epiG.chunks") {
-		return(unlist(lapply(object, function(x) locate.CG(x))))
+		return(unlist(lapply(object, function(x) locate_CG(x))))
 	}
 	
 	stop("Unknown class")
 }
 
-#' locate DGCH positions
+#' locate_DGCH 
+#' 
+#' locate DGCH (isolated GpC) positions
+#' 
 #' @param object 
 #' @return ??
 #' 
 #' @author Martin Vincent
 #' @export
-locate.DGCH <- function(object) {
+locate_DGCH <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
 		
@@ -118,7 +137,7 @@ locate.DGCH <- function(object) {
 			stop("No ref genom found")
 		}
 		
-		pos <- vector.search(c(2,1), object$ref)
+		pos <- vector_search(c(2,1), object$ref)
 		
 		# Remove pos <= 1 
 		if(any(pos == 1)) {
@@ -131,14 +150,14 @@ locate.DGCH <- function(object) {
 		}
 		
 		# Remove GCG
-		tmp <- vector.search(2, object$ref[pos+2])
+		tmp <- vector_search(2, object$ref[pos+2])
 		
 		if(length(tmp) > 0) {
 			pos <- pos[-tmp]
 		}	
 		
 		# Remove CGC
-		tmp <- vector.search(1, object$ref[pos-1])
+		tmp <- vector_search(1, object$ref[pos-1])
 		
 		if(length(tmp) > 0) {
 			pos <- pos[-tmp]
@@ -148,19 +167,22 @@ locate.DGCH <- function(object) {
 	}
 	
 	if(paste(class(object), collapse = ".") == "epiG.chunks") {
-		return(unlist(lapply(object, function(x) locate.DGCH(x))))
+		return(unlist(lapply(object, function(x) locate_DGCH(x))))
 	}
 	
 	stop("Unknown class")
 }
 
-#' locate HCGD positions
+#' locate_HCGD
+#' 
+#' locate HCGD (isolated CpG) positions
+#' 
 #' @param object 
 #' @return ??
 #' 
 #' @author Martin Vincent
 #' @export
-locate.HCGD <- function(object) {
+locate_HCGD <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
 		
@@ -168,7 +190,7 @@ locate.HCGD <- function(object) {
 			stop("No ref genom found")
 		}
 		
-		pos <- vector.search(c(1, 2), object$ref)
+		pos <- vector_search(c(1, 2), object$ref)
 		
 		# Remove pos = 1 
 		if(any(pos == 1)) {
@@ -181,14 +203,14 @@ locate.HCGD <- function(object) {
 		}
 		
 		# Remove GCG
-		tmp <- vector.search(2, object$ref[pos-1])
+		tmp <- vector_search(2, object$ref[pos-1])
 		
 		if(length(tmp) > 0) {
 			pos <- pos[-tmp]
 		}	
 		
 		# Remove CGC
-		tmp <- vector.search(1, object$ref[pos+2])
+		tmp <- vector_search(1, object$ref[pos+2])
 		
 		if(length(tmp) > 0) {
 			pos <- pos[-tmp]
@@ -198,19 +220,22 @@ locate.HCGD <- function(object) {
 	}
 	
 	if(paste(class(object), collapse = ".") == "epiG.chunks") {
-		return(unlist(lapply(object, function(x) locate.HCGD(x))))
+		return(unlist(lapply(object, function(x) locate_HCGD(x))))
 	}
 	
 	stop("Unknown class")
 }
 
+#' locate_nonref
+#' 
 #' find positions of mutations 
+#' 
 #' @param object 
 #' @return ??
 #' 
 #' @author Martin Vincent
 #' @export
-locate.mutations <- function(object) {
+locate_nonref <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
 		
@@ -229,7 +254,7 @@ locate.mutations <- function(object) {
 	}
 	
 	if(paste(class(object), collapse = ".") == "epiG.chunks") {
-		return(unlist(lapply(object, function(x) locate.mutations(x))))
+		return(unlist(lapply(object, function(x) locate_nonref(x))))
 	}
 	
 	stop("Unknown class")

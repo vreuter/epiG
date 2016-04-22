@@ -19,26 +19,7 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
-#' Compute chunk positions
-#' 
-#' @param filename 
-#' @param refname 
-#' @param start 
-#' @param end 
-#' @param chunk_size 
-#' @return chunk positions
-#' 
-#' @author martin
-#' @export
-#' @useDynLib epiG r_epiG_compute_chunk_positions
-compute_chunk_positions <- function(filename, refname, start, end, chunk_size) {
-
-    pos <- .Call(r_epiG_compute_chunk_positions, filename, refname, as.integer(start), as.integer(end), as.integer(chunk_size))
-
-    return(pos);
-}
-
-#' fetch_reads_info
+#' fetch_read_info
 #' 
 #' @param filename 
 #' @param refname 
@@ -46,10 +27,10 @@ compute_chunk_positions <- function(filename, refname, start, end, chunk_size) {
 #' @param end 
 #' @return info 
 #' 
-#' @author martin
+#' @author Martin Vincent
 #' @export
 #' @useDynLib epiG r_epiG_fetch_reads_info
-fetch_reads_info <- function(filename, refname, start, end) {
+fetch_read_info <- function(filename, refname, start, end) {
 
         res <- .Call(r_epiG_fetch_reads_info, filename, refname, as.integer(start), as.integer(end))
 
@@ -68,7 +49,7 @@ fetch_reads_info <- function(filename, refname, start, end) {
 		)	
 }
 
-#' fetch_reads_info
+#' fetch_read_count
 #' 
 #' @param filename 
 #' @param refname 
@@ -76,7 +57,7 @@ fetch_reads_info <- function(filename, refname, start, end) {
 #' @param end 
 #' @return info 
 #' 
-#' @author martin
+#' @author Martin Vincent
 #' @export
 #' @useDynLib epiG r_epiG_fetch_reads_info
 fetch_read_count <- function(filename, refname, start, end) {
@@ -89,7 +70,7 @@ fetch_read_count <- function(filename, refname, start, end) {
 	)
 }
 
-#' fetch.reads.raw
+#' fetch_reads_raw
 #' 
 #' @param filename 
 #' @param refname 
@@ -97,9 +78,9 @@ fetch_read_count <- function(filename, refname, start, end) {
 #' @param end 
 #' @return reads
 #' 
-#' @author martin
+#' @author Martin Vincent
 #' @export
-fetch.reads.raw <- function(filename, refname, start, end) {
+fetch_reads_raw <- function(filename, refname, start, end) {
 	
 	reads <- .Call(r_epiG_fetch_reads_raw, filename, refname, as.integer(start), as.integer(end))
 		
@@ -113,10 +94,10 @@ fetch.reads.raw <- function(filename, refname, start, end) {
 #' @param object 
 #' @return epiG model
 #' 
-#' @author martin
+#' @author Martin Vincent
 #' @export
 #' @useDynLib epiG r_epiG_fetch_reads
-fetch.reads <- function(object) {
+fetch_reads <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
 		reads <- .Call(r_epiG_fetch_reads, object$filename, object$refname, start(object), end(object), object$config$quality_threshold)
@@ -134,7 +115,7 @@ fetch.reads <- function(object) {
 	
 	} else if(paste(class(object), collapse = ".") == "epiG.chunks") {
 		
-		object <- lapply(object, fetch.reads)
+		object <- lapply(object, fetch_reads)
 		class(object) <- c("epiG", "chunks")
 		
 	} else {
@@ -150,13 +131,12 @@ fetch.reads <- function(object) {
 #' @param object 
 #' @return epiG model
 #' 
-#' @author martin
+#' @author Martin Vincent
 #' @export
-#' @useDynLib epiG r_epiG_read_fasta
 fetch_ref <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
-		object$ref <- .Call(r_epiG_read_fasta, object$config$ref.filename, object$refname, start(object), length(object))
+		object$ref <- read_fasta(object$config$ref.filename, object$refname, start(object), length(object))
 		
 	} else if(paste(class(object), collapse = ".") == "epiG.chunks") {
 		object <- lapply(object, function(x) fetch_ref(x))
@@ -178,9 +158,10 @@ fetch_ref <- function(object) {
 #' @param len 
 #' @return ??
 #' 
-#' @author martin
+#' @author Martin Vincent
 #' @export
-read.fasta <- function(filename, refname, start, len) {
+#' @useDynLib epiG r_epiG_read_fasta
+read_fasta <- function(filename, refname, start, len) {
 	return(.Call(r_epiG_read_fasta, 
 					as.character(filename), 
 					as.character(refname), 
@@ -193,13 +174,12 @@ read.fasta <- function(filename, refname, start, len) {
 #' @param object 
 #' @return epiG model
 #' 
-#' @author martin
+#' @author Martin Vincent
 #' @export
-#' @useDynLib epiG r_epiG_read_fasta
 fetch_alt <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
-		object$alt <- .Call(r_epiG_read_fasta, object$config$alt.filename, object$refname, start(object), length(object))
+		object$alt <- read_fasta(object$config$alt.filename, object$refname, start(object), length(object))
 	
 	} else if(paste(class(object), collapse = ".") == "epiG.chunks") {
 		object <- lapply(object, function(x) fetch_alt(x))
@@ -213,26 +193,27 @@ fetch_alt <- function(object) {
 	return(object)
 }
 
-#' fetch_header
+#' header_info
 #'  
 #' @param filename 
 #' 
-#' @author martin
+#' @author Martin Vincent
 #' @export
-fetch_header <- function(filename) {
+#' @useDynLib epiG r_epiG_fetch_header
+header_info <- function(filename) {
  	
 	tmp <- .Call(r_epiG_fetch_header, filename)
 	
 	data.frame(ref = tmp$refname, length = tmp$lengths, stringsAsFactors = FALSE)	
 }
 
-#' fetch_file_info
+#' file_info
 #' 
 #' @param filename 
 #' 
-#' @author martin
+#' @author Martin Vincent
 #' @export
-fetch_file_info <- function(filename) {
+file_info <- function(filename) {
 	
 	info <- fetch_header(filename)
 	

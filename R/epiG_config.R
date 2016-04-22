@@ -1,19 +1,6 @@
-# TODO: Add comment
-# 
-# Author: martin
-###############################################################################
 
-#FIXME names use . not _
 
-#' create_error_distributions
-#' 
-#' @param bisulfite_rate 
-#' @param bisulfite_inap_rate 
-#' @return bisulfite model
-#' 
-#' @author Martin Vincent
-#' @export
-create_error_distributions <- function(bisulfite_rate, bisulfite_inap_rate) {
+.create_error_distributions <- function(bisulfite_rate, bisulfite_inap_rate) {
 	
 	#TODO split up into 2 functions one for fwd model and one for rev model
 	
@@ -55,7 +42,6 @@ create_error_distributions <- function(bisulfite_rate, bisulfite_inap_rate) {
 #' 
 #' @param bisulfite_rates 
 #' @param bisulfite_inap_rate 
-#' @param lambda 
 #' @param Lmax 
 #' @return ...
 #' 
@@ -73,7 +59,7 @@ create_bisulfite_model <- function(bisulfite_rate, bisulfite_inap_rate, Lmax) {
 	return(model)
 }
 
-#TODO auto config for chunked mode
+
 #' auto_config
 #' 
 #' @param ref_file 
@@ -85,10 +71,14 @@ create_bisulfite_model <- function(bisulfite_rate, bisulfite_inap_rate, Lmax) {
 #' @param end 
 #' @param use_paired_reads 
 #' @param min_overlap 
-#' @param bisulfite_model
+#' @param bisulfite_rate 
+#' @param bisulfite_inap_rate 
+#' @param quality_threshold 
 #' @param ... 
 #' 
-#' @author martin
+#' @return ...
+#' 
+#' @author Martin Vincent
 #' @export
 auto_config <- function(
 		ref_file, 
@@ -144,13 +134,6 @@ auto_config <- function(
 		}
 	}
 
-	#TODO REMOVE ?
-	# Min overlap length
-#	if(is.null(min_overlap)) {
-#		min_overlap <- max(mean(reads$length) - 
-#							quantile(diff(reads$start[seq(from = 1, to = nrow(reads), length.out = nrow(reads)/2)]), p = 0.99), 25)
-#	}
-	
 	### Create bisulfite model
 	#TODO auto detimen bisulfite rates
 	model <- create_bisulfite_model(
@@ -223,7 +206,7 @@ auto_config <- function(
 	
 	#TODO max chunk_size
 	
-	config <- epiG.algorithm.config(
+	config <- epiG_config(
 			model = model,
 			reads_hard_limit = n_reads + 1000,
 			chunk_size = n_reads,
@@ -255,29 +238,36 @@ auto_config <- function(
 
 
 
-#' Create a epiG configuration
+#' epiG_config
 #' 
-#' @param ref.file 
-#' @param alt.file 
-#' @param max_iterations 
-#' @param prior 
 #' @param model 
-#' @param sequence_quality_adjust 
-#' @param haplo_prior modeled using a geometric distribution
+#' @param ref_file 
+#' @param alt_file 
+#' @param max_iterations 
 #' @param ref_prior 
 #' @param min_overlap_length 
+#' @param min_CG_count 
+#' @param min_HCGD_count 
+#' @param min_DGCH_count 
+#' @param margin 
+#' @param max_stages 
+#' @param structual_prior_scale 
 #' @param chunk_size 
 #' @param chunk_method 
 #' @param reads_hard_limit 
+#' @param quality_threshold 
+#' @param use_paired_reads 
+#' @param split_mode 
 #' @param verbose 
-#' @return epiG configuration
 #' 
-#' @author martin
+#' @return ...
+#' 
+#' @author Martin Vincent
 #' @export
-epiG.algorithm.config <- function(
+epiG_config <- function(
 		model, 
-		ref.file, 
-		alt.file, 
+		ref_file, 
+		alt_file, 
 		max_iterations = 1e5, 
 		ref_prior = 1-1e-4, 
 		min_overlap_length = 50,
@@ -300,9 +290,9 @@ epiG.algorithm.config <- function(
 	
 	config <- list()
 	
-	config$ref.filename <- ref.file
+	config$ref_filename <- ref_file
 	
-	config$alt.filename <- alt.file
+	config$alt_filename <- alt_file
 	
 	config$max_iterations <- as.integer(max_iterations)
 	
@@ -341,7 +331,7 @@ epiG.algorithm.config <- function(
 
 	config$chunk_size <- chunk_size
 	
-	config$chunk.method <- chunk_method
+	config$chunk_method <- chunk_method
 	
 	config$reads_hard_limit <- as.integer(reads_hard_limit)
 	
@@ -379,7 +369,7 @@ epiG.algorithm.config <- function(
 #' @param start 
 #' @param end 
 #' 
-#' @author martin
+#' @author Martin Vincent
 #' @export
 add_run_configuration <- function(config, filename, refname, start, end) {
 	

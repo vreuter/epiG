@@ -21,20 +21,16 @@
 
 #' Fit an epiG model
 #' 
-#' @param filename BAM file with aligned and ordered reads
-#' @param refGenom_filename
-#' @param altGenom_filename 
-#' @param refname 
-#' @param start 
-#' @param end 
-#' @param max_threads 
 #' @param config 
+#' @param max_threads 
+#' 
 #' @return fitted model
 #' 
 #' @author Martin Vincent
 #' @export
 #' @useDynLib epiG r_epiG_haplo_fit_filename
 #' @useDynLib epiG r_epiG_haplo_fit_filename_chunks
+#' @useDynLib epiG r_epiG_compute_chunk_positions
 epiG <- function(config, max_threads = 8L) {
 	
 	refGenom_filename = config$ref.filename
@@ -59,7 +55,7 @@ epiG <- function(config, max_threads = 8L) {
 		res <- .Call(r_epiG_haplo_fit_filename, filename, refGenom_filename, altGenom_filename, refname,  as.integer(start),  as.integer(end), as.integer(max_threads), as.integer(config$chunk_size), config)
 		
 	} else if(config$chunk.method == "reads")  {
-		s <- compute_chunk_positions(filename, refname, as.integer(start), as.integer(end), as.integer(config$chunk_size))
+		s <- .Call(r_epiG_compute_chunk_positions, filename, refname, as.integer(start), as.integer(end), as.integer(config$chunk_size))
 		
 		if(length(s) >= 2) {
 			chunks_start <- s[1:(length(s)-1)]
@@ -121,22 +117,17 @@ epiG <- function(config, max_threads = 8L) {
 	return(res.chunks)
 }
 
-#' epiG.chunks
+#' epiG_chunks
 #' 
-#' @param filename 
-#' @param refGenom_filename 
-#' @param altGenom_filename 
-#' @param refnames 
-#' @param chunks_start 
-#' @param chunks_end 
+#' @param configs
 #' @param max_threads 
-#' @param config 
+#' 
 #' @return fitted models
 #' 
-#' @author martin
+#' @author Martin Vincent
 #' @export
 #' @useDynLib epiG r_epiG_haplo_fit_filename_chunks
-epiG.chunks <- function(configs, max_threads = 8L) {
+epiG_chunks <- function(configs, max_threads = 8L) {
 	
 	if(class(configs) == "epiG.config") {
 		stop("configs should be a list of configurations")

@@ -6,7 +6,8 @@
 \usage{
 auto_config(ref_file, alt_file, NOMEseq = FALSE, bam_file, chr = NULL,
   start = NULL, end = NULL, use_paired_reads = NULL, min_overlap = NULL,
-  ...)
+  bisulfite_rate = 0.95, bisulfite_inap_rate = 0.05,
+  quality_threshold = 0.02, ...)
 }
 \arguments{
 \item{ref_file}{}
@@ -27,12 +28,21 @@ auto_config(ref_file, alt_file, NOMEseq = FALSE, bam_file, chr = NULL,
 
 \item{min_overlap}{}
 
+\item{bisulfite_rate}{}
+
+\item{bisulfite_inap_rate}{}
+
+\item{quality_threshold}{}
+
 \item{...}{}
+}
+\value{
+...
 }
 \description{
 auto_config
 }
 \author{
-martin
+Martin Vincent
 }
 

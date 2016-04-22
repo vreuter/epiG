@@ -16,6 +16,6 @@ epiG model
 fetch_ref
 }
 \author{
-martin
+Martin Vincent
 }
 

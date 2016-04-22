@@ -4,16 +4,14 @@
 \alias{create_bisulfite_model}
 \title{create_bisulfite_model}
 \usage{
-create_bisulfite_model(bisulfite_rates, bisulfite_inap_rate, Lmax)
+create_bisulfite_model(bisulfite_rate, bisulfite_inap_rate, Lmax)
 }
 \arguments{
-\item{bisulfite_rates}{}
-
 \item{bisulfite_inap_rate}{}
 
 \item{Lmax}{}
 
-\item{lambda}{}
+\item{bisulfite_rates}{}
 }
 \value{
 ...

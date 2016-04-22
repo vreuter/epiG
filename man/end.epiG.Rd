@@ -7,10 +7,12 @@
 \method{end}{epiG}(object, ...)
 }
 \arguments{
-\item{object}{}
+\item{object}{fitted model (epiG object)}
+
+\item{...}{}
 }
 \value{
-numeric
+end position (bp) of region contined in model
 }
 \description{
 end
