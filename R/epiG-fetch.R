@@ -34,12 +34,6 @@ fetch_read_info <- function(filename, refname, start, end) {
 
         res <- .Call(r_epiG_fetch_reads_info, filename, refname, as.integer(start), as.integer(end))
 
-        info <- list()
-        info$start <- as.integer(res$position)
-        info$end <- as.integer(res$position + res$length - 1)
-        info$length <- as.integer(res$length)
-        info$nread <- length(res$position)
-
 		# Return data.frame
 		data.frame(
 				name = res$names,
@@ -136,7 +130,7 @@ fetch_reads <- function(object) {
 fetch_ref <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
-		object$ref <- read_fasta(object$config$ref.filename, object$refname, start(object), length(object))
+		object$ref <- read_fasta(object$config$ref_filename, object$refname, start(object), length(object))
 		
 	} else if(paste(class(object), collapse = ".") == "epiG.chunks") {
 		object <- lapply(object, function(x) fetch_ref(x))
@@ -179,7 +173,7 @@ read_fasta <- function(filename, refname, start, len) {
 fetch_alt <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
-		object$alt <- read_fasta(object$config$alt.filename, object$refname, start(object), length(object))
+		object$alt <- read_fasta(object$config$alt_filename, object$refname, start(object), length(object))
 	
 	} else if(paste(class(object), collapse = ".") == "epiG.chunks") {
 		object <- lapply(object, function(x) fetch_alt(x))
@@ -215,15 +209,18 @@ header_info <- function(filename) {
 #' @export
 file_info <- function(filename) {
 	
-	info <- fetch_header(filename)
+	info <- header_info(filename)
 	
 	info$nreads <- NA
 	info$mean_read_length <- NA
 	
 	for(i in 1:nrow(info)) {
-		tmp <- fetch_reads_info(filename, info$ref[i], 0, info$length[i])
-		info$nreads[i] <- tmp$nread
-		info$mean_read_length[i] <- mean(tmp$length)
+		tmp <- fetch_read_info(filename, info$ref[i], 0, info$length[i])
+		info$nreads[i] <- nrow(tmp)
+		
+		if(nrow(tmp) > 0) {
+			info$mean_read_length[i] <- mean(tmp$length)
+		}
 	}
 	
 	return(info)

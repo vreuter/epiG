@@ -33,8 +33,8 @@
 #' @useDynLib epiG r_epiG_compute_chunk_positions
 epiG <- function(config, max_threads = 8L) {
 	
-	refGenom_filename = config$ref.filename
-	altGenom_filename = config$alt.filename
+	refGenom_filename = config$ref_filename
+	altGenom_filename = config$alt_filename
 	start <- config$start
 	end <- config$end
 	refname <- config$refname
@@ -48,13 +48,13 @@ epiG <- function(config, max_threads = 8L) {
 		stop("end must be larger than start")
 	}
 	
-	if(config$chunk.method == "none") {
+	if(config$chunk_method == "none") {
 		res <- .Call(r_epiG_haplo_fit_filename, filename, refGenom_filename, altGenom_filename, refname,  as.integer(start),  as.integer(end), as.integer(max_threads), as.integer(end-start+1), config)
 		
-	} else if(config$chunk.method == "bases") {
+	} else if(config$chunk_method == "bases") {
 		res <- .Call(r_epiG_haplo_fit_filename, filename, refGenom_filename, altGenom_filename, refname,  as.integer(start),  as.integer(end), as.integer(max_threads), as.integer(config$chunk_size), config)
 		
-	} else if(config$chunk.method == "reads")  {
+	} else if(config$chunk_method == "reads")  {
 		s <- .Call(r_epiG_compute_chunk_positions, filename, refname, as.integer(start), as.integer(end), as.integer(config$chunk_size))
 		
 		if(length(s) >= 2) {

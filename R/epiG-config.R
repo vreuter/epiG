@@ -53,8 +53,8 @@ create_bisulfite_model <- function(bisulfite_rate, bisulfite_inap_rate, Lmax) {
 	bisulfite_inap_rates <- rep(bisulfite_inap_rate, Lmax)
 	
 	model <- list()
-	model$fwd <-lapply(1:Lmax, function(i) create_error_distributions(bisulfite_rates[i], bisulfite_inap_rates[i])$fwd) 
-	model$rev <-lapply(1:Lmax, function(i) create_error_distributions(bisulfite_rates[i], bisulfite_inap_rates[i])$rev) 
+	model$fwd <-lapply(1:Lmax, function(i) .create_error_distributions(bisulfite_rates[i], bisulfite_inap_rates[i])$fwd) 
+	model$rev <-lapply(1:Lmax, function(i) .create_error_distributions(bisulfite_rates[i], bisulfite_inap_rates[i])$rev) 
 	
 	return(model)
 }
@@ -117,7 +117,7 @@ auto_config <- function(
 	
 	# Fetch information about file
 	
-	reads <- fetch_reads_info(bam_file, chr, start, end)
+	reads <- fetch_read_info(bam_file, chr, start, end)
 	n_reads <- nrow(reads)
 	
 	if(n_reads == 0) {
@@ -210,8 +210,8 @@ auto_config <- function(
 			model = model,
 			reads_hard_limit = n_reads + 1000,
 			chunk_size = n_reads,
-			ref.file = ref_file,
-			alt.file = alt_file,
+			ref_file = ref_file,
+			alt_file = alt_file,
 			min_overlap_length = min_overlap,
 			min_CG_count = min_CG_count,
 			min_HCGD_count = min_HCGD_count,
