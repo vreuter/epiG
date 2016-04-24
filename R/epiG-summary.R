@@ -59,3 +59,24 @@ print.epiG.config <- function(x, ...) {
 	
 	message("epiG config object:")
 }
+
+
+#' print model
+#' 
+#' @param x 
+#' @param ... 
+#' 
+#' @author Martin Vincent
+#' @method print epiG.model
+#' @export
+print.epiG.model <- function(x, ...) {
+	
+	cat(x$name)
+	cat("\n\n")
+	cat("Forward model:\n")
+	print(x$fwd[[1]])
+	cat("\n")
+	cat("Reverse model:\n")
+	print(x$rev[[1]])
+}
+
