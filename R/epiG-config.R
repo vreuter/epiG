@@ -195,15 +195,6 @@ auto_config <- function(
 		structual_prior_scale <- 1
 	}
 	
-
-	#TODO only if verbose=TRUE + nicer output use data.frame + rounding
-	cat("Generating configuration with the following parameters:\n\n")
-	cat(paste(" bisulphite conversion rate =", bisulfite_rate,"\n"))
-	cat(paste(" inappropriate bisulphite conversion rate =", bisulfite_inap_rate,"\n"))
-	cat(paste(" Min overlap length (computed) =", as.integer(min_overlap),"\n"))
-	cat(paste(" Number of reads =", n_reads,"\n"))
-	cat(paste(" Use paired reads =", use_paired_reads,"\n"))
-	
 	#TODO max chunk_size
 	
 	config <- epiG_config(
