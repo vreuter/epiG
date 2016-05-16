@@ -51,7 +51,8 @@ fetch_read_info <- function(file, refname, start, end) {
 		)	
 }
 
-#' Count reads overlapping specified region
+#' @title Count reads overlapping specified region
+#' @description 
 #' 
 #' @param file path to bam file
 #' @param refname reference name
@@ -78,7 +79,8 @@ read_count <- function(file, refname, start, end) {
 	)
 }
 
-#' Load reads 
+#' @title Load reads 
+#' @description 
 #' 
 #' @param file path to bam file
 #' @param refname reference name
@@ -106,7 +108,8 @@ load_reads <- function(file, refname, start, end, quality_threshold = 1, raw_qua
 	return(reads)
 }
 
-#' Fetch reads
+#' @title Fetch reads
+#' @description 
 #'
 #' Reads will be loaded and include in the epiG object
 #' 
@@ -145,7 +148,8 @@ fetch_reads <- function(object) {
 	return(object)
 }
 
-#' Fetch reference genom
+#' @title Fetch reference genom
+#' @description 
 #'
 #' Load reference genom and include it in epiG object. 
 #' 
@@ -177,7 +181,8 @@ fetch_ref <- function(object) {
 	return(object)
 }
 
-#' Read fasta file
+#' @title Read fasta file
+#' @description 
 #' 
 #' @param file path to fasta file
 #' @param refname referance name
@@ -198,7 +203,8 @@ read_fasta <- function(file, refname, start, len, offset = 0) {
 					as.integer(len)))
 }
 
-#' fetch_alt
+#' @title fetch_alt
+#' @description 
 #' 
 #' @param object 
 #' @return epiG model
@@ -222,7 +228,8 @@ fetch_alt <- function(object) {
 	return(object)
 }
 
-#' Fetch header of bam file
+#' @title Fetch header of bam file
+#' @description 
 #'  
 #' @param file path to bam file
 #' 
@@ -236,7 +243,8 @@ header_info <- function(file) {
 	data.frame(ref = tmp$refname, length = tmp$lengths, stringsAsFactors = FALSE)	
 }
 
-#' Fetch information about bam file
+#' @title Fetch information about bam file
+#' @description 
 #' 
 #' @param file path to bam file
 #' 
