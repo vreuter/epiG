@@ -14,7 +14,12 @@
 #include "samtools/faidx.h"
 
 //TODO print file name on error
-std::string read_fasta(std::string const& filename, std::string const& ref, t_position pos, t_count length) {
+std::string read_fasta(
+		std::string const& filename,
+		t_position offset,
+		std::string const& ref,
+		t_position pos,
+		t_count length) {
 
 	faidx_t * fai = fai_load(filename.c_str());
 
@@ -22,13 +27,17 @@ std::string read_fasta(std::string const& filename, std::string const& ref, t_po
 		throw std::runtime_error("read_fasta : unable to open file");
 	}
 
+	if(pos < offset) {
+		throw std::runtime_error("read_fasta : unable to fetch region");
+	}
+
 	int l;
 	char * cstr_ref = faidx_fetch_seq(fai, const_cast<char*>(ref.c_str()),
-			pos, pos + length-1, &l);
+			pos-offset, pos-offset + length-1, &l);
 
 	if (cstr_ref == 0) {
 
-		cout << ref << " : " << pos << " - " << pos + length-1 << endl;
+		cout << ref << " : " << pos-offset << " - " << pos-offset + length-1 << endl;
 
 		throw std::runtime_error("read_fasta : unable to fetch region");
 	}
@@ -49,6 +58,18 @@ std::string read_fasta(std::string const& filename, std::string const& ref, t_po
 double quality_to_epsilon(char quality) {
 	return pow(10, -static_cast<int>(quality) / static_cast<double>(10));
 }
+
+t_epsilon_quality quality_to_epsilon(t_quality const& quality) {
+
+	t_epsilon_quality epsilon(quality.n_elem);
+	t_epsilon_quality::iterator epsilon_itr = epsilon.begin();
+		for(t_quality::const_iterator quality_itr = quality.begin(); quality_itr != quality.end(); ++quality_itr, ++epsilon_itr) {
+			*epsilon_itr = quality_to_epsilon(*quality_itr);
+		}
+
+	return epsilon;
+}
+
 
 char seq_base_to_int(const char & bit4_code) {
 
@@ -117,6 +138,17 @@ char str_base_conv(const char & str_char) {
 
         return 0;
 	}
+}
+
+t_quality create_quality_vector(std::string const& quality_str) {
+
+	t_quality q(quality_str.size());
+	t_quality::iterator q_itr = q.begin();
+	for(std::string::const_iterator quality_itr = quality_str.begin(); quality_itr != quality_str.end(); ++quality_itr, ++q_itr) {
+		*q_itr = static_cast<int>(*quality_itr);
+	}
+
+	return q;
 }
 
 t_epsilon_quality create_epsilon_vector(std::string const& quality_str) {

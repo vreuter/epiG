@@ -15,9 +15,6 @@ class chunk_haplo_chain_optimizer {
 public:
 	t_count const number_of_chunks;
 
-	std::string const refGenom_filename;
-	std::string const& altGenom_filename;
-
 	field<std::string> const refNames;
 
 	t_position const offset;
@@ -48,8 +45,6 @@ public:
 
 	chunk_haplo_chain_optimizer(
 			std::string const& bam_file,
-			std::string const& refGenom_filename,
-			std::string const& altGenom_filename,
 			field<std::string> const& refNames,
 			t_positions const& chunk_start_positions,
 			t_positions const& chunk_end_positions,
@@ -106,16 +101,12 @@ public:
 
 chunk_haplo_chain_optimizer::chunk_haplo_chain_optimizer(
 		std::string const& bam_file,
-		std::string const& refGenom_filename,
-		std::string const& altGenom_filename,
 		field<std::string> const& refNames,
 		t_positions const& chunk_start_positions,
 		t_positions const& chunk_end_positions,
 		t_count max_threads,
 		field<AlgorithmConfiguration> const& configs) :
 				number_of_chunks(chunk_start_positions.n_elem),
-				refGenom_filename(refGenom_filename),
-				altGenom_filename(altGenom_filename),
 				refNames(refNames),
 				offset(chunk_start_positions.min()),
 				max_threads(max_threads),
@@ -136,10 +127,6 @@ chunk_haplo_chain_optimizer::chunk_haplo_chain_optimizer(
 	//TODO domain check consistency of chunk positions
 	//refnames length =n_chunks
 	// length configs = n_chunks
-
-	//Check refs avaialbe and build fai index files if needed
-	read_fasta(refGenom_filename, refNames(0), 1, 2);
-
 }
 
 void chunk_haplo_chain_optimizer::run() {
@@ -208,10 +195,10 @@ void chunk_haplo_chain_optimizer::run() {
 			}
 	        //Load and prepare data
 	        std::vector<aligned_read> const& reads = reader.get_reads();
-	        alignment_data data(config, reads, refGenom_filename, refNames(i), n_reads_hard_limit);
+	        alignment_data data(config, reads, refNames(i), n_reads_hard_limit);
 
 			//Load ref
-	        t_seq_bases ref = create_bases_vector(read_fasta(refGenom_filename, refNames(i), data.offset, data.sequence_length+2));
+	        t_seq_bases ref = create_bases_vector(read_fasta(config.ref_filename, config.ref_offset, refNames(i), data.offset, data.sequence_length+2));
 
 	        //TODO append 0's (unknowns) + error -> warning
 	        if (ref.n_elem != static_cast<unsigned int>(data.sequence_length+2)) {
@@ -219,7 +206,7 @@ void chunk_haplo_chain_optimizer::run() {
 			}
 
 	        //Load alt
-	        t_seq_bases alt = create_bases_vector(read_fasta(altGenom_filename, refNames(i), data.offset, data.sequence_length+2));
+	        t_seq_bases alt = create_bases_vector(read_fasta(config.alt_filename, config.alt_offset,  refNames(i), data.offset, data.sequence_length+2));
 
 	        //TODO append 0's (no snp) + error -> warning
 	        if (alt.n_elem != static_cast<unsigned int>(data.sequence_length+2)) {
@@ -281,8 +268,6 @@ void chunk_haplo_chain_optimizer::run() {
 
 chunk_haplo_chain_optimizer create_base_chunk_optimizer(
 		std::string const& bam_file,
-		std::string const& refGenom_filename,
-		std::string const& altGenom_filename,
 		std::string const& refName,
 		t_position start_position,
 		t_position end_position,
@@ -314,14 +299,12 @@ chunk_haplo_chain_optimizer create_base_chunk_optimizer(
 		refNames(i) = refName;
 	}
 
-	return chunk_haplo_chain_optimizer(bam_file, refGenom_filename, altGenom_filename, refNames, chunk_start_pos, chunk_end_pos, max_threads, configs);
+	return chunk_haplo_chain_optimizer(bam_file, refNames, chunk_start_pos, chunk_end_pos, max_threads, configs);
 }
 
 
 chunk_haplo_chain_optimizer create_base_chunk_optimizer(
 		std::string const& bam_file,
-		std::string const& refGenom_filename,
-		std::string const& altGenom_filename,
 		std::string const& refName,
 		t_position start_position,
 		t_position end_position,
@@ -332,9 +315,14 @@ chunk_haplo_chain_optimizer create_base_chunk_optimizer(
 	field<AlgorithmConfiguration> configs(1);
 	configs(0) = config;
 
-	return create_base_chunk_optimizer(bam_file, refGenom_filename, altGenom_filename,
-			refName, start_position, end_position,
-			max_threads, chunk_size, configs);
+	return create_base_chunk_optimizer(
+			bam_file,
+			refName,
+			start_position,
+			end_position,
+			max_threads,
+			chunk_size,
+			configs);
 }
 
 #endif /* CHUNK_OPTIMIZER_HPP_ */

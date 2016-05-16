@@ -56,6 +56,12 @@ class AlgorithmConfiguration {
 
 public:
 
+	std::string ref_filename;
+	t_position ref_offset;
+
+	std::string alt_filename;
+	t_position alt_offset;
+
 	t_count max_iterations; //max number of iterations per optim loop
 
 	t_models fwd_model;
@@ -99,6 +105,12 @@ public:
 	AlgorithmConfiguration() {}
 
 	AlgorithmConfiguration(rList const& config) :
+
+			ref_filename(getConfigAttribute<std::string>(config, "ref_filename")),
+			ref_offset(getConfigAttribute<t_position>(config, "ref_offset")),
+
+			alt_filename(getConfigAttribute<std::string>(config, "ref_filename")),
+			alt_offset(getConfigAttribute<t_position>(config, "ref_offset")),
 
 			max_iterations(getConfigAttribute<t_count>(config, "max_iterations")),
 

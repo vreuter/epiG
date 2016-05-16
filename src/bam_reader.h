@@ -37,15 +37,36 @@ public:
 	t_position position;
 	t_length length;
 	t_seq_bases bases;
+	t_quality quality;
 	t_epsilon_quality epsilon;
 	std::string name;
 
 
-	aligned_read(t_seq_bases const& bases, t_epsilon_quality const& epsilon, t_position position, std::string const& name) : position(position), length(bases.n_elem), bases(bases), epsilon(epsilon), name(name) {}
+	aligned_read(
+			t_seq_bases const& bases,
+			t_quality quality,
+			t_position position,
+			std::string const& name) :
+				position(position),
+				length(bases.n_elem),
+				bases(bases),
+				quality(quality),
+				epsilon(quality_to_epsilon(quality)),
+				name(name) {}
 
-	aligned_read(std::string const& bases, std::string const& quality, t_position position, std::string const& name) :	position(position), length(bases.size()), bases(create_bases_vector(bases)), epsilon(create_epsilon_vector(quality)), name(name) {}
+	aligned_read(
+			std::string const& bases,
+			std::string const& quality,
+			t_position position,
+			std::string const& name) :
+				position(position),
+				length(bases.size()),
+				bases(create_bases_vector(bases)),
+				quality(create_quality_vector(quality)),
+				epsilon(create_epsilon_vector(quality)),
+				name(name) {}
 
-    aligned_read() : position(0), length(0), bases(), epsilon(), name() {}
+    aligned_read() : position(0), length(0), bases(), quality(), epsilon(),  name() {}
 };
 
 class read_info {
@@ -71,27 +92,17 @@ static int fetch_func(const bam1_t *b, void *data)
 	t_seq_bases bases(length);
 
 	uint8_t * q = bam1_qual(b);
-	t_epsilon_quality epsilon(length);
+	t_quality quality(length);
 
     std::string name(bam1_qname(b));
 
 	for(int i = 0; i < length; ++i) {
 
-		char quality = static_cast<char>(q[i]);
-
-//		if(quality <= 2) { //FIXME configable
-//	        bases(i) = seq_base_to_int(15); //N
-//		} else {
-//	        bases(i) = seq_base_to_int(static_cast<char>(bam1_seqi(s,i)));
-//		}
-
         bases(i) = seq_base_to_int(static_cast<char>(bam1_seqi(s,i)));
-
-	//	bases(i) = seq_base_to_int(static_cast<char>(bam1_seqi(s,i)));
-		epsilon(i) = quality_to_epsilon(quality);
+        quality(i) = static_cast<char>(q[i]);
 	}
 
-	reads->push_back(aligned_read(bases, epsilon, pos, name));
+	reads->push_back(aligned_read(bases, quality, pos, name));
 
     return 0;
 }

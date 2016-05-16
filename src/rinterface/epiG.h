@@ -3,8 +3,8 @@
 
 extern "C" {
 
-SEXP r_epiG_haplo_fit_filename(SEXP r_filename, SEXP r_refGenom_filename, SEXP r_altGenom_filename, SEXP r_refName, SEXP r_start, SEXP r_end, SEXP r_max_threads, SEXP r_max_chunk_size, SEXP r_config);
-SEXP r_epiG_haplo_fit_filename_chunks(SEXP r_filename, SEXP r_refGenom_filename, SEXP r_altGenom_filename, SEXP r_refName, SEXP r_chunks_start, SEXP r_chunks_end, SEXP r_max_threads, SEXP r_config);
+SEXP r_epiG_haplo_fit_filename(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end, SEXP r_max_threads, SEXP r_max_chunk_size, SEXP r_config);
+SEXP r_epiG_haplo_fit_filename_chunks(SEXP r_filename, SEXP r_refName, SEXP r_chunks_start, SEXP r_chunks_end, SEXP r_max_threads, SEXP r_config);
 
 SEXP r_epiG_compute_chunk_positions(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end, SEXP r_chunk_size);
 
@@ -82,11 +82,9 @@ SEXP r_epiG_compute_chunk_positions(SEXP r_filename, SEXP r_refName, SEXP r_star
 }
 
 
-SEXP epiG_haplo_fit_filename(SEXP r_filename, SEXP r_refGenom_filename, SEXP r_altGenom_filename,  SEXP r_refName, SEXP r_start, SEXP r_end, SEXP r_max_threads, SEXP r_max_chunk_size, SEXP r_config) {
+SEXP epiG_haplo_fit_filename(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end, SEXP r_max_threads, SEXP r_max_chunk_size, SEXP r_config) {
 
 	const std::string filename = get_value<std::string>(r_filename);
-	const std::string refGenom_filename = get_value<std::string>(r_refGenom_filename);
-	const std::string altGenom_filename = get_value<std::string>(r_altGenom_filename);
 	const std::string refName = get_value<std::string>(r_refName);
 	const t_position start = get_value<t_position>(r_start);
 	const t_position end = get_value<t_position>(r_end);
@@ -95,7 +93,7 @@ SEXP epiG_haplo_fit_filename(SEXP r_filename, SEXP r_refGenom_filename, SEXP r_a
 
 	const AlgorithmConfiguration config = get_value<AlgorithmConfiguration>(r_config);
 
-	chunk_haplo_chain_optimizer opt = create_base_chunk_optimizer(filename, refGenom_filename, altGenom_filename, refName, start, end, max_threads, max_chunk_size, config);
+	chunk_haplo_chain_optimizer opt = create_base_chunk_optimizer(filename, refName, start, end, max_threads, max_chunk_size, config);
 
 	opt.run();
 
@@ -118,11 +116,11 @@ SEXP epiG_haplo_fit_filename(SEXP r_filename, SEXP r_refGenom_filename, SEXP r_a
     return rObject(res);
 }
 
-SEXP r_epiG_haplo_fit_filename(SEXP r_filename, SEXP r_refGenom_filename, SEXP r_altGenom_filename,  SEXP r_refName, SEXP r_start, SEXP r_end, SEXP r_max_threads, SEXP r_max_chunk_size, SEXP r_config) {
+SEXP r_epiG_haplo_fit_filename(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end, SEXP r_max_threads, SEXP r_max_chunk_size, SEXP r_config) {
 
 	try {
 
-		return epiG_haplo_fit_filename(r_filename, r_refGenom_filename, r_altGenom_filename, r_refName, r_start, r_end, r_max_threads, r_max_chunk_size, r_config);
+		return epiG_haplo_fit_filename(r_filename, r_refName, r_start, r_end, r_max_threads, r_max_chunk_size, r_config);
 
 		//Catch unhandled exceptions
 
@@ -143,11 +141,9 @@ SEXP r_epiG_haplo_fit_filename(SEXP r_filename, SEXP r_refGenom_filename, SEXP r
 	return R_NilValue; //Avoid compiler warnings
 }
 
-SEXP epiG_haplo_fit_filename_chunks(SEXP r_filename, SEXP r_refGenom_filename, SEXP r_altGenom_filename, SEXP r_refNames, SEXP r_chunks_start, SEXP r_chunks_end, SEXP r_max_threads, SEXP r_configs) {
+SEXP epiG_haplo_fit_filename_chunks(SEXP r_filename, SEXP r_refNames, SEXP r_chunks_start, SEXP r_chunks_end, SEXP r_max_threads, SEXP r_configs) {
 
 	const std::string filename = get_value<std::string>(r_filename);
-	const std::string refGenom_filename = get_value<std::string>(r_refGenom_filename);
-	const std::string altGenom_filename = get_value<std::string>(r_altGenom_filename);
 	const field<std::string> refNames = get_field<std::string>(r_refNames);
 	const t_positions chunks_start = get_value<t_positions>(r_chunks_start);
 	const t_positions chunks_end = get_value<t_positions>(r_chunks_end);
@@ -155,7 +151,7 @@ SEXP epiG_haplo_fit_filename_chunks(SEXP r_filename, SEXP r_refGenom_filename, S
 
 	const field<AlgorithmConfiguration>  configs = get_field<AlgorithmConfiguration>(r_configs);
 
-	chunk_haplo_chain_optimizer opt(filename, refGenom_filename, altGenom_filename, refNames, chunks_start, chunks_end, max_threads, configs);
+	chunk_haplo_chain_optimizer opt(filename, refNames, chunks_start, chunks_end, max_threads, configs);
 
 	opt.run();
 
@@ -177,11 +173,11 @@ SEXP epiG_haplo_fit_filename_chunks(SEXP r_filename, SEXP r_refGenom_filename, S
     return rObject(res);
 }
 
-SEXP r_epiG_haplo_fit_filename_chunks(SEXP r_filename, SEXP r_refGenom_filename, SEXP r_altGenom_filename, SEXP r_refNames, SEXP r_chunks_start, SEXP r_chunks_end, SEXP r_max_threads, SEXP r_config) {
+SEXP r_epiG_haplo_fit_filename_chunks(SEXP r_filename, SEXP r_refNames, SEXP r_chunks_start, SEXP r_chunks_end, SEXP r_max_threads, SEXP r_config) {
 
 	try {
 
-		return epiG_haplo_fit_filename_chunks(r_filename, r_refGenom_filename, r_altGenom_filename, r_refNames, r_chunks_start, r_chunks_end, r_max_threads, r_config);
+		return epiG_haplo_fit_filename_chunks(r_filename, r_refNames, r_chunks_start, r_chunks_end, r_max_threads, r_config);
 
 		//Catch unhandled exceptions
 

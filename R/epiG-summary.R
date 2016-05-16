@@ -80,3 +80,6 @@ print.epiG.model <- function(x, ...) {
 	print(x$rev[[1]])
 }
 
+print.epiG.reads <- function(x, ...) {
+	message("epiG reads object:")
+}

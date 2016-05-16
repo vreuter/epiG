@@ -1,8 +1,8 @@
 library(epiG)
 
 bam_file <- system.file("extdata", "GNAS_small.bam", package="epiG")
-ref_file <- system.file("extdata", "hg19_rCRSchrm_chr20.fa", package="epiG")
-alt_file <- system.file("extdata", "dbsnp_135.hg19_chr20.fa", package="epiG")
+ref_file <- system.file("extdata", "hg19_GNAS.fa", package="epiG")
+alt_file <- system.file("extdata", "dbsnp_135.hg19_GNAS.fa", package="epiG")
 
 # Test file_info
 file_info(bam_file)
@@ -16,7 +16,9 @@ end <- 57400000 + 1000
 config <- auto_config(
 		bam_file = bam_file,
 		ref_file = ref_file,
+		ref_offset = 57380000,
 		alt_file = alt_file,
+		alt_offset = 57380000,
 		chr = chr,
 		start = start,
 		end = end)

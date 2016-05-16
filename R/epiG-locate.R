@@ -19,22 +19,26 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
-#' vector_search
+#' Search for pattern in integer vector
 #' 
-#' @param pattern 
-#' @param text 
-#' @return ??
+#' @param pattern integer vector 
+#' @param x integer vector to search in
+#' @return postion of pattern in x 
+#'
+#' @examples
+#' TODO
+#'
 #' @author Martin Vincent
 #' @useDynLib epiG r_epiG_locate
 #' @export
-vector_search <- function(pattern, text) {
+vector_search <- function(pattern, x) {
 	
 	#TODO check input
 	
 	pattern <- as.integer(pattern)
-	text <- as.integer(text)
+	x <- as.integer(x)
 		
-	res <- .Call(r_epiG_locate, pattern, text)
+	res <- .Call(r_epiG_locate, pattern, x)
 	
 	res <- res + 1L
 	
@@ -42,9 +46,13 @@ vector_search <- function(pattern, text) {
 }
 
 #' locate C positions
-#' @param object 
-#' @return ??
+#'
+#' @param object epiG object
+#' @return positions of C in object
 #' 
+#' @examples
+#' todo
+#'
 #' @author Martin Vincent
 #' @export
 locate_C <- function(object) {
@@ -94,7 +102,7 @@ locate_GC <- function(object) {
 	stop("Unknown class")
 }
 
-#' locate CpG positions
+#' locate CG positions
 #' @param object 
 #' @return ??
 #' 
@@ -226,16 +234,14 @@ locate_HCGD <- function(object) {
 	stop("Unknown class")
 }
 
-#' locate_nonref
-#' 
-#' find positions of mutations 
+#' Locate positions where at least one chain has e genotype not matching with the reference.
 #' 
 #' @param object 
-#' @return ??
+#' @return postions of mismatches
 #' 
 #' @author Martin Vincent
 #' @export
-locate_nonref <- function(object) {
+locate_mismatch <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
 		

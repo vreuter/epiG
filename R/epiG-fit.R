@@ -1,6 +1,6 @@
 #
 #     Description of this R script:
-#     TODO
+#   
 #
 #     Intended for use with R.
 #     Copyright (C) 2014 Martin Vincent
@@ -19,22 +19,55 @@
 #     along with this program.  If not, see <http:#www.gnu.org/licenses/>
 #
 
-#' Fit an epiG model
+#' Fit an epiG epigenotype model
 #' 
-#' @param config 
-#' @param max_threads 
+#' @param config epiG configuration
+#' @param max_threads maximal number of threads to use
 #' 
 #' @return fitted model
 #' 
 #' @author Martin Vincent
+#' 
+#' @examples
+#' library(epiG)
+#' 
+#' # Retrieve paths to raw data files
+#' bam_file <- system.file("extdata", "GNAS_small.bam", package="epiG")
+#' ref_file <- system.file("extdata", "hg19_GNAS.fa", package="epiG")
+#' alt_file <- system.file("extdata", "dbsnp_135.hg19_GNAS.fa", package="epiG")
+#' 
+#' # Specify region
+#' chr <- "chr20"
+#' start <- 57400000 
+#' end <- 57400000 + 1000
+#' 
+#' # Build epiG configuration
+#' config <- auto_config(
+#' 		bam_file = bam_file,
+#' 		ref_file = ref_file,
+#' 		alt_file = alt_file,
+#' 		chr = chr,
+#' 		start = start,
+#' 		end = end,
+#' # If ref_file and alt_file contains the entire chromosome this is not needed
+#' 		ref_offset = 57380000, 
+#' 		alt_offset = 57380000)
+#' 
+#' # Run epiG
+#' fit <- epiG(max_threads = 2, config = config)
+#' 
+#' # Information about fitted model
+#' fit 
+#' 
+#' # Information about haplotype chains
+#' chain_info(fit)
+#' 
 #' @export
 #' @useDynLib epiG r_epiG_haplo_fit_filename
 #' @useDynLib epiG r_epiG_haplo_fit_filename_chunks
 #' @useDynLib epiG r_epiG_compute_chunk_positions
-epiG <- function(config, max_threads = 8L) {
+epiG <- function(config, max_threads = 2L) {
 	
-	refGenom_filename = config$ref_filename
-	altGenom_filename = config$alt_filename
 	start <- config$start
 	end <- config$end
 	refname <- config$refname
@@ -49,10 +82,10 @@ epiG <- function(config, max_threads = 8L) {
 	}
 	
 	if(config$chunk_method == "none") {
-		res <- .Call(r_epiG_haplo_fit_filename, filename, refGenom_filename, altGenom_filename, refname,  as.integer(start),  as.integer(end), as.integer(max_threads), as.integer(end-start+1), config)
+		res <- .Call(r_epiG_haplo_fit_filename, filename, refname,  as.integer(start),  as.integer(end), as.integer(max_threads), as.integer(end-start+1), config)
 		
 	} else if(config$chunk_method == "bases") {
-		res <- .Call(r_epiG_haplo_fit_filename, filename, refGenom_filename, altGenom_filename, refname,  as.integer(start),  as.integer(end), as.integer(max_threads), as.integer(config$chunk_size), config)
+		res <- .Call(r_epiG_haplo_fit_filename, filename, refname,  as.integer(start),  as.integer(end), as.integer(max_threads), as.integer(config$chunk_size), config)
 		
 	} else if(config$chunk_method == "reads")  {
 		s <- .Call(r_epiG_compute_chunk_positions, filename, refname, as.integer(start), as.integer(end), as.integer(config$chunk_size))
@@ -62,12 +95,12 @@ epiG <- function(config, max_threads = 8L) {
 			chunks_end <- s[2:length(s)]-1L
 			chunks_start[1] <- start
 			refnames <- as.list(rep(refname, length(chunks_start)))
-			configs <- replicate(length(chunks_start), config, simplify = FALSE) #TODO call epiG.chunks 
+			configs <- replicate(length(chunks_start), config, simplify = FALSE) #FIXME call epiG.chunks 
 			
-			res <- .Call(r_epiG_haplo_fit_filename_chunks, filename, refGenom_filename, altGenom_filename, refnames, as.integer(chunks_start), as.integer(chunks_end), as.integer(max_threads), configs)
+			res <- .Call(r_epiG_haplo_fit_filename_chunks, filename, refnames, as.integer(chunks_start), as.integer(chunks_end), as.integer(max_threads), configs)
 		
 		} else {
-			res <- .Call(r_epiG_haplo_fit_filename, filename, refGenom_filename, altGenom_filename, refname,  as.integer(start),  as.integer(end), as.integer(max_threads), as.integer(end-start+1), config)
+			res <- .Call(r_epiG_haplo_fit_filename, filename, refname,  as.integer(start),  as.integer(end), as.integer(max_threads), as.integer(end-start+1), config)
 		}
 		
 	} else {
@@ -117,12 +150,14 @@ epiG <- function(config, max_threads = 8L) {
 	return(res.chunks)
 }
 
-#' epiG_chunks
+#' Fit epiG epigenotype models
 #' 
-#' @param configs
-#' @param max_threads 
+#' Fit an epiG epigenotype model for each config in the list configs.
 #' 
-#' @return fitted models
+#' @param configs list of epiG configurations
+#' @param max_threads maximal number of threads to use
+#' 
+#' @return list of fitted models
 #' 
 #' @author Martin Vincent
 #' @export
@@ -138,8 +173,6 @@ epiG_chunks <- function(configs, max_threads = 8L) {
 		configs <- configs[ ! sapply(configs, is.null)]
 	}
 	
-	refGenom_filename = configs[[1]]$ref.filename
-	altGenom_filename = configs[[1]]$alt.filename
 	filename = configs[[1]]$filename
 	
 	chunks_start <- sapply(configs, function(x) x$start)
@@ -147,7 +180,7 @@ epiG_chunks <- function(configs, max_threads = 8L) {
 	refnames <- lapply(configs, function(x) x$refname)
 
 	
-	res <- .Call(r_epiG_haplo_fit_filename_chunks, filename, refGenom_filename, altGenom_filename, refnames,  as.integer(chunks_start),  as.integer(chunks_end), as.integer(max_threads), configs)
+	res <- .Call(r_epiG_haplo_fit_filename_chunks, filename, refnames, as.integer(chunks_start),  as.integer(chunks_end), as.integer(max_threads), configs)
 	
 	n_chunks <- res$number_of_chunks
 	

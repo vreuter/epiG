@@ -3,7 +3,7 @@
 
 extern "C" {
 
-SEXP r_epiG_fetch_reads(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end, SEXP r_quality_threshold);
+SEXP r_epiG_fetch_reads(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end, SEXP r_quality_threshold, SEXP r_use_epsilon_quality);
 
 SEXP r_epiG_fetch_reads_raw(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end);
 SEXP r_epiG_fetch_reads_info(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end);
@@ -11,28 +11,29 @@ SEXP r_epiG_fetch_read_count(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP
 
 SEXP r_epiG_fetch_header(SEXP r_filename);
 
-SEXP r_epiG_read_fasta(SEXP r_filename, SEXP r_ref, SEXP r_position, SEXP r_length);
+SEXP r_epiG_read_fasta(SEXP r_filename, SEXP r_offset, SEXP r_ref, SEXP r_position, SEXP r_length);
 
 }
 
 
-SEXP epiG_read_fasta(SEXP r_filename, SEXP r_ref, SEXP r_position, SEXP r_length) {
+SEXP epiG_read_fasta(SEXP r_filename, SEXP r_offset, SEXP r_ref, SEXP r_position, SEXP r_length) {
 
 	const std::string filename = get_value<std::string>(r_filename);
+	const int offset = get_value<int>(r_offset);
 	const std::string ref = get_value<std::string>(r_ref);
 	const int pos = get_value<int>(r_position);
 	const int length = get_value<int>(r_length);
 
 	//Note the first base is at postion 0
-	return rObject(create_bases_vector(read_fasta(filename, ref, pos, length)));
+	return rObject(create_bases_vector(read_fasta(filename, offset, ref, pos, length)));
 }
 
 
-SEXP r_epiG_read_fasta(SEXP r_filename, SEXP r_ref, SEXP r_position, SEXP r_length) {
+SEXP r_epiG_read_fasta(SEXP r_filename, SEXP r_offset, SEXP r_ref, SEXP r_position, SEXP r_length) {
 
 	try {
 
-		return epiG_read_fasta(r_filename, r_ref, r_position, r_length);
+		return epiG_read_fasta(r_filename, r_offset, r_ref, r_position, r_length);
 
 		//Catch unhandled exceptions
 
@@ -55,13 +56,14 @@ SEXP r_epiG_read_fasta(SEXP r_filename, SEXP r_ref, SEXP r_position, SEXP r_leng
 
 
 
-SEXP epiG_fetch_reads(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end, SEXP r_quality_threshold) {
+SEXP epiG_fetch_reads(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end, SEXP r_quality_threshold, SEXP r_use_epsilon_quality) {
 
 	const std::string filename = get_value<std::string>(r_filename);
 	const std::string refName = get_value<std::string>(r_refName);
 	const t_position start = get_value<t_position>(r_start);
 	const t_position end = get_value<t_position>(r_end);
 	const double quality_threshold = get_value<double>(r_quality_threshold);
+	const bool use_epsilon_quality = get_value<bool>(r_use_epsilon_quality);
 
 	//fetch reads
 	bamReader reader(filename, refName, start, end);
@@ -73,7 +75,10 @@ SEXP epiG_fetch_reads(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end,
     std::vector<aligned_read> const& reads = reader.get_reads();
 
 	field<t_seq_bases> bases(reads.size());
+
 	field<t_epsilon_quality> epsilon(reads.size());
+	field<t_quality> quality(reads.size());
+
 	t_positions pos(reads.size());
 	t_lengths len(reads.size());
 
@@ -84,7 +89,13 @@ SEXP epiG_fetch_reads(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end,
 		aligned_read read = reads[i];
 
 		bases(i) = read.bases;
-		epsilon(i) = read.epsilon;
+
+		if(r_use_epsilon_quality) {
+			epsilon(i) = read.epsilon;
+		} else {
+			quality(i) = read.quality;
+		}
+
 		pos(i) = read.position;
 		len(i) = read.length;
 
@@ -94,7 +105,11 @@ SEXP epiG_fetch_reads(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end,
     rList res;
 
 	res.attach(rObject(bases), "reads");
-	res.attach(rObject(epsilon), "quality");
+	if(use_epsilon_quality) {
+		res.attach(rObject(epsilon), "quality");
+	} else {
+		res.attach(rObject(quality), "quality");
+	}
 	res.attach(rObject(pos), "positions");
 	res.attach(rObject(len), "lengths");
     res.attach(rObject(name), "names");
@@ -102,11 +117,11 @@ SEXP epiG_fetch_reads(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end,
     return rObject(res);
 }
 
-SEXP r_epiG_fetch_reads(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end, SEXP r_quality_threshold) {
+SEXP r_epiG_fetch_reads(SEXP r_filename, SEXP r_refName, SEXP r_start, SEXP r_end, SEXP r_quality_threshold, SEXP r_use_epsilon_quality) {
 
 	try {
 
-		return epiG_fetch_reads(r_filename, r_refName, r_start, r_end, r_quality_threshold);
+		return epiG_fetch_reads(r_filename, r_refName, r_start, r_end, r_quality_threshold, r_use_epsilon_quality);
 
 		//Catch unhandled exceptions
 

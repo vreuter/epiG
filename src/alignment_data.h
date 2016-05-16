@@ -63,7 +63,6 @@ public:
     alignment_data(
     		AlgorithmConfiguration const& config,
     		std::vector<aligned_read> const& reads,
-			std::string const refGenom_filename,
 			std::string const refName,
 			t_count hard_limit);
 
@@ -72,7 +71,6 @@ public:
 inline alignment_data::alignment_data(
 		AlgorithmConfiguration const& config,
 		std::vector<aligned_read> const& reads,
-		std::string const refGenom_filename,
 		std::string const refName,
 		t_count hard_limit) :
         		n_reads(min(static_cast<t_count>(reads.size()), hard_limit)),
@@ -118,7 +116,7 @@ inline alignment_data::alignment_data(
 	const_cast<t_positions&>(this->reads_end_positions) = ends - offset;
 
 	//Load ref
-    t_seq_bases ref = create_bases_vector(read_fasta(refGenom_filename, refName, offset, sequence_length+2));
+    t_seq_bases ref = create_bases_vector(read_fasta(config.ref_filename, config.ref_offset, refName, offset, sequence_length+2));
 
 
 	t_counts coverage(sequence_length, arma::fill::zeros);

@@ -408,7 +408,7 @@ position_info.epiG <- function(object, pos, ...) {
 #' 
 #' @author Martin Vincent
 #' @export
-chain_info <- function(object, ... ) UseMethod("chain.info")
+chain_info <- function(object, ... ) UseMethod("chain_info")
 
 #' chain_info
 #' 
