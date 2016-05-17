@@ -19,7 +19,7 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
-#' @title Fetch information about reads
+#' @title Information About Reads
 #' @description 
 #' Fetch information about reads overlapping the specified region
 #'
@@ -51,8 +51,9 @@ fetch_read_info <- function(file, refname, start, end) {
 		)	
 }
 
-#' @title Count reads overlapping specified region
+#' @title Count Reads
 #' @description 
+#' Count reads overlapping the specified region
 #' 
 #' @param file path to bam file
 #' @param refname reference name
@@ -79,8 +80,9 @@ read_count <- function(file, refname, start, end) {
 	)
 }
 
-#' @title Load reads 
+#' @title Load Reads 
 #' @description 
+#' Load the reads overlapping the specified region
 #' 
 #' @param file path to bam file
 #' @param refname reference name
@@ -88,7 +90,7 @@ read_count <- function(file, refname, start, end) {
 #' @param end end of region
 #' @param quality_threshold quality threshold
 #' @param raw_quality_scores if TRUE raw quality score will be returned
-#' @return TODO
+#' @return a data.frame with the following columns: TODO
 #' 
 #' @examples
 #' # Retrieve paths to raw data files
@@ -108,9 +110,8 @@ load_reads <- function(file, refname, start, end, quality_threshold = 1, raw_qua
 	return(reads)
 }
 
-#' @title Fetch reads
-#' @description 
-#'
+#' @title Fetch Reads
+#' @description
 #' Reads will be loaded and include in the epiG object
 #' 
 #' @param object epiG epigeotype model 
@@ -148,13 +149,12 @@ fetch_reads <- function(object) {
 	return(object)
 }
 
-#' @title Fetch reference genom
-#' @description 
-#'
+#' @title Fetch Reference Genom
+#' @description
 #' Load reference genom and include it in epiG object. 
 #' 
 #' @param object epiG epigenotype model
-#' @return epiG epigenotype model
+#' @return epiG epigenotype model with reference genom included 
 #' 
 #' @author Martin Vincent
 #' @export
@@ -181,9 +181,10 @@ fetch_ref <- function(object) {
 	return(object)
 }
 
-#' @title Read fasta file
+#' @title Read FASTA File
 #' @description 
-#' 
+#' Load a raw FASTA file
+#'
 #' @param file path to fasta file
 #' @param refname referance name
 #' @param start start of region
@@ -203,8 +204,9 @@ read_fasta <- function(file, refname, start, len, offset = 0) {
 					as.integer(len)))
 }
 
-#' @title fetch_alt
+#' @title Fetch Alternative Nuleotides
 #' @description 
+#' Load alternative nuleotides and include it in epiG object. 
 #' 
 #' @param object 
 #' @return epiG model
@@ -228,10 +230,12 @@ fetch_alt <- function(object) {
 	return(object)
 }
 
-#' @title Fetch header of bam file
+#' @title Fetch Bam Header
 #' @description 
+#' Load bam file header
 #'  
 #' @param file path to bam file
+#' @return TODO
 #' 
 #' @author Martin Vincent
 #' @export
@@ -243,10 +247,12 @@ header_info <- function(file) {
 	data.frame(ref = tmp$refname, length = tmp$lengths, stringsAsFactors = FALSE)	
 }
 
-#' @title Fetch information about bam file
+#' @title Fetch Bam File Information
 #' @description 
+#' Fetch information about bam file
 #' 
 #' @param file path to bam file
+#' @return todo
 #' 
 #' @author Martin Vincent
 #' @export
