@@ -61,6 +61,8 @@
 	return(bisulphite_model)
 }
 
+#' @title Bisulphite Conversion Model
+#' @description
 #' Create a bisulphite sequencing conversion model
 #' 
 #' @param bisulphite_rate bisulphite conversion rate (numeric in the range (0, 1])
@@ -89,6 +91,8 @@ BSeq <- function(bisulphite_rate = .95, bisulphite_inap_rate = 0.05, Lmax = 110,
 }
 
 
+#' @title NOMe-sequencing Conversion Model
+#' @description
 #' Create a NOMe-sequencing conversion model
 #' 
 #' @param bisulphite_rate bisulphite conversion rate (numeric in the range (0, 1])
@@ -135,7 +139,9 @@ NOMeSeq <- function(bisulphite_rate = .95, bisulphite_inap_rate = 0.05, Lmax = 1
 }
 
 
-#' Create a standard epiG configuration
+#' @title Create Standeard Configuration
+#' @description
+#' Create a epiG configuration with standeard parameters
 #' 
 #' @param ref_file genome reference file (path to .fa file)
 #' @param alt_file alternative nucleotide file (path to .fa file)
@@ -260,7 +266,9 @@ auto_config <- function(
 }	
 
 
-#' Create an epiG configuration
+#' @title Create an epiG Configuration
+#' @description
+#' Create a custom epiG configuration
 #' 
 #' @param model conversion model
 #' @param ref_file genome reference file (path to .fa file)
@@ -387,6 +395,8 @@ epiG_config <- function(
 	return(config)
 }
 
+#' @title Run Configuration
+#' @description
 #' set run configuration
 #' 
 #' @param config an epiG configuration 
