@@ -19,6 +19,8 @@
 #     along with this program.  If not, see <http:#www.gnu.org/licenses/>
 #
 
+#' @title
+#' @description
 #' Fit an epiG epigenotype model
 #' 
 #' @param config epiG configuration
@@ -150,6 +152,8 @@ epiG <- function(config, max_threads = 2L) {
 	return(res.chunks)
 }
 
+#' @title
+#' @description
 #' Fit epiG epigenotype models
 #' 
 #' Fit an epiG epigenotype model for each config in the list configs.

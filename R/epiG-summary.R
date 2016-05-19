@@ -19,6 +19,9 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
+
+#' @title
+#' @description
 #' print
 #' 
 #' @param x 
@@ -47,6 +50,8 @@ print.epiG <- function(x, ...) {
 #TODO print number of reads
 }
 
+#' @title
+#' @description
 #' print config
 #' 
 #' @param x 
@@ -60,7 +65,8 @@ print.epiG.config <- function(x, ...) {
 	message("epiG config object:")
 }
 
-
+#' @title
+#' @description
 #' print model
 #' 
 #' @param x 

@@ -19,6 +19,8 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
+#' @title
+#' @description
 #' Search for pattern in integer vector
 #' 
 #' @param pattern integer vector 
@@ -45,6 +47,8 @@ vector_search <- function(pattern, x) {
 	return(res)
 }
 
+#' @title
+#' @description
 #' locate C positions
 #'
 #' @param object epiG object
@@ -75,7 +79,8 @@ locate_C <- function(object) {
 	stop("Unknown class")
 }
 
-
+#' @title
+#' @description
 #' locate GC positions
 #' @param object 
 #' @return ??
@@ -102,6 +107,8 @@ locate_GC <- function(object) {
 	stop("Unknown class")
 }
 
+#' @title
+#' @description
 #' locate CG positions
 #' @param object 
 #' @return ??
@@ -128,6 +135,8 @@ locate_CG <- function(object) {
 	stop("Unknown class")
 }
 
+#' @title
+#' @description
 #' locate_DGCH 
 #' 
 #' locate DGCH (isolated GpC) positions
@@ -181,6 +190,8 @@ locate_DGCH <- function(object) {
 	stop("Unknown class")
 }
 
+#' @title
+#' @description
 #' locate_HCGD
 #' 
 #' locate HCGD (isolated CpG) positions
@@ -234,6 +245,8 @@ locate_HCGD <- function(object) {
 	stop("Unknown class")
 }
 
+#' @title
+#' @description
 #' Locate positions where at least one chain has e genotype not matching with the reference.
 #' 
 #' @param object 

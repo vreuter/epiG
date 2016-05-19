@@ -3,6 +3,11 @@
 # Author: martin
 ###############################################################################
 
+#TODO method def in top
+#TODO licens
+
+#' @title
+#' @description
 #' end position
 #' 
 #' @param object 
@@ -13,6 +18,8 @@
 #' @export
 end <- function(object, ... ) UseMethod("end")
 
+#' @title
+#' @description
 #' start position
 #' 
 #' @param object 
@@ -23,6 +30,8 @@ end <- function(object, ... ) UseMethod("end")
 #' @export
 start <- function(object, ... ) UseMethod("start")
 
+#' @title
+#' @description
 #' start
 #' 
 #' @param object 
@@ -46,7 +55,8 @@ start.epiG <- function(object, ...) {
 }
 
 
-
+#' @title
+#' @description
 #' end
 #' 
 #' @param object fitted model (epiG object)
@@ -70,6 +80,8 @@ end.epiG <- function(object, ...) {
 	stop("Unknown class")
 }
 
+#' @title
+#' @description
 #' Length of model in base pairs
 #' 
 #' @param x 
@@ -91,6 +103,8 @@ length.epiG <- function(x) {
 	stop("Unknown class")
 }
 
+#' @title
+#' @description
 #' Number of reads in model
 #' @param object 
 #' @param ... 
@@ -122,6 +136,8 @@ nread.epiG <- function(object, ...)  {
 	
 }
 
+#' @title
+#' @description
 # Retrive genotype information
 # codeing C = 1, G = 2, A = 3, T = 4 C^me = 5 G_me = 6
 # use .symbol command to convert
@@ -192,6 +208,8 @@ nread.epiG <- function(object, ...)  {
 	
 }
 
+#' @title
+#' @description
 #' read_depth
 #' 
 #' @param object 
@@ -203,6 +221,8 @@ nread.epiG <- function(object, ...)  {
 #' @export
 read_depth <- function(object, pos = NULL, ... ) UseMethod("read_depth")
 
+#' @title
+#' @description
 #' read_depth
 #' 
 #' @param object 
@@ -244,6 +264,8 @@ read_depth.epiG <- function(object, pos = NULL, ...) {
 	
 }
 
+#' @title
+#' @description
 #' position_info
 #' @param object 
 #' @param pos 
@@ -290,6 +312,8 @@ position_info <- function(object, pos, ... ) UseMethod("position_info")
 	stop("Internal errro")
 }
 
+#' @title
+#' @description
 #' position_info
 #' 
 #' @param object 
@@ -401,6 +425,8 @@ position_info.epiG <- function(object, pos, ...) {
 	
 }
 
+#' @title
+#' @description
 #' chain_info
 #' @param object 
 #' @param ... 
@@ -410,6 +436,8 @@ position_info.epiG <- function(object, pos, ...) {
 #' @export
 chain_info <- function(object, ... ) UseMethod("chain_info")
 
+#' @title
+#' @description
 #' chain_info
 #' 
 #' @param object 
@@ -462,6 +490,8 @@ chain_info.epiG <- function(object, ...) {
 	
 }
 
+#' @title
+#' @description
 #' read_info
 #' @param object 
 #' @param ... 
@@ -471,6 +501,8 @@ chain_info.epiG <- function(object, ...) {
 #' @export
 read_info <- function(object, ... ) UseMethod("read_info")
 
+#' @title
+#' @description
 #' read_info
 #' @param object 
 #' @param  inc.symbols 
@@ -571,6 +603,8 @@ read_info.epiG <- function(object, inc.symbols = FALSE, ...) {
 	
 }
 
+#' @title
+#' @description
 #' read_info.epiG_reads
 #' 
 #' @param object 
@@ -608,7 +642,8 @@ read_info.epiG_reads <- function(object, inc.symbols = FALSE, ...) {
 	return(info)
 }
 
-
+#' @title
+#' @description
 #' Number of chunks 
 #' @param object 
 #' @param pos 
@@ -619,6 +654,8 @@ read_info.epiG_reads <- function(object, inc.symbols = FALSE, ...) {
 #' @export
 nchunks <- function(object, pos, ... ) UseMethod("nchunks")
 
+#' @title
+#' @description
 #' Number of chunks 
 #' @param object 
 #' @param ... 
@@ -637,6 +674,8 @@ nchunks.epiG <- function(object, ...) {
 		
 }
 
+#' @title
+#' @description
 #' Number of chains
 #' @param object 
 #' @param pos 
@@ -647,6 +686,8 @@ nchunks.epiG <- function(object, ...) {
 #' @export
 nchain <- function(object, pos, ... ) UseMethod("nchain")
 
+#' @title
+#' @description
 #' Number of chains
 #' @param object 
 #' @param ... 
@@ -667,6 +708,8 @@ nchain.epiG <- function(object, ...) {
 	
 }
 
+#' @title
+#' @description
 #' subregion
 #' @param object 
 #' @param start 
@@ -679,6 +722,8 @@ nchain.epiG <- function(object, ...) {
 #' @export
 subregion <- function(object, start, end, chop.reads = FALSE, ... ) UseMethod("subregion")
 
+#' @title
+#' @description
 #' subregion
 #' @param object 
 #' @param start 
