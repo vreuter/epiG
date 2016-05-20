@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG-config.R
 \name{epiG_config}
 \alias{epiG_config}
-\title{Create an epiG configuration}
+\title{Create an epiG Configuration}
 \usage{
 epiG_config(model, ref_file, alt_file, min_overlap_length, min_CG_count,
   min_HCGD_count, min_DGCH_count, use_paired_reads, ref_prior = 1 - 1e-04,
@@ -46,13 +46,22 @@ epiG_config(model, ref_file, alt_file, min_overlap_length, min_CG_count,
 
 \item{reads_hard_limit}{maximal number of reads loaded per chunk (reads not loaded will be completely ignored)}
 
+\item{ref_offset}{TODO}
+
+\item{alt_offset}{TODO}
+
 \item{verbose}{show information while running}
+
+\item{...}{ignored}
 }
 \value{
 an epiG configuration
 }
 \description{
-Create an epiG configuration
+Create a custom epiG configuration
+}
+\examples{
+#TODO
 }
 \author{
 Martin Vincent

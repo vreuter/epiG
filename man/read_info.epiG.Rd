@@ -19,6 +19,9 @@
 \description{
 read_info
 }
+\examples{
+#TODO
+}
 \author{
 Martin Vincent
 }

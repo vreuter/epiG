@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG-locate.R
 \name{locate_GC}
 \alias{locate_GC}
-\title{locate GC positions}
+\title{Locate GpC}
 \usage{
 locate_GC(object)
 }
@@ -13,7 +13,10 @@ locate_GC(object)
 ??
 }
 \description{
-locate GC positions
+Locate GC positions
+}
+\examples{
+#TODO
 }
 \author{
 Martin Vincent

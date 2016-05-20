@@ -7,9 +7,9 @@
 end(object, ...)
 }
 \arguments{
-\item{object}{}
+\item{object}{an epiG model}
 
-\item{...}{}
+\item{...}{ignored}
 }
 \value{
 ??

@@ -17,6 +17,9 @@ number of reads contined in model
 \description{
 Number of reads in model
 }
+\examples{
+#TODO
+}
 \author{
 Martin Vincent
 }

@@ -2,15 +2,21 @@
 % Please edit documentation in R/epiG-fetch.R
 \name{file_info}
 \alias{file_info}
-\title{Fetch information about bam file}
+\title{Fetch Bam File Information}
 \usage{
 file_info(file)
 }
 \arguments{
 \item{file}{path to bam file}
 }
+\value{
+TODO
+}
 \description{
 Fetch information about bam file
+}
+\examples{
+#TODO
 }
 \author{
 Martin Vincent

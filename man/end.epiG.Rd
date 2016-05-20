@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG-navigate.R
 \name{end.epiG}
 \alias{end.epiG}
-\title{end}
+\title{end position}
 \usage{
 \method{end}{epiG}(object, ...)
 }
@@ -16,6 +16,9 @@ end position (bp) of region contined in model
 }
 \description{
 end
+}
+\examples{
+#TODO
 }
 \author{
 Martin Vincent

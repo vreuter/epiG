@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG-navigate.R
 \name{start.epiG}
 \alias{start.epiG}
-\title{start}
+\title{start position}
 \usage{
 \method{start}{epiG}(object, ...)
 }
@@ -15,7 +15,10 @@
 numeric
 }
 \description{
-start
+start position
+}
+\examples{
+#TODO
 }
 \author{
 Martin Vincent

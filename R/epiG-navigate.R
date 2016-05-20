@@ -1,38 +1,153 @@
-# TODO: Add comment
+#
+#     Description of this R script:
+#     TODO
+#
+#     Intended for use with R.
+#     Copyright (C) 2013 Martin Vincent
 # 
-# Author: martin
-###############################################################################
+#     This program is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+# 
+#     This program is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+# 
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>
+#
 
 #TODO method def in top
 #TODO licens
 
-#' @title
+#' @title end position
 #' @description
 #' end position
 #' 
-#' @param object 
-#' @param ... 
+#' @param object an epiG model
+#' @param ... ignored
 #' @return ??
 #' 
 #' @author Martin Vincent
 #' @export
 end <- function(object, ... ) UseMethod("end")
 
-#' @title
+#' @title start position
 #' @description
 #' start position
 #' 
-#' @param object 
-#' @param ... 
+#' @param object an epiG model
+#' @param ... ignored
 #' @return ??
 #' 
 #' @author Martin Vincent
 #' @export
 start <- function(object, ... ) UseMethod("start")
 
-#' @title
+#' @title Number of reads in model
 #' @description
-#' start
+#' Number of reads in model
+#' @param object an epiG model
+#' @param ... ignored
+#' @return ??
+#' 
+#' @author Martin Vincent
+#' @export
+nread <- function(object, ... ) UseMethod("nread")
+
+#' @title read_depth
+#' @description
+#' read_depth
+#' 
+#' @param object an epiG model
+#' @param pos position 
+#' @param ... ignored
+#' @return ??
+#' 
+#' @author Martin Vincent
+#' @export
+read_depth <- function(object, pos = NULL, ... ) UseMethod("read_depth")
+
+#' @title position_info
+#' @description
+#' position_info
+#' @param object an epiG model
+#' @param pos position 
+#' @param ... ignored
+#' @return ??
+#' 
+#' @author Martin Vincent
+#' @export
+position_info <- function(object, pos, ... ) UseMethod("position_info")
+
+#' @title chain_info
+#' @description
+#' chain_info
+#'
+#' @param object 
+#' @param ... 
+#' @return ??
+#' 
+#' @author Martin Vincent
+#' @export
+chain_info <- function(object, ... ) UseMethod("chain_info")
+
+
+#' @title read_info
+#' @description
+#' read_info
+#' @param object 
+#' @param ... 
+#' @return ??
+#' 
+#' @author Martin Vincent
+#' @export
+read_info <- function(object, ... ) UseMethod("read_info")
+
+#' @title Number of chunks
+#' @description
+#' Number of chunks 
+#' @param object an epiG model
+#' @param pos position 
+#' @param ... ignored
+#' @return ??
+#' 
+#' @author Martin Vincent
+#' @export
+nchunks <- function(object, pos, ... ) UseMethod("nchunks")
+
+#' @title Number of chains
+#' @description
+#' Number of chains
+#' @param object an epiG model
+#' @param pos position 
+#' @param ... ignored
+#' @return ??
+#' 
+#' @author Martin Vincent
+#' @export
+nchain <- function(object, pos, ... ) UseMethod("nchain")
+
+#' @title subregion
+#' @description
+#' subregion
+#' @param object 
+#' @param start 
+#' @param end 
+#' @param chop.reads 
+#' @param ... 
+#' @return ??
+#' 
+#' @author Martin Vincent
+#' @export
+subregion <- function(object, start, end, chop.reads = FALSE, ... ) UseMethod("subregion")
+
+
+#' @title start position
+#' @description
+#' start position
 #' 
 #' @param object 
 #' @param ... 
@@ -41,6 +156,9 @@ start <- function(object, ... ) UseMethod("start")
 #' @author Martin Vincent
 #' @method start epiG
 #' @export
+#'
+#' @examples 
+#' #TODO
 start.epiG <- function(object, ...) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -54,8 +172,7 @@ start.epiG <- function(object, ...) {
 	stop("Unknown class")
 }
 
-
-#' @title
+#' @title end position
 #' @description
 #' end
 #' 
@@ -67,6 +184,9 @@ start.epiG <- function(object, ...) {
 #' @author Martin Vincent
 #' @method end epiG
 #' @export
+#'
+#' @examples 
+#' #TODO
 end.epiG <- function(object, ...) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -80,7 +200,7 @@ end.epiG <- function(object, ...) {
 	stop("Unknown class")
 }
 
-#' @title
+#' @title Length of model
 #' @description
 #' Length of model in base pairs
 #' 
@@ -90,6 +210,9 @@ end.epiG <- function(object, ...) {
 #' @author Martin Vincent
 #' @method length epiG
 #' @export
+#'
+#' @examples 
+#' #TODO
 length.epiG <- function(x) {
 	
 	if(paste(class(x), collapse = ".") == "epiG") {
@@ -103,18 +226,10 @@ length.epiG <- function(x) {
 	stop("Unknown class")
 }
 
-#' @title
+#' @title Number of reads in model
 #' @description
 #' Number of reads in model
-#' @param object 
-#' @param ... 
-#' @return ??
-#' 
-#' @author Martin Vincent
-#' @export
-nread <- function(object, ... ) UseMethod("nread")
-
-#' Number of reads in model
+#'
 #' @param object 
 #' @param ... 
 #' @return number of reads contined in model
@@ -122,6 +237,9 @@ nread <- function(object, ... ) UseMethod("nread")
 #' @author Martin Vincent
 #' @method nread epiG
 #' @export
+#'
+#' @examples 
+#' #TODO
 nread.epiG <- function(object, ...)  {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -136,8 +254,6 @@ nread.epiG <- function(object, ...)  {
 	
 }
 
-#' @title
-#' @description
 # Retrive genotype information
 # codeing C = 1, G = 2, A = 3, T = 4 C^me = 5 G_me = 6
 # use .symbol command to convert
@@ -208,20 +324,8 @@ nread.epiG <- function(object, ...)  {
 	
 }
 
-#' @title
-#' @description
-#' read_depth
-#' 
-#' @param object 
-#' @param pos 
-#' @param ... 
-#' @return ??
-#' 
-#' @author Martin Vincent
-#' @export
-read_depth <- function(object, pos = NULL, ... ) UseMethod("read_depth")
 
-#' @title
+#' @title read_depth
 #' @description
 #' read_depth
 #' 
@@ -233,6 +337,9 @@ read_depth <- function(object, pos = NULL, ... ) UseMethod("read_depth")
 #' @author Martin Vincent
 #' @method read_depth epiG
 #' @export
+#'
+#' @examples 
+#' #TODO
 read_depth.epiG <- function(object, pos = NULL, ...) {
 	
 	if(is.null(pos)) {
@@ -256,25 +363,13 @@ read_depth.epiG <- function(object, pos = NULL, ...) {
 		
 		stop("Not yet implemented")
 		#TODO FIX
-		tmp <- sapply(object, function(x) if(start(x) > pos || end(x) < pos) coverage(x) else NA)
+		tmp <- sapply(object, function(x) if(start(x) > pos || end(x) < pos) read_depth(x) else NA)
 		return(tmp[!is.na(tmp)])
 	}
 	
 	stop("Unknown class")
 	
 }
-
-#' @title
-#' @description
-#' position_info
-#' @param object 
-#' @param pos 
-#' @param ... 
-#' @return ??
-#' 
-#' @author Martin Vincent
-#' @export
-position_info <- function(object, pos, ... ) UseMethod("position_info")
 
 .methylation.status <- function(genotype.code, nfwd, nrev) {
 	sapply(1:length(genotype.code), function(i) {
@@ -312,18 +407,21 @@ position_info <- function(object, pos, ... ) UseMethod("position_info")
 	stop("Internal errro")
 }
 
-#' @title
+#' @title position_info
 #' @description
 #' position_info
 #' 
-#' @param object 
-#' @param pos 
-#' @param ... 
+#' @param object an epiG model
+#' @param pos position 
+#' @param ... ignored
 #' @return ??
 #' 
 #' @author Martin Vincent
 #' @method position_info epiG
 #' @export
+#'
+#' @examples 
+#' #TODO
 position_info.epiG <- function(object, pos, ...) {
 	
 	if(length(pos) == 0) {
@@ -425,18 +523,7 @@ position_info.epiG <- function(object, pos, ...) {
 	
 }
 
-#' @title
-#' @description
-#' chain_info
-#' @param object 
-#' @param ... 
-#' @return ??
-#' 
-#' @author Martin Vincent
-#' @export
-chain_info <- function(object, ... ) UseMethod("chain_info")
-
-#' @title
+#' @title chain_info
 #' @description
 #' chain_info
 #' 
@@ -447,6 +534,9 @@ chain_info <- function(object, ... ) UseMethod("chain_info")
 #' @author Martin Vincent
 #' @method chain_info epiG
 #' @export
+#'
+#' @examples 
+#' #TODO
 chain_info.epiG <- function(object, ...) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -490,18 +580,8 @@ chain_info.epiG <- function(object, ...) {
 	
 }
 
-#' @title
-#' @description
-#' read_info
-#' @param object 
-#' @param ... 
-#' @return ??
-#' 
-#' @author Martin Vincent
-#' @export
-read_info <- function(object, ... ) UseMethod("read_info")
 
-#' @title
+#' @title read_info
 #' @description
 #' read_info
 #' @param object 
@@ -512,12 +592,15 @@ read_info <- function(object, ... ) UseMethod("read_info")
 #' @author Martin Vincent
 #' @method read_info epiG
 #' @export
+#'
+#' @examples 
+#' #TODO
 read_info.epiG <- function(object, inc.symbols = FALSE, ...) {
 		
 	if(paste(class(object), collapse = ".") == "epiG") {
 
 		if(!("reads" %in% names(object))) {
-			object <- fetch.reads(object)
+			object <- fetch_reads(object)
 		}
 		
 		info <- NULL
@@ -555,7 +638,7 @@ read_info.epiG <- function(object, inc.symbols = FALSE, ...) {
 			info$name <- factor(info$name)
 			
 			if(!("ref" %in% names(object))) {
-				object <- fetch.ref(object)
+				object <- fetch_ref(object)
 			}
 			
 			# Add ref
@@ -603,7 +686,7 @@ read_info.epiG <- function(object, inc.symbols = FALSE, ...) {
 	
 }
 
-#' @title
+#' @title read_info
 #' @description
 #' read_info.epiG_reads
 #' 
@@ -613,6 +696,9 @@ read_info.epiG <- function(object, inc.symbols = FALSE, ...) {
 #' 
 #' @author Martin Vincent
 #' @export
+#'
+#' @examples 
+#' #TODO
 read_info.epiG_reads <- function(object, inc.symbols = FALSE, ...) {
 	
 	info <- NULL
@@ -642,19 +728,7 @@ read_info.epiG_reads <- function(object, inc.symbols = FALSE, ...) {
 	return(info)
 }
 
-#' @title
-#' @description
-#' Number of chunks 
-#' @param object 
-#' @param pos 
-#' @param ... 
-#' @return ??
-#' 
-#' @author Martin Vincent
-#' @export
-nchunks <- function(object, pos, ... ) UseMethod("nchunks")
-
-#' @title
+#' @title Number of chunks
 #' @description
 #' Number of chunks 
 #' @param object 
@@ -664,6 +738,9 @@ nchunks <- function(object, pos, ... ) UseMethod("nchunks")
 #' @author Martin Vincent
 #' @method nchunks epiG
 #' @export
+#'
+#' @examples 
+#' #TODO
 nchunks.epiG <- function(object, ...) {
 	if(paste(class(object), collapse = ".") == "epiG") {
 		return(1)
@@ -674,19 +751,7 @@ nchunks.epiG <- function(object, ...) {
 		
 }
 
-#' @title
-#' @description
-#' Number of chains
-#' @param object 
-#' @param pos 
-#' @param ... 
-#' @return ??
-#' 
-#' @author Martin Vincent
-#' @export
-nchain <- function(object, pos, ... ) UseMethod("nchain")
-
-#' @title
+#' @title Number of chains
 #' @description
 #' Number of chains
 #' @param object 
@@ -696,6 +761,9 @@ nchain <- function(object, pos, ... ) UseMethod("nchain")
 #' @author Martin Vincent
 #' @method nchain epiG
 #' @export
+#'
+#' @examples 
+#' #TODO
 nchain.epiG <- function(object, ...) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -708,9 +776,10 @@ nchain.epiG <- function(object, ...) {
 	
 }
 
-#' @title
+#' @title subregion
 #' @description
 #' subregion
+#'
 #' @param object 
 #' @param start 
 #' @param end 
@@ -718,23 +787,12 @@ nchain.epiG <- function(object, ...) {
 #' @param ... 
 #' @return ??
 #' 
-#' @author Martin Vincent
-#' @export
-subregion <- function(object, start, end, chop.reads = FALSE, ... ) UseMethod("subregion")
-
-#' @title
-#' @description
-#' subregion
-#' @param object 
-#' @param start 
-#' @param end 
-#' @param chop.reads 
-#' @param ... 
-#' @return ??
-#' 
-#' @author Martin Vincent
 #' @method subregion epiG
 #' @export
+#' @author Martin Vincent
+#'
+#' @examples 
+#' #TODO
 subregion.epiG <- function(object, start, end, chop.reads = FALSE, ...) {
 		
 	if(paste(class(object), collapse = ".") == "epiG") {

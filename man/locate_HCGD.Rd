@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG-locate.R
 \name{locate_HCGD}
 \alias{locate_HCGD}
-\title{locate_HCGD}
+\title{Locate HCGD}
 \usage{
 locate_HCGD(object)
 }
@@ -14,6 +14,9 @@ locate_HCGD(object)
 }
 \description{
 locate HCGD (isolated CpG) positions
+}
+\examples{
+#TODO
 }
 \author{
 Martin Vincent

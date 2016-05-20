@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG-locate.R
 \name{locate_DGCH}
 \alias{locate_DGCH}
-\title{locate_DGCH}
+\title{Locate DGCH}
 \usage{
 locate_DGCH(object)
 }
@@ -13,7 +13,10 @@ locate_DGCH(object)
 ??
 }
 \description{
-locate DGCH (isolated GpC) positions
+Locate DGCH (isolated GpC) positions
+}
+\examples{
+#TODO
 }
 \author{
 Martin Vincent

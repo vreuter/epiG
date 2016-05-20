@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG-fetch.R
 \name{load_reads}
 \alias{load_reads}
-\title{Load reads}
+\title{Load Reads}
 \usage{
 load_reads(file, refname, start, end, quality_threshold = 1,
   raw_quality_scores = FALSE)
@@ -21,10 +21,17 @@ load_reads(file, refname, start, end, quality_threshold = 1,
 \item{raw_quality_scores}{if TRUE raw quality score will be returned}
 }
 \value{
-TODO
+a list with the following entries:
+\itemize{
+ \item[\code{reads}]{a list TODO}
+ \item[\code{quality}]{a list TODO}
+ \item[\code{positions}]{a vector TODO}
+ \item[\code{lengths}]{a vector TODO}
+ \item[\code{names}]{a vector TODO}
+}
 }
 \description{
-Load reads
+Load the reads overlapping the specified region
 }
 \examples{
 # Retrieve paths to raw data files

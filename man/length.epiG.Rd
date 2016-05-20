@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG-navigate.R
 \name{length.epiG}
 \alias{length.epiG}
-\title{Length of model in base pairs}
+\title{Length of model}
 \usage{
 \method{length}{epiG}(x)
 }
@@ -14,6 +14,9 @@ Length of model in base pairs
 }
 \description{
 Length of model in base pairs
+}
+\examples{
+#TODO
 }
 \author{
 Martin Vincent

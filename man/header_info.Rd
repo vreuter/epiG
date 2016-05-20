@@ -2,15 +2,21 @@
 % Please edit documentation in R/epiG-fetch.R
 \name{header_info}
 \alias{header_info}
-\title{Fetch header of bam file}
+\title{Fetch Bam Header}
 \usage{
 header_info(file)
 }
 \arguments{
 \item{file}{path to bam file}
 }
+\value{
+TODO
+}
 \description{
-Fetch header of bam file
+Load bam file header
+}
+\examples{
+#TODO
 }
 \author{
 Martin Vincent

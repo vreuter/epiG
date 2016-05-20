@@ -50,7 +50,6 @@ fit
 
 # Information about haplotype chains
 chain_info(fit)
-
 }
 \author{
 Martin Vincent

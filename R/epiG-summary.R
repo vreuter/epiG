@@ -20,7 +20,7 @@
 #
 
 
-#' @title
+#' @title print
 #' @description
 #' print
 #' 
@@ -30,6 +30,9 @@
 #' @author Martin Vincent
 #' @method print epiG
 #' @export
+#'
+#' @examples 
+#' #TODO
 print.epiG <- function(x, ...) {
 	
         if("chunks" %in% class(x)) {
@@ -50,7 +53,7 @@ print.epiG <- function(x, ...) {
 #TODO print number of reads
 }
 
-#' @title
+#' @title print config
 #' @description
 #' print config
 #' 
@@ -60,12 +63,15 @@ print.epiG <- function(x, ...) {
 #' @author Martin Vincent
 #' @method print epiG.config
 #' @export
+#'
+#' @examples 
+#' #TODO
 print.epiG.config <- function(x, ...) {
 	
 	message("epiG config object:")
 }
 
-#' @title
+#' @title print model
 #' @description
 #' print model
 #' 
@@ -75,6 +81,9 @@ print.epiG.config <- function(x, ...) {
 #' @author Martin Vincent
 #' @method print epiG.model
 #' @export
+#'
+#' @examples 
+#' #TODO
 print.epiG.model <- function(x, ...) {
 	
 	cat(x$name)

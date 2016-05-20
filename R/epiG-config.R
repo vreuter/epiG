@@ -68,10 +68,13 @@
 #' @param bisulphite_rate bisulphite conversion rate (numeric in the range (0, 1])
 #' @param bisulphite_inap_rate bisulphite inappropriate conversion rate (numeric in the range (0, 1])
 #' @param Lmax maximal read length (integer)
+#' @param ... ignored
 #' @return an epiG conversion model
 #' 
 #' @author Martin Vincent
 #' @export
+#' @examples 
+#' #TODO
 BSeq <- function(bisulphite_rate = .95, bisulphite_inap_rate = 0.05, Lmax = 110, ...) {
 	
 	bisulphite_rates <- rep(bisulphite_rate, Lmax)
@@ -98,10 +101,13 @@ BSeq <- function(bisulphite_rate = .95, bisulphite_inap_rate = 0.05, Lmax = 110,
 #' @param bisulphite_rate bisulphite conversion rate (numeric in the range (0, 1])
 #' @param bisulphite_inap_rate bisulphite inappropriate conversion rate (numeric in the range (0, 1])
 #' @param Lmax maximal read length (integer)
+#' @param ... ignored
 #' @return an epiG conversion model
 #' 
 #' @author Martin Vincent
 #' @export
+#' @examples 
+#' #TODO
 NOMeSeq <- function(bisulphite_rate = .95, bisulphite_inap_rate = 0.05, Lmax = 110, ...) {
 	
 	model <- BSeq(
@@ -139,9 +145,9 @@ NOMeSeq <- function(bisulphite_rate = .95, bisulphite_inap_rate = 0.05, Lmax = 1
 }
 
 
-#' @title Create Standeard Configuration
+#' @title Create Standard Configuration
 #' @description
-#' Create a epiG configuration with standeard parameters
+#' Create a epiG configuration with standard parameters
 #' 
 #' @param ref_file genome reference file (path to .fa file)
 #' @param alt_file alternative nucleotide file (path to .fa file)
@@ -157,6 +163,8 @@ NOMeSeq <- function(bisulphite_rate = .95, bisulphite_inap_rate = 0.05, Lmax = 1
 #' 
 #' @author Martin Vincent
 #' @export
+#' @examples 
+#' #TODO
 auto_config <- function(
 		ref_file, 
 		alt_file, 
@@ -286,13 +294,18 @@ auto_config <- function(
 #' @param chunk_size chunk size
 #' @param chunk_method chunk method ('none' only one chunk, 'reads' chunks of approximately chunk_size reads, 'bases' chunks of chunk_size bases)
 #' @param reads_hard_limit maximal number of reads loaded per chunk (reads not loaded will be completely ignored)
+#' @param ref_offset TODO
+#' @param alt_offset TODO
 #' @param quality_threshold discard reads with mean epsilon quality higher than quality_threshold
 #' @param verbose show information while running
+#' @param ... ignored
 #' 
 #' @return an epiG configuration
 #' 
 #' @author Martin Vincent
 #' @export
+#' @examples 
+#' #TODO
 epiG_config <- function(
 		model, 
 		ref_file, 
@@ -409,6 +422,8 @@ epiG_config <- function(
 #'
 #' @author Martin Vincent
 #' @export
+#' @examples 
+#' #TODO
 set_run_configuration <- function(config, filename, refname, start, end) {
 	
 	config$filename <- filename

@@ -17,6 +17,9 @@
 \description{
 Number of chains
 }
+\examples{
+#TODO
+}
 \author{
 Martin Vincent
 }

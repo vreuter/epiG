@@ -27,17 +27,23 @@
 #' @param refname reference name
 #' @param start start of region 
 #' @param end end of region
-#' @return data.frame with information abut reads. #TODO cols 
+#' @return data.frame with information abut reads. Columns:
+#' \itemize{
+#'  \item[\code{name}]{name of read}
+#'  \item[\code{start}]{start position of read}
+#'  \item[\code{end}]{end position of read}
+#'  \item[\code{length}]{length of read}
+#' }
 #'
+#' @author Martin Vincent
+#' @export
+#' @useDynLib epiG r_epiG_fetch_reads_info
 #' @examples
 #' # Retrieve paths to raw data files
 #' bam_file <- system.file("extdata", "GNAS_small.bam", package="epiG")
 #' 
 #' fetch_read_info(bam_file, "chr20", 57400000, 57400000 + 100)
 #'
-#' @author Martin Vincent
-#' @export
-#' @useDynLib epiG r_epiG_fetch_reads_info
 fetch_read_info <- function(file, refname, start, end) {
 
         res <- .Call(r_epiG_fetch_reads_info, file, refname, as.integer(start), as.integer(end))
@@ -61,15 +67,15 @@ fetch_read_info <- function(file, refname, start, end) {
 #' @param end end of region
 #' @return number of reads and total bps in reads overlapping region
 #'
+#' @author Martin Vincent
+#' @export
+#' @useDynLib epiG r_epiG_fetch_read_count
+#'
 #' @examples
 #' # Retrieve paths to raw data files
 #' bam_file <- system.file("extdata", "GNAS_small.bam", package="epiG")
 #' 
 #' read_count(bam_file, "chr20", 57400000, 57400000 + 100)
-#'
-#' @author Martin Vincent
-#' @export
-#' @useDynLib epiG r_epiG_fetch_read_count
 read_count <- function(file, refname, start, end) {
 	
 	res <- .Call(r_epiG_fetch_read_count, file, refname, as.integer(start), as.integer(end))
@@ -90,17 +96,23 @@ read_count <- function(file, refname, start, end) {
 #' @param end end of region
 #' @param quality_threshold quality threshold
 #' @param raw_quality_scores if TRUE raw quality score will be returned
-#' @return a data.frame with the following columns: TODO
-#' 
+#' @return a list with the following entries:
+#' \itemize{
+#'  \item[\code{reads}]{a list TODO}
+#'  \item[\code{quality}]{a list TODO}
+#'  \item[\code{positions}]{a vector TODO}
+#'  \item[\code{lengths}]{a vector TODO}
+#'  \item[\code{names}]{a vector TODO}
+#' }
+#' @author Martin Vincent
+#' @export
+#' @useDynLib epiG r_epiG_fetch_reads
 #' @examples
 #' # Retrieve paths to raw data files
 #' bam_file <- system.file("extdata", "GNAS_small.bam", package="epiG")
 #' 
 #' load_reads(bam_file, "chr20", 57400000, 57400000 + 100)
 #' 
-#' @author Martin Vincent
-#' @export
-#' @useDynLib epiG r_epiG_fetch_reads
 load_reads <- function(file, refname, start, end, quality_threshold = 1, raw_quality_scores = FALSE) {
 	
 	reads <- .Call(r_epiG_fetch_reads, file, refname, as.integer(start), as.integer(end), quality_threshold, ! raw_quality_scores)
@@ -114,12 +126,14 @@ load_reads <- function(file, refname, start, end, quality_threshold = 1, raw_qua
 #' @description
 #' Reads will be loaded and include in the epiG object
 #' 
-#' @param object epiG epigeotype model 
+#' @param object epiG epigenotype model 
 #'
 #' @return model with reads included (this may increase the memory use) 
 #' 
 #' @author Martin Vincent
 #' @export
+#' @examples 
+#' #TODO
 fetch_reads <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -151,13 +165,15 @@ fetch_reads <- function(object) {
 
 #' @title Fetch Reference Genom
 #' @description
-#' Load reference genom and include it in epiG object. 
+#' Load reference genome and include it in epiG object. 
 #' 
 #' @param object epiG epigenotype model
-#' @return epiG epigenotype model with reference genom included 
+#' @return epiG epigenotype model with reference genome included 
 #' 
 #' @author Martin Vincent
 #' @export
+#' @examples 
+#' #TODO
 fetch_ref <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -186,7 +202,7 @@ fetch_ref <- function(object) {
 #' Load a raw FASTA file
 #'
 #' @param file path to fasta file
-#' @param refname referance name
+#' @param refname reference name
 #' @param start start of region
 #' @param len length of region
 #' @param offset file offset (position of first base in file)
@@ -195,6 +211,8 @@ fetch_ref <- function(object) {
 #' @author Martin Vincent
 #' @export
 #' @useDynLib epiG r_epiG_read_fasta
+#' @examples 
+#' #TODO
 read_fasta <- function(file, refname, start, len, offset = 0) {
 	return(.Call(r_epiG_read_fasta, 
 					as.character(file), 
@@ -204,15 +222,17 @@ read_fasta <- function(file, refname, start, len, offset = 0) {
 					as.integer(len)))
 }
 
-#' @title Fetch Alternative Nuleotides
+#' @title Fetch Alternative Nucleotides
 #' @description 
-#' Load alternative nuleotides and include it in epiG object. 
+#' Load alternative nucleotides and include it in epiG object. 
 #' 
 #' @param object 
 #' @return epiG model
 #' 
 #' @author Martin Vincent
 #' @export
+#' @examples 
+#' #TODO
 fetch_alt <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -240,6 +260,8 @@ fetch_alt <- function(object) {
 #' @author Martin Vincent
 #' @export
 #' @useDynLib epiG r_epiG_fetch_header
+#' @examples 
+#' #TODO
 header_info <- function(file) {
  	
 	tmp <- .Call(r_epiG_fetch_header, file)
@@ -252,10 +274,12 @@ header_info <- function(file) {
 #' Fetch information about bam file
 #' 
 #' @param file path to bam file
-#' @return todo
+#' @return TODO
 #' 
 #' @author Martin Vincent
 #' @export
+#' @examples 
+#' #TODO
 file_info <- function(file) {
 	
 	info <- header_info(file)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG-locate.R
 \name{vector_search}
 \alias{vector_search}
-\title{Search for pattern in integer vector}
+\title{Pattern Search}
 \usage{
 vector_search(pattern, x)
 }
@@ -12,14 +12,13 @@ vector_search(pattern, x)
 \item{x}{integer vector to search in}
 }
 \value{
-postion of pattern in x
+position of pattern in x
 }
 \description{
 Search for pattern in integer vector
 }
 \examples{
-TODO
-
+#TODO
 }
 \author{
 Martin Vincent

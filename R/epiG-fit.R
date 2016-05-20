@@ -1,6 +1,6 @@
 #
 #     Description of this R script:
-#   
+#   TODO
 #
 #     Intended for use with R.
 #     Copyright (C) 2014 Martin Vincent
@@ -19,7 +19,7 @@
 #     along with this program.  If not, see <http:#www.gnu.org/licenses/>
 #
 
-#' @title
+#' @title Fit an epiG epigenotype model
 #' @description
 #' Fit an epiG epigenotype model
 #' 
@@ -28,8 +28,13 @@
 #' 
 #' @return fitted model
 #' 
+#' @importFrom utils packageVersion
+#' @export
+#' @useDynLib epiG r_epiG_haplo_fit_filename
+#' @useDynLib epiG r_epiG_haplo_fit_filename_chunks
+#' @useDynLib epiG r_epiG_compute_chunk_positions
 #' @author Martin Vincent
-#' 
+#'
 #' @examples
 #' library(epiG)
 #' 
@@ -63,11 +68,6 @@
 #' 
 #' # Information about haplotype chains
 #' chain_info(fit)
-#' 
-#' @export
-#' @useDynLib epiG r_epiG_haplo_fit_filename
-#' @useDynLib epiG r_epiG_haplo_fit_filename_chunks
-#' @useDynLib epiG r_epiG_compute_chunk_positions
 epiG <- function(config, max_threads = 2L) {
 	
 	start <- config$start
@@ -152,20 +152,24 @@ epiG <- function(config, max_threads = 2L) {
 	return(res.chunks)
 }
 
-#' @title
+#' @title Fit epiG epigenotype models
 #' @description
 #' Fit epiG epigenotype models
 #' 
-#' Fit an epiG epigenotype model for each config in the list configs.
+#' Fit an epiG epigenotype model for each configuration in the list configs.
 #' 
 #' @param configs list of epiG configurations
 #' @param max_threads maximal number of threads to use
 #' 
 #' @return list of fitted models
 #' 
-#' @author Martin Vincent
+#' @importFrom utils packageVersion
 #' @export
 #' @useDynLib epiG r_epiG_haplo_fit_filename_chunks
+#' @author Martin Vincent
+#'
+#' @examples 
+#' #TODO
 epiG_chunks <- function(configs, max_threads = 8L) {
 	
 	if(class(configs) == "epiG.config") {

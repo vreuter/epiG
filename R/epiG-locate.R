@@ -19,20 +19,20 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
-#' @title
+#' @title Pattern Search
 #' @description
 #' Search for pattern in integer vector
 #' 
 #' @param pattern integer vector 
 #' @param x integer vector to search in
-#' @return postion of pattern in x 
+#' @return position of pattern in x 
 #'
-#' @examples
-#' TODO
-#'
-#' @author Martin Vincent
 #' @useDynLib epiG r_epiG_locate
 #' @export
+#' @author Martin Vincent
+#'
+#' @examples 
+#' #TODO
 vector_search <- function(pattern, x) {
 	
 	#TODO check input
@@ -47,18 +47,18 @@ vector_search <- function(pattern, x) {
 	return(res)
 }
 
-#' @title
+#' @title Locate C
 #' @description
-#' locate C positions
+#' Locate C positions
 #'
 #' @param object epiG object
 #' @return positions of C in object
 #' 
-#' @examples
-#' todo
-#'
 #' @author Martin Vincent
 #' @export
+#'
+#' @examples 
+#' #TODO
 locate_C <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -79,14 +79,17 @@ locate_C <- function(object) {
 	stop("Unknown class")
 }
 
-#' @title
+#' @title Locate GpC
 #' @description
-#' locate GC positions
+#' Locate GC positions
 #' @param object 
 #' @return ??
 #' 
 #' @author Martin Vincent
 #' @export
+#'
+#' @examples 
+#' #TODO
 locate_GC <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -107,14 +110,17 @@ locate_GC <- function(object) {
 	stop("Unknown class")
 }
 
-#' @title
+#' @title Locate CpG
 #' @description
-#' locate CG positions
+#' Locate CpG positions
 #' @param object 
 #' @return ??
 #' 
 #' @author Martin Vincent
 #' @export
+#'
+#' @examples 
+#' #TODO
 locate_CG <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -135,17 +141,18 @@ locate_CG <- function(object) {
 	stop("Unknown class")
 }
 
-#' @title
+#' @title Locate DGCH
 #' @description
-#' locate_DGCH 
-#' 
-#' locate DGCH (isolated GpC) positions
+#' Locate DGCH (isolated GpC) positions
 #' 
 #' @param object 
 #' @return ??
 #' 
 #' @author Martin Vincent
 #' @export
+#'
+#' @examples 
+#' #TODO
 locate_DGCH <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -190,10 +197,8 @@ locate_DGCH <- function(object) {
 	stop("Unknown class")
 }
 
-#' @title
+#' @title Locate HCGD 
 #' @description
-#' locate_HCGD
-#' 
 #' locate HCGD (isolated CpG) positions
 #' 
 #' @param object 
@@ -201,6 +206,9 @@ locate_DGCH <- function(object) {
 #' 
 #' @author Martin Vincent
 #' @export
+#'
+#' @examples 
+#' #TODO
 locate_HCGD <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -245,15 +253,18 @@ locate_HCGD <- function(object) {
 	stop("Unknown class")
 }
 
-#' @title
+#' @title Locate Mismatches
 #' @description
-#' Locate positions where at least one chain has e genotype not matching with the reference.
+#' Locate positions where at least one chain has a genotype not matching with the reference.
 #' 
 #' @param object 
 #' @return postions of mismatches
 #' 
 #' @author Martin Vincent
 #' @export
+#'
+#' @examples 
+#' #TODO
 locate_mismatch <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -273,7 +284,7 @@ locate_mismatch <- function(object) {
 	}
 	
 	if(paste(class(object), collapse = ".") == "epiG.chunks") {
-		return(unlist(lapply(object, function(x) locate_nonref(x))))
+		return(unlist(lapply(object, function(x) locate_mismatch(x))))
 	}
 	
 	stop("Unknown class")

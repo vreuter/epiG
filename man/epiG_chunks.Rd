@@ -15,7 +15,12 @@ epiG_chunks(configs, max_threads = 8L)
 list of fitted models
 }
 \description{
-Fit an epiG epigenotype model for each config in the list configs.
+Fit epiG epigenotype models
+
+Fit an epiG epigenotype model for each configuration in the list configs.
+}
+\examples{
+#TODO
 }
 \author{
 Martin Vincent

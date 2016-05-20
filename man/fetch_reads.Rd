@@ -2,18 +2,21 @@
 % Please edit documentation in R/epiG-fetch.R
 \name{fetch_reads}
 \alias{fetch_reads}
-\title{Fetch reads}
+\title{Fetch Reads}
 \usage{
 fetch_reads(object)
 }
 \arguments{
-\item{object}{epiG epigeotype model}
+\item{object}{epiG epigenotype model}
 }
 \value{
 model with reads included (this may increase the memory use)
 }
 \description{
 Reads will be loaded and include in the epiG object
+}
+\examples{
+#TODO
 }
 \author{
 Martin Vincent

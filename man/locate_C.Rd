@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG-locate.R
 \name{locate_C}
 \alias{locate_C}
-\title{locate C positions}
+\title{Locate C}
 \usage{
 locate_C(object)
 }
@@ -13,11 +13,10 @@ locate_C(object)
 positions of C in object
 }
 \description{
-locate C positions
+Locate C positions
 }
 \examples{
-todo
-
+#TODO
 }
 \author{
 Martin Vincent

@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG-fetch.R
 \name{fetch_alt}
 \alias{fetch_alt}
-\title{fetch_alt}
+\title{Fetch Alternative Nucleotides}
 \usage{
 fetch_alt(object)
 }
@@ -13,7 +13,10 @@ fetch_alt(object)
 epiG model
 }
 \description{
-fetch_alt
+Load alternative nucleotides and include it in epiG object.
+}
+\examples{
+#TODO
 }
 \author{
 Martin Vincent

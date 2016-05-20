@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG-fetch.R
 \name{fetch_read_info}
 \alias{fetch_read_info}
-\title{Fetch information about reads overlapping specified region}
+\title{Information About Reads}
 \usage{
 fetch_read_info(file, refname, start, end)
 }
@@ -16,10 +16,16 @@ fetch_read_info(file, refname, start, end)
 \item{end}{end of region}
 }
 \value{
-data.frame with information abut reads. #TODO cols
+data.frame with information abut reads. Columns:
+\itemize{
+ \item[\code{name}]{name of read}
+ \item[\code{start}]{start position of read}
+ \item[\code{end}]{end position of read}
+ \item[\code{length}]{length of read}
+}
 }
 \description{
-Fetch information about reads overlapping specified region
+Fetch information about reads overlapping the specified region
 }
 \examples{
 # Retrieve paths to raw data files

@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG-config.R
 \name{auto_config}
 \alias{auto_config}
-\title{Create a standard epiG configuration}
+\title{Create Standard Configuration}
 \usage{
 auto_config(ref_file, alt_file, bam_file, chr, start, end, seq_type = "BSeq",
   use_paired_reads = NULL, ...)
@@ -30,7 +30,10 @@ auto_config(ref_file, alt_file, bam_file, chr, start, end, seq_type = "BSeq",
 An epiG configuration
 }
 \description{
-Create a standard epiG configuration
+Create a epiG configuration with standard parameters
+}
+\examples{
+#TODO
 }
 \author{
 Martin Vincent

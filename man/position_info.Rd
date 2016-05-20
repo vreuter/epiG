@@ -7,11 +7,11 @@
 position_info(object, pos, ...)
 }
 \arguments{
-\item{object}{}
+\item{object}{an epiG model}
 
-\item{pos}{}
+\item{pos}{position}
 
-\item{...}{}
+\item{...}{ignored}
 }
 \value{
 ??

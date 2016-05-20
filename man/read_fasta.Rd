@@ -2,14 +2,14 @@
 % Please edit documentation in R/epiG-fetch.R
 \name{read_fasta}
 \alias{read_fasta}
-\title{Read fasta file}
+\title{Read FASTA File}
 \usage{
 read_fasta(file, refname, start, len, offset = 0)
 }
 \arguments{
 \item{file}{path to fasta file}
 
-\item{refname}{referance name}
+\item{refname}{reference name}
 
 \item{start}{start of region}
 
@@ -21,7 +21,10 @@ read_fasta(file, refname, start, len, offset = 0)
 TODO
 }
 \description{
-Read fasta file
+Load a raw FASTA file
+}
+\examples{
+#TODO
 }
 \author{
 Martin Vincent

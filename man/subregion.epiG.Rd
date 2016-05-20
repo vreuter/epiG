@@ -23,6 +23,9 @@
 \description{
 subregion
 }
+\examples{
+#TODO
+}
 \author{
 Martin Vincent
 }

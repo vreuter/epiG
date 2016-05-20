@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG-fetch.R
 \name{fetch_ref}
 \alias{fetch_ref}
-\title{Fetch reference genom}
+\title{Fetch Reference Genom}
 \usage{
 fetch_ref(object)
 }
@@ -10,10 +10,13 @@ fetch_ref(object)
 \item{object}{epiG epigenotype model}
 }
 \value{
-epiG epigenotype model
+epiG epigenotype model with reference genome included
 }
 \description{
-Load reference genom and include it in epiG object.
+Load reference genome and include it in epiG object.
+}
+\examples{
+#TODO
 }
 \author{
 Martin Vincent

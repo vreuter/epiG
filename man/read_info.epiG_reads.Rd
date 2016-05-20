@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG-navigate.R
 \name{read_info.epiG_reads}
 \alias{read_info.epiG_reads}
-\title{read_info.epiG_reads}
+\title{read_info}
 \usage{
 \method{read_info}{epiG_reads}(object, inc.symbols = FALSE, ...)
 }
@@ -15,6 +15,9 @@
 }
 \description{
 read_info.epiG_reads
+}
+\examples{
+#TODO
 }
 \author{
 Martin Vincent

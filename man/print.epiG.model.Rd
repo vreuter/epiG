@@ -14,6 +14,9 @@
 \description{
 print model
 }
+\examples{
+#TODO
+}
 \author{
 Martin Vincent
 }

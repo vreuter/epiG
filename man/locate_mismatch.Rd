@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG-locate.R
 \name{locate_mismatch}
 \alias{locate_mismatch}
-\title{Locate positions where at least one chain has e genotype not matching with the reference.}
+\title{Locate Mismatches}
 \usage{
 locate_mismatch(object)
 }
@@ -13,7 +13,10 @@ locate_mismatch(object)
 postions of mismatches
 }
 \description{
-Locate positions where at least one chain has e genotype not matching with the reference.
+Locate positions where at least one chain has a genotype not matching with the reference.
+}
+\examples{
+#TODO
 }
 \author{
 Martin Vincent

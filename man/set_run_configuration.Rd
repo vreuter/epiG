@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG-config.R
 \name{set_run_configuration}
 \alias{set_run_configuration}
-\title{set run configuration}
+\title{Run Configuration}
 \usage{
 set_run_configuration(config, filename, refname, start, end)
 }
@@ -22,6 +22,9 @@ an epiG configuration
 }
 \description{
 set run configuration
+}
+\examples{
+#TODO
 }
 \author{
 Martin Vincent

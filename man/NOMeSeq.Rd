@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG-config.R
 \name{NOMeSeq}
 \alias{NOMeSeq}
-\title{Create a NOMe-sequencing conversion model}
+\title{NOMe-sequencing Conversion Model}
 \usage{
 NOMeSeq(bisulphite_rate = 0.95, bisulphite_inap_rate = 0.05, Lmax = 110,
   ...)
@@ -13,12 +13,17 @@ NOMeSeq(bisulphite_rate = 0.95, bisulphite_inap_rate = 0.05, Lmax = 110,
 \item{bisulphite_inap_rate}{bisulphite inappropriate conversion rate (numeric in the range (0, 1])}
 
 \item{Lmax}{maximal read length (integer)}
+
+\item{...}{ignored}
 }
 \value{
 an epiG conversion model
 }
 \description{
 Create a NOMe-sequencing conversion model
+}
+\examples{
+#TODO
 }
 \author{
 Martin Vincent
