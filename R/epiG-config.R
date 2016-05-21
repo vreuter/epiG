@@ -335,8 +335,8 @@ epiG_config <- function(
 		chunk_size = 5000, 
 		chunk_method = "reads", 
 		hard_limit = 7500,
-		ref_offset = 0,
-		alt_offset = 0,
+		ref_offset = 1,
+		alt_offset = 1,
 		verbose = TRUE,
 		...) {
 	
