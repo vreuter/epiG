@@ -265,7 +265,7 @@ auto_config <- function(
 	
 	config <- epiG_config(
 			model = model,
-			reads_hard_limit = n_reads + 1000,
+			hard_limit = n_reads + 1000,
 			chunk_size = n_reads,
 			ref_file = ref_file,
 			alt_file = alt_file,
@@ -327,7 +327,7 @@ epiG_config <- function(
 		min_DGCH,
 		paired_reads,
 		ref_prior = 1-1e-4, 
-		structual_prior= 1,
+		structual_prior = 1,
 		quality_threshold = 0.020,
 		margin = 5,
 		max_iterations = 1e5, 
