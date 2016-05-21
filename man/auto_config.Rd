@@ -5,7 +5,8 @@
 \title{Create Standard Configuration}
 \usage{
 auto_config(ref_file, alt_file, bam_file, chr, start, end, seq_type = "BSeq",
-  use_paired_reads = NULL, ...)
+  paired_reads = NULL, min_CG = NULL, min_HCGD = NULL, min_DGCH = NULL,
+  min_overlap = NULL, ...)
 }
 \arguments{
 \item{ref_file}{genome reference file (path to .fa file)}
@@ -22,7 +23,7 @@ auto_config(ref_file, alt_file, bam_file, chr, start, end, seq_type = "BSeq",
 
 \item{seq_type}{sequencing type ("BSeq" for bisulphite sequencing, "NOMeSeq" for NOMe sequencing)}
 
-\item{use_paired_reads}{should pair information be used (TRUE/FALSE or NULL, if NULL then paired information is used if pairs are present in bam file)}
+\item{paired_reads}{should pair information be used (TRUE/FALSE or NULL, if NULL then paired information is used if pairs are present in bam file)}
 
 \item{...}{additional arguments (overrides default values)}
 }

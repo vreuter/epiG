@@ -4,12 +4,12 @@
 \alias{epiG_config}
 \title{Create an epiG Configuration}
 \usage{
-epiG_config(model, ref_file, alt_file, min_overlap_length, min_CG_count,
-  min_HCGD_count, min_DGCH_count, use_paired_reads, ref_prior = 1 - 1e-04,
-  structual_prior_scale = 1, quality_threshold = 0.02, margin = 5,
-  max_iterations = 1e+05, max_stages = 1, chunk_size = 5000,
-  chunk_method = "reads", reads_hard_limit = 7500, ref_offset = 0,
-  alt_offset = 0, verbose = TRUE, ...)
+epiG_config(model, ref_file, alt_file, min_overlap, min_CG, min_HCGD, min_DGCH,
+  paired_reads, ref_prior = 1 - 1e-04, structual_prior = 1,
+  quality_threshold = 0.02, margin = 5, max_iterations = 1e+05,
+  max_stages = 1, chunk_size = 5000, chunk_method = "reads",
+  hard_limit = 7500, ref_offset = 0, alt_offset = 0, verbose = TRUE,
+  ...)
 }
 \arguments{
 \item{model}{conversion model}
@@ -18,19 +18,19 @@ epiG_config(model, ref_file, alt_file, min_overlap_length, min_CG_count,
 
 \item{alt_file}{alternative nucleotide file (path to .fa file)}
 
-\item{min_overlap_length}{minimum overlapping length}
+\item{min_overlap}{minimum overlapping length}
 
-\item{min_CG_count}{minimum overlapping CG positions}
+\item{min_CG}{minimum overlapping CG positions}
 
-\item{min_HCGD_count}{minimum overlapping HCGD positions}
+\item{min_HCGD}{minimum overlapping HCGD positions}
 
-\item{min_DGCH_count}{minimum overlapping DGCH positions}
+\item{min_DGCH}{minimum overlapping DGCH positions}
 
-\item{use_paired_reads}{used pair information (reads with the same name in the bam file is paired and will be forced into the same haplotype chain)}
+\item{paired_reads}{used pair information (reads with the same name in the bam file is paired and will be forced into the same haplotype chain)}
 
 \item{ref_prior}{genotype prior parameter}
 
-\item{structual_prior_scale}{structural prior scaling}
+\item{structual_prior}{structural prior scaling}
 
 \item{quality_threshold}{discard reads with mean epsilon quality higher than quality_threshold}
 
@@ -44,7 +44,7 @@ epiG_config(model, ref_file, alt_file, min_overlap_length, min_CG_count,
 
 \item{chunk_method}{chunk method ('none' only one chunk, 'reads' chunks of approximately chunk_size reads, 'bases' chunks of chunk_size bases)}
 
-\item{reads_hard_limit}{maximal number of reads loaded per chunk (reads not loaded will be completely ignored)}
+\item{hard_limit}{maximal number of reads loaded per chunk (reads not loaded will be completely ignored)}
 
 \item{ref_offset}{TODO}
 

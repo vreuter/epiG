@@ -156,7 +156,7 @@ NOMeSeq <- function(bisulphite_rate = .95, bisulphite_inap_rate = 0.05, Lmax = 1
 #' @param start start position of region to processes 
 #' @param end end position of region to processes 
 #' @param seq_type sequencing type ("BSeq" for bisulphite sequencing, "NOMeSeq" for NOMe sequencing)
-#' @param use_paired_reads should pair information be used (TRUE/FALSE or NULL, if NULL then paired information is used if pairs are present in bam file)
+#' @param paired_reads should pair information be used (TRUE/FALSE or NULL, if NULL then paired information is used if pairs are present in bam file)
 #' @param ... additional arguments (overrides default values)
 #' 
 #' @return An epiG configuration
@@ -173,7 +173,11 @@ auto_config <- function(
 		start, 
 		end, 
 		seq_type = "BSeq",
-		use_paired_reads = NULL,
+		paired_reads = NULL,
+		min_CG = NULL,
+		min_HCGD = NULL,
+		min_DGCH = NULL,
+		min_overlap = NULL,
 		...) {
 
 	if(length(chr) == 0 || length(chr) != length(start) || length(chr) != length(end) || length(start) != length(end)) {
@@ -184,14 +188,19 @@ auto_config <- function(
 		
 		confs <- lapply(1:length(chr), function(i) 
 			auto_config(
-				ref_file, 
-				alt_file, 
-				bam_file, 
-				chr[i], 
-				start[i], 
-				end[i],
-				seq_type,
-				use_paired_reads
+				ref_file = ref_file, 
+				alt_file = alt_file, 
+				bam_file = bam_file, 
+				chr = chr[i], 
+				start = start[i], 
+				end = end[i],
+				seq_type = seq_type,
+				paired_reads = paired_reads,
+				min_CG = min_CG,
+				min_HCGD = min_HCGD,
+				min_DGCH = min_DGCH,
+				min_overlap = min_overlap,
+				...
 			))
 		
 		return(confs)
@@ -208,11 +217,11 @@ auto_config <- function(
 	}
 	
 	# Paired design
-	if(is.null(use_paired_reads))  {
+	if(is.null(paired_reads))  {
 		if(max(table(reads$name[1:1000])) == 2) {
-			use_paired_reads <- TRUE
+			paired_reads <- TRUE
 		} else {
-			use_paired_reads <- FALSE
+			paired_reads <- FALSE
 		}
 	}
 
@@ -222,10 +231,10 @@ auto_config <- function(
 		
 		model <- NOMeSeq(Lmax = max(reads$length), ...)
 		
-		min_CG_count <- 0
-		min_HCGD_count <- 0
-		min_DGCH_count <- 2
-		min_overlap <- 40
+		default_min_CG <- 0
+		default_min_HCGD <- 0
+		default_min_DGCH <- 2
+		default_min_overlap <- 40
 		
 		
 	} else if(seq_type == "BSeq") {
@@ -233,22 +242,24 @@ auto_config <- function(
 		model <- BSeq(Lmax = max(reads$length), ...)
 
 		
-		if(use_paired_reads) {
-			min_CG_count <- 2
-			min_overlap <- 50
+		if(paired_reads) {
+			default_min_CG <- 2
+			default_min_overlap <- 50
 			
 		} else {
-			min_CG_count <- 1
-			min_overlap <- 40
+			default_min_CG <- 1
+			default_min_overlap <- 40
 		}
 		
-		min_HCGD_count <- 0
-		min_DGCH_count <- 0
+		default_min_HCGD <- 0
+		default_min_DGCH <- 0
 		
 	} else {
 		stop("Unknown seq_type")
 	}
 		
+	
+	
 
 	# Create configuration
 	
@@ -258,11 +269,11 @@ auto_config <- function(
 			chunk_size = n_reads,
 			ref_file = ref_file,
 			alt_file = alt_file,
-			min_overlap_length = min_overlap,
-			min_CG_count = min_CG_count,
-			min_HCGD_count = min_HCGD_count,
-			min_DGCH_count = min_DGCH_count,
-			use_paired_reads = use_paired_reads,
+			min_overlap = if(is.null(min_overlap)) default_min_overlap else min_overlap,
+			min_CG = if(is.null(min_CG)) default_min_CG else min_CG,
+			min_HCGD = if(is.null(min_HCGD)) default_min_HCGD else min_HCGD,
+			min_DGCH = if(is.null(min_DGCH)) default_min_DGCH else min_DGCH,
+			paired_reads = paired_reads,
 			...
 			)
 	
@@ -273,7 +284,7 @@ auto_config <- function(
 	return(config)
 }	
 
-
+#TODO match C-side config names with R-side
 #' @title Create an epiG Configuration
 #' @description
 #' Create a custom epiG configuration
@@ -281,19 +292,19 @@ auto_config <- function(
 #' @param model conversion model
 #' @param ref_file genome reference file (path to .fa file)
 #' @param alt_file alternative nucleotide file (path to .fa file)
-#' @param min_overlap_length minimum overlapping length
-#' @param min_CG_count minimum overlapping CG positions
-#' @param min_HCGD_count minimum overlapping HCGD positions
-#' @param min_DGCH_count minimum overlapping DGCH positions
-#' @param use_paired_reads used pair information (reads with the same name in the bam file is paired and will be forced into the same haplotype chain)
+#' @param min_overlap minimum overlapping length
+#' @param min_CG minimum overlapping CG positions
+#' @param min_HCGD minimum overlapping HCGD positions
+#' @param min_DGCH minimum overlapping DGCH positions
+#' @param paired_reads used pair information (reads with the same name in the bam file is paired and will be forced into the same haplotype chain)
 #' @param ref_prior genotype prior parameter
-#' @param structual_prior_scale structural prior scaling
+#' @param structual_prior structural prior scaling
 #' @param margin cut off margin
 #' @param max_iterations maximal number of iterations
 #' @param max_stages experimental stage optimization (if <= 1 then stage optimization is off)
 #' @param chunk_size chunk size
 #' @param chunk_method chunk method ('none' only one chunk, 'reads' chunks of approximately chunk_size reads, 'bases' chunks of chunk_size bases)
-#' @param reads_hard_limit maximal number of reads loaded per chunk (reads not loaded will be completely ignored)
+#' @param hard_limit maximal number of reads loaded per chunk (reads not loaded will be completely ignored)
 #' @param ref_offset TODO
 #' @param alt_offset TODO
 #' @param quality_threshold discard reads with mean epsilon quality higher than quality_threshold
@@ -310,20 +321,20 @@ epiG_config <- function(
 		model, 
 		ref_file, 
 		alt_file, 
-		min_overlap_length,
-		min_CG_count,
-		min_HCGD_count,
-		min_DGCH_count,
-		use_paired_reads,
+		min_overlap,
+		min_CG,
+		min_HCGD,
+		min_DGCH,
+		paired_reads,
 		ref_prior = 1-1e-4, 
-		structual_prior_scale = 1,
+		structual_prior= 1,
 		quality_threshold = 0.020,
 		margin = 5,
 		max_iterations = 1e5, 
 		max_stages = 1,
 		chunk_size = 5000, 
 		chunk_method = "reads", 
-		reads_hard_limit = 7500,
+		hard_limit = 7500,
 		ref_offset = 0,
 		alt_offset = 0,
 		verbose = TRUE,
@@ -382,24 +393,24 @@ epiG_config <- function(
 	
 	config$chunk_method <- chunk_method
 	
-	config$reads_hard_limit <- as.integer(reads_hard_limit)
+	config$reads_hard_limit <- as.integer(hard_limit)
 	
 	config$quality_threshold <- quality_threshold
 	
 	config$ref_prior <- ref_prior
 	
-	config$min_overlap_length <- as.integer(min_overlap_length)
+	config$min_overlap_length <- as.integer(min_overlap)
 	
-	config$min_CG_count <- as.integer(min_CG_count)
-	config$min_HCGD_count <- as.integer(min_HCGD_count)
-	config$min_DGCH_count <- as.integer(min_DGCH_count)
+	config$min_CG_count <- as.integer(min_CG)
+	config$min_HCGD_count <- as.integer(min_HCGD)
+	config$min_DGCH_count <- as.integer(min_DGCH)
 	config$margin <- as.integer(margin)
 	
 	config$max_stages <- as.integer(max_stages)
 	
-	config$structual_prior_scale <- structual_prior_scale
+	config$structual_prior_scale <- structual_prior
 		
-	config$use_paired_reads <- use_paired_reads
+	config$use_paired_reads <- paired_reads
 				
 	config$verbose <- verbose
 	

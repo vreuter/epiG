@@ -68,7 +68,36 @@ print.epiG <- function(x, ...) {
 #' #TODO
 print.epiG.config <- function(x, ...) {
 	
-	message("epiG config object:")
+	message("\nepiG Config Object")
+	
+#	[1]         "ref_offset"           
+#	[4] "alt_offset"            "max_iterations"        "fwd_model"            
+#	[7] "rev_model"             "split_mode"            "model_name"           
+#	[10] "fwd_DGCH_model"        "rev_DGCH_model"        "fwd_HCGD_model"       
+#	[13] "rev_HCGD_model"        "fwd_CH_model"          "rev_CH_model"         
+#	[16] "fwd_C_G_model"         "rev_C_G_model"         "chunk_size"           
+#	[19] "chunk_method"          "reads_hard_limit"      "quality_threshold"    
+#	[22] "ref_prior"                     "margin"               
+#	[28] "max_stages"            "structual_prior_scale" "use_paired_reads"     
+#	[31] "verbose"                             
+	
+	message("\n Files:")
+	par <- c("filename", "ref_filename", "alt_filename") 
+	tmp <- data.frame(unlist(x[par]))
+	colnames(tmp) <- NULL
+	print(tmp)
+	
+	message("\n Site:")
+	par <- c("refname", "start" , "end") 
+	tmp <- data.frame(unlist(x[par]))
+	colnames(tmp) <- NULL
+	print(tmp)
+	
+	message("\n Feasibility settings:")
+	par <- c("min_overlap_length", "min_CG_count", "min_HCGD_count", "min_DGCH_count") 
+	tmp <- data.frame(unlist(x[par]))
+	colnames(tmp) <- NULL
+	print(tmp)
 }
 
 #' @title print model
