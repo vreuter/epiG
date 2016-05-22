@@ -881,6 +881,7 @@ bool haplotype::is_read_feasible(
 //	cout << overlap_end << " : " << overlap_start << endl;
 //	cout << overlap_end + 1 << " >= " << min_overlap_length + overlap_start<< endl;
 //
+
 	if(min_CG_count > 0 && count_CpG(overlap_start, overlap_end) >= min_CG_count) {
 		return true;
 	}
@@ -890,6 +891,10 @@ bool haplotype::is_read_feasible(
 	}
 
 	if(min_DGCH_count > 0 && count_DGCH(overlap_start, overlap_end) >= min_DGCH_count) {
+		return true;
+	}
+
+	if(min_CG_count == 0 && min_HCGD_count == 0 && min_DGCH_count == 0) {
 		return true;
 	}
 
@@ -971,6 +976,10 @@ bool haplotype::is_block_feasible(
 				if(c_DGCH >= min_DGCH_count) {
 					return true;
 				}
+			}
+
+			if(min_CG_count == 0 && min_HCGD_count == 0 && min_DGCH_count == 0) {
+				return true;
 			}
 		}
 	}

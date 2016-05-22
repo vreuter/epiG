@@ -163,6 +163,7 @@ inline void haplo_chain_optimizer::run(const abort_checker& ac) {
 		double old_posterior = h.posterior();
 
 		//Stage fits
+		//FIXME define guards so we can compile without stages opt -- give error if stages > 1
 		//TODO different min_overlap for stages h.set_min_overlap(65)
 		for(int stage = 1; stage < config.max_stages; stage++) {
 
