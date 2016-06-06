@@ -19,8 +19,6 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
-#TODO method def in top
-
 #' @title end position
 #' @description
 #' end position
