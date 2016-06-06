@@ -15,9 +15,6 @@ epiG epigenotype model with reference genome included
 \description{
 Load reference genome and include it in epiG object.
 }
-\examples{
-#TODO
-}
 \author{
 Martin Vincent
 }

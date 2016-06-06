@@ -1,6 +1,6 @@
 #
 #     Description of this R script:
-#     TODO
+#     TODO licens
 #
 #     Intended for use with R.
 #     Copyright (C) 2016 Martin Vincent
@@ -32,7 +32,7 @@
 #' @author Martin Vincent
 #'
 #' @examples 
-#' #TODO
+#' #TODO example
 vector_search <- function(pattern, x) {
 	
 	#TODO check input
@@ -58,7 +58,7 @@ vector_search <- function(pattern, x) {
 #' @export
 #'
 #' @examples 
-#' #TODO
+#' #TODO example
 locate_C <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -89,7 +89,7 @@ locate_C <- function(object) {
 #' @export
 #'
 #' @examples 
-#' #TODO
+#' #TODO example
 locate_GC <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -120,7 +120,7 @@ locate_GC <- function(object) {
 #' @export
 #'
 #' @examples 
-#' #TODO
+#' #TODO examle locate_CG
 locate_CG <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -152,7 +152,7 @@ locate_CG <- function(object) {
 #' @export
 #'
 #' @examples 
-#' #TODO
+#' #TODO examples locate_DGCH
 locate_DGCH <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -208,7 +208,7 @@ locate_DGCH <- function(object) {
 #' @export
 #'
 #' @examples 
-#' #TODO
+#' #TODO examples locate_HCGD
 locate_HCGD <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -264,7 +264,7 @@ locate_HCGD <- function(object) {
 #' @export
 #'
 #' @examples 
-#' #TODO
+#' #TODO examples locate_mismatch
 locate_mismatch <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {

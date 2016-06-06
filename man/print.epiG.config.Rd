@@ -15,7 +15,7 @@
 print config
 }
 \examples{
-#TODO
+#TODO examples print.epiG.config
 }
 \author{
 Martin Vincent

@@ -16,7 +16,7 @@ postions of mismatches
 Locate positions where at least one chain has a genotype not matching with the reference.
 }
 \examples{
-#TODO
+#TODO examples locate_mismatch
 }
 \author{
 Martin Vincent

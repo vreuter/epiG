@@ -16,7 +16,7 @@ locate_CG(object)
 Locate CpG positions
 }
 \examples{
-#TODO
+#TODO examle locate_CG
 }
 \author{
 Martin Vincent

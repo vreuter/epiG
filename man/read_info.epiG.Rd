@@ -20,7 +20,7 @@
 read_info
 }
 \examples{
-#TODO
+#TODO examples read_info
 }
 \author{
 Martin Vincent

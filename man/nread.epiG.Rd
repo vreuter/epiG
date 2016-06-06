@@ -18,7 +18,7 @@ number of reads contined in model
 Number of reads in model
 }
 \examples{
-#TODO
+#TODO examples nread
 }
 \author{
 Martin Vincent

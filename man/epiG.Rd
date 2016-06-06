@@ -18,7 +18,6 @@ fitted model
 Fit an epiG epigenotype model
 }
 \examples{
-library(epiG)
 
 # Retrieve paths to raw data files
 bam_file <- system.file("extdata", "GNAS_small.bam", package="epiG")
@@ -44,6 +43,11 @@ config <- auto_config(
 
 # Run epiG
 fit <- epiG(max_threads = 2, config = config)
+
+# Fetch additional information
+fit <- fetch_reads(fit)
+fit <- fetch_ref(fit)
+fit <- fetch_alt(fit)
 
 # Information about fitted model
 fit 

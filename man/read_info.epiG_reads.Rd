@@ -17,7 +17,7 @@
 read_info.epiG_reads
 }
 \examples{
-#TODO
+#TODO examples read_info
 }
 \author{
 Martin Vincent

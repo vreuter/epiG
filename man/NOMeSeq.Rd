@@ -20,10 +20,10 @@ NOMeSeq(bisulphite_rate = 0.95, bisulphite_inap_rate = 0.05, Lmax = 110,
 an epiG conversion model
 }
 \description{
-Create a NOMe-sequencing conversion model
+Create a NOMe-sequencing conveBSeq()sion model
 }
 \examples{
-#TODO
+NOMeSeq()
 }
 \author{
 Martin Vincent

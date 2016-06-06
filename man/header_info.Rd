@@ -10,13 +10,16 @@ header_info(file)
 \item{file}{path to bam file}
 }
 \value{
-TODO
+a list of refnames and lengths associated with the file
 }
 \description{
 Load bam file header
 }
 \examples{
-#TODO
+# Retrieve paths to raw data files
+bam_file <- system.file("extdata", "GNAS_small.bam", package="epiG")
+
+header_info(bam_file)
 }
 \author{
 Martin Vincent

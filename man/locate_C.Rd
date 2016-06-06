@@ -16,7 +16,7 @@ positions of C in object
 Locate C positions
 }
 \examples{
-#TODO
+#TODO example
 }
 \author{
 Martin Vincent

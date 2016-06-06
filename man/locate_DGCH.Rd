@@ -16,7 +16,7 @@ locate_DGCH(object)
 Locate DGCH (isolated GpC) positions
 }
 \examples{
-#TODO
+#TODO examples locate_DGCH
 }
 \author{
 Martin Vincent

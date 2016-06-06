@@ -61,12 +61,8 @@
 #' 
 #' # Run epiG
 #' fit <- epiG(max_threads = 2, config = config)
-#'
-#' # Fetch additional information
 #' fit <- fetch_reads(fit)
-#' fit <- fetch_ref(fit)
-#' fit <- fetch_alt(fit)
-#'
+
 #' # Information about fitted model
 #' fit 
 #' 

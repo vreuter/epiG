@@ -16,7 +16,7 @@ Length of model in base pairs
 Length of model in base pairs
 }
 \examples{
-#TODO
+#TODO examples length.epiG
 }
 \author{
 Martin Vincent

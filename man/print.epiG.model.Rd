@@ -15,7 +15,7 @@
 print model
 }
 \examples{
-#TODO
+#TODO examples print.epiG.model 
 }
 \author{
 Martin Vincent

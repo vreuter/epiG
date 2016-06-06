@@ -10,13 +10,22 @@ file_info(file)
 \item{file}{path to bam file}
 }
 \value{
-TODO
+a data.frame with the following columns:
+\itemize{
+ \item[\code{ref}]{refname}
+ \item[\code{length}]{length of ref}
+ \item[\code{nreds}]{number of reads assigned to refname}
+ \item[\code{mean_read_length}]{the mean read length of reads assigned to refname}
+}
 }
 \description{
 Fetch information about bam file
 }
 \examples{
-#TODO
+# Retrieve paths to raw data files
+bam_file <- system.file("extdata", "GNAS_small.bam", package="epiG")
+
+file_info(bam_file)
 }
 \author{
 Martin Vincent

@@ -15,9 +15,6 @@ epiG model
 \description{
 Load alternative nucleotides and include it in epiG object.
 }
-\examples{
-#TODO
-}
 \author{
 Martin Vincent
 }

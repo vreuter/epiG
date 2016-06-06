@@ -23,9 +23,6 @@ an epiG configuration
 \description{
 set run configuration
 }
-\examples{
-#TODO
-}
 \author{
 Martin Vincent
 }

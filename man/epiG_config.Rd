@@ -8,7 +8,7 @@ epiG_config(model, ref_file, alt_file, min_overlap, min_CG, min_HCGD, min_DGCH,
   paired_reads, ref_prior = 1 - 1e-04, structual_prior = 1,
   quality_threshold = 0.02, margin = 5, max_iterations = 1e+05,
   max_stages = 1, chunk_size = 5000, chunk_method = "reads",
-  hard_limit = 7500, ref_offset = 0, alt_offset = 0, verbose = TRUE,
+  hard_limit = 7500, ref_offset = 1, alt_offset = 1, verbose = TRUE,
   ...)
 }
 \arguments{
@@ -46,9 +46,9 @@ epiG_config(model, ref_file, alt_file, min_overlap, min_CG, min_HCGD, min_DGCH,
 
 \item{hard_limit}{maximal number of reads loaded per chunk (reads not loaded will be completely ignored)}
 
-\item{ref_offset}{TODO}
+\item{ref_offset}{ref file offset (usually ref_offset = 1)}
 
-\item{alt_offset}{TODO}
+\item{alt_offset}{alt file offset (usually alt_offset = 1)}
 
 \item{verbose}{show information while running}
 
@@ -59,9 +59,6 @@ an epiG configuration
 }
 \description{
 Create a custom epiG configuration
-}
-\examples{
-#TODO
 }
 \author{
 Martin Vincent

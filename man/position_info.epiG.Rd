@@ -20,7 +20,7 @@
 position_info
 }
 \examples{
-#TODO
+#TODO examples position_info
 }
 \author{
 Martin Vincent

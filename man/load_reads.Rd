@@ -23,11 +23,11 @@ load_reads(file, refname, start, end, quality_threshold = 1,
 \value{
 a list with the following entries:
 \itemize{
- \item[\code{reads}]{a list TODO}
- \item[\code{quality}]{a list TODO}
- \item[\code{positions}]{a vector TODO}
- \item[\code{lengths}]{a vector TODO}
- \item[\code{names}]{a vector TODO}
+ \item[\code{reads}]{a list of reads (each read represented by a vector of bases)}
+ \item[\code{quality}]{a list quality scores}
+ \item[\code{positions}]{a vector of the start positions of the reads}
+ \item[\code{lengths}]{a vector of the lengths of the reads}
+ \item[\code{names}]{a vector of the names of the reads}
 }
 }
 \description{
@@ -37,8 +37,14 @@ Load the reads overlapping the specified region
 # Retrieve paths to raw data files
 bam_file <- system.file("extdata", "GNAS_small.bam", package="epiG")
 
-load_reads(bam_file, "chr20", 57400000, 57400000 + 100)
+info <- load_reads(bam_file, "chr20", 57400000, 57400000 + 100)
 
+# Bases, qualities, start position, length and name of first read
+info$reads[[1]]
+info$quality[[1]]
+info$position[1]
+info$lengths[1]
+info$names[1]
 }
 \author{
 Martin Vincent

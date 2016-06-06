@@ -157,10 +157,6 @@ NOMeSeq <- function(bisulphite_rate = .95, bisulphite_inap_rate = 0.05, Lmax = 1
 #' @param end end position of region to processes 
 #' @param seq_type sequencing type ("BSeq" for bisulphite sequencing, "NOMeSeq" for NOMe sequencing)
 #' @param paired_reads should pair information be used (TRUE/FALSE or NULL, if NULL then paired information is used if pairs are present in bam file)
-#' @param min_overlap minimum overlapping length (if NULL deafult value is used)
-#' @param min_CG minimum overlapping CG positions (if NULL deafult value is used)
-#' @param min_HCGD minimum overlapping HCGD positions (if NULL deafult value is used)
-#' @param min_DGCH minimum overlapping DGCH positions (if NULL deafult value is used)
 #' @param ... additional arguments (overrides default values)
 #' 
 #' @return An epiG configuration
@@ -333,8 +329,8 @@ auto_config <- function(
 #' @param chunk_size chunk size
 #' @param chunk_method chunk method ('none' only one chunk, 'reads' chunks of approximately chunk_size reads, 'bases' chunks of chunk_size bases)
 #' @param hard_limit maximal number of reads loaded per chunk (reads not loaded will be completely ignored)
-#' @param ref_offset ref file offset (usually ref_offset = 1)
-#' @param alt_offset alt file offset (usually alt_offset = 1)
+#' @param ref_offset 
+#' @param alt_offset
 #' @param quality_threshold discard reads with mean epsilon quality higher than quality_threshold
 #' @param verbose show information while running
 #' @param ... ignored
@@ -445,7 +441,6 @@ epiG_config <- function(
 	return(config)
 }
 
-#TODO example set_run_configuration
 #' @title Run Configuration
 #' @description
 #' set run configuration
@@ -460,6 +455,8 @@ epiG_config <- function(
 #'
 #' @author Martin Vincent
 #' @export
+#' @examples 
+#' #TODO example
 set_run_configuration <- function(config, filename, refname, start, end) {
 	
 	config$filename <- filename

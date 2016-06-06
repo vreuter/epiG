@@ -16,7 +16,7 @@ locate_GC(object)
 Locate GC positions
 }
 \examples{
-#TODO
+#TODO example
 }
 \author{
 Martin Vincent

@@ -18,7 +18,7 @@
 Number of chains
 }
 \examples{
-#TODO
+#TODO examples nchain
 }
 \author{
 Martin Vincent

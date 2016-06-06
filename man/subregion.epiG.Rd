@@ -24,7 +24,7 @@
 subregion
 }
 \examples{
-#TODO
+#TODO examples subregion
 }
 \author{
 Martin Vincent

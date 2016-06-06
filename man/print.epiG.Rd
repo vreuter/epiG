@@ -15,7 +15,7 @@
 print
 }
 \examples{
-#TODO
+#TODO examples print
 }
 \author{
 Martin Vincent

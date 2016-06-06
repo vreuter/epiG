@@ -18,7 +18,7 @@ numeric
 start position
 }
 \examples{
-#TODO
+#TODO examples start.epiG
 }
 \author{
 Martin Vincent

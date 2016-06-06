@@ -16,7 +16,7 @@ locate_HCGD(object)
 locate HCGD (isolated CpG) positions
 }
 \examples{
-#TODO
+#TODO examples locate_HCGD
 }
 \author{
 Martin Vincent

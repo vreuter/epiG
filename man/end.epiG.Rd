@@ -18,7 +18,7 @@ end position (bp) of region contined in model
 end
 }
 \examples{
-#TODO
+#TODO examples end
 }
 \author{
 Martin Vincent

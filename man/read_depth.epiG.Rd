@@ -20,7 +20,7 @@
 read_depth
 }
 \examples{
-#TODO
+#TODO examples read_depth
 }
 \author{
 Martin Vincent

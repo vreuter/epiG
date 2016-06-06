@@ -1,6 +1,6 @@
 #
 #     Description of this R script:
-#     TODO
+#     TODO licens
 #
 #     Intended for use with R.
 #     Copyright (C) 2016 Martin Vincent
@@ -32,7 +32,7 @@
 #' @export
 #'
 #' @examples 
-#' #TODO
+#' #TODO examples print
 print.epiG <- function(x, ...) {
 	
         if("chunks" %in% class(x)) {
@@ -65,7 +65,7 @@ print.epiG <- function(x, ...) {
 #' @export
 #'
 #' @examples 
-#' #TODO
+#' #TODO examples print.epiG.config
 print.epiG.config <- function(x, ...) {
 	
 	message("\nepiG Config Object")
@@ -112,7 +112,7 @@ print.epiG.config <- function(x, ...) {
 #' @export
 #'
 #' @examples 
-#' #TODO
+#' #TODO examples print.epiG.model 
 print.epiG.model <- function(x, ...) {
 	
 	cat(x$name)

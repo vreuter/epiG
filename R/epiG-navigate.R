@@ -1,6 +1,6 @@
 #
 #     Description of this R script:
-#     TODO
+#     TODO licens
 #
 #     Intended for use with R.
 #     Copyright (C) 2013 Martin Vincent
@@ -20,7 +20,6 @@
 #
 
 #TODO method def in top
-#TODO licens
 
 #' @title end position
 #' @description
@@ -158,7 +157,7 @@ subregion <- function(object, start, end, chop.reads = FALSE, ... ) UseMethod("s
 #' @export
 #'
 #' @examples 
-#' #TODO
+#' #TODO examples start.epiG
 start.epiG <- function(object, ...) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -186,7 +185,7 @@ start.epiG <- function(object, ...) {
 #' @export
 #'
 #' @examples 
-#' #TODO
+#' #TODO examples end
 end.epiG <- function(object, ...) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -212,7 +211,7 @@ end.epiG <- function(object, ...) {
 #' @export
 #'
 #' @examples 
-#' #TODO
+#' #TODO examples length.epiG
 length.epiG <- function(x) {
 	
 	if(paste(class(x), collapse = ".") == "epiG") {
@@ -239,7 +238,7 @@ length.epiG <- function(x) {
 #' @export
 #'
 #' @examples 
-#' #TODO
+#' #TODO examples nread
 nread.epiG <- function(object, ...)  {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -339,7 +338,7 @@ nread.epiG <- function(object, ...)  {
 #' @export
 #'
 #' @examples 
-#' #TODO
+#' #TODO examples read_depth
 read_depth.epiG <- function(object, pos = NULL, ...) {
 	
 	if(is.null(pos)) {
@@ -421,7 +420,7 @@ read_depth.epiG <- function(object, pos = NULL, ...) {
 #' @export
 #'
 #' @examples 
-#' #TODO
+#' #TODO examples position_info
 position_info.epiG <- function(object, pos, ...) {
 	
 	if(length(pos) == 0) {
@@ -536,7 +535,7 @@ position_info.epiG <- function(object, pos, ...) {
 #' @export
 #'
 #' @examples 
-#' #TODO
+#' #TODO examples chain_info
 chain_info.epiG <- function(object, ...) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -594,7 +593,7 @@ chain_info.epiG <- function(object, ...) {
 #' @export
 #'
 #' @examples 
-#' #TODO
+#' #TODO examples read_info
 read_info.epiG <- function(object, inc.symbols = FALSE, ...) {
 		
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -698,7 +697,7 @@ read_info.epiG <- function(object, inc.symbols = FALSE, ...) {
 #' @export
 #'
 #' @examples 
-#' #TODO
+#' #TODO examples read_info
 read_info.epiG_reads <- function(object, inc.symbols = FALSE, ...) {
 	
 	info <- NULL
@@ -740,7 +739,7 @@ read_info.epiG_reads <- function(object, inc.symbols = FALSE, ...) {
 #' @export
 #'
 #' @examples 
-#' #TODO
+#' #TODO examples nchunks
 nchunks.epiG <- function(object, ...) {
 	if(paste(class(object), collapse = ".") == "epiG") {
 		return(1)
@@ -763,7 +762,7 @@ nchunks.epiG <- function(object, ...) {
 #' @export
 #'
 #' @examples 
-#' #TODO
+#' #TODO examples nchain
 nchain.epiG <- function(object, ...) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -792,7 +791,7 @@ nchain.epiG <- function(object, ...) {
 #' @author Martin Vincent
 #'
 #' @examples 
-#' #TODO
+#' #TODO examples subregion
 subregion.epiG <- function(object, start, end, chop.reads = FALSE, ...) {
 		
 	if(paste(class(object), collapse = ".") == "epiG") {

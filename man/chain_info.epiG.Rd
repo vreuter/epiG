@@ -18,7 +18,7 @@
 chain_info
 }
 \examples{
-#TODO
+#TODO examples chain_info
 }
 \author{
 Martin Vincent

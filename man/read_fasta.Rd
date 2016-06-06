@@ -4,7 +4,7 @@
 \alias{read_fasta}
 \title{Read FASTA File}
 \usage{
-read_fasta(file, refname, start, len, offset = 0)
+read_fasta(file, refname, start, len, offset = 1)
 }
 \arguments{
 \item{file}{path to fasta file}
@@ -15,16 +15,24 @@ read_fasta(file, refname, start, len, offset = 0)
 
 \item{len}{length of region}
 
-\item{offset}{file offset (position of first base in file)}
+\item{offset}{file offset (position of first base in file, usually offset = 1)}
 }
 \value{
-TODO
+a vector of length \code{len} containing the bases
 }
 \description{
-Load a raw FASTA file
+Read a raw FASTA file
 }
 \examples{
-#TODO
+ref_file <- system.file("extdata", "hg19_GNAS.fa", package="epiG")
+
+# Specify region
+chr <- "chr20"
+start <- 57400000 
+end <- 57400000 + 100
+
+#Note that usually offset = 1
+read_fasta(ref_file, chr, start, len = end-start+1, offset = 57380000)
 }
 \author{
 Martin Vincent

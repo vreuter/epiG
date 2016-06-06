@@ -182,7 +182,7 @@ fetch_ref <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
 		
-		object$ref <- .read_fasta(
+		object$ref <- read_fasta(
 						file = object$config$ref_filename, 
 						refname = object$refname, 
 						start = start(object),
@@ -202,7 +202,7 @@ fetch_ref <- function(object) {
 }
 
 # Internal read_fast see description for read_fast
-.read_fasta <- function(file, refname, start, len, offset) {
+.read_fasta <- function(file, refname, start, len, offset = 0) {
 	return(.Call(r_epiG_read_fasta, 
 					as.character(file), 
 					as.integer(offset),
@@ -219,7 +219,7 @@ fetch_ref <- function(object) {
 #' @param refname reference name
 #' @param start start of region
 #' @param len length of region
-#' @param offset file offset (position of first base in file, usually offset = 1)
+#' @param offset file offset (position of first base in file, usually offset = 0)
 #' @return a vector of length \code{len} containing the bases 
 #' 
 #' @author Martin Vincent
@@ -233,11 +233,11 @@ fetch_ref <- function(object) {
 #' start <- 57400000 
 #' end <- 57400000 + 100
 #' 
-#' #Note that usually offset = 1
+#' #Note that usually offset = 0
 #' read_fasta(ref_file, chr, start, len = end-start+1, offset = 57380000)
-read_fasta <- function(file, refname, start, len, offset = 1) {
+read_fasta <- function(file, refname, start, len, offset = 0) {
 
-	fas <- .read_fasta(file, refname, start, len, offset - 1L)
+	fas <- .read_fasta(file, refname, start, len, offset)
 	fas <- sapply(fas, .symbols)
 
 	return(fas)
@@ -257,7 +257,7 @@ read_fasta <- function(file, refname, start, len, offset = 1) {
 fetch_alt <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
-		object$alt <- .read_fasta(object$config$alt_filename, object$refname, start(object), length(object), object$config$alt_offset)
+		object$alt <- .read_fasta(object$config$alt_filename, object$refname, start(object), length(object))
 	
 	} else if(paste(class(object), collapse = ".") == "epiG.chunks") {
 		object <- lapply(object, function(x) fetch_alt(x))
@@ -313,6 +313,8 @@ header_info <- function(file) {
 #' bam_file <- system.file("extdata", "GNAS_small.bam", package="epiG")
 #' 
 #' file_info(bam_file)
+#TODO examples file_info
+#TODO doc info file_info
 file_info <- function(file) {
 	
 	info <- header_info(file)

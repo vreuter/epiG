@@ -25,6 +25,14 @@ auto_config(ref_file, alt_file, bam_file, chr, start, end, seq_type = "BSeq",
 
 \item{paired_reads}{should pair information be used (TRUE/FALSE or NULL, if NULL then paired information is used if pairs are present in bam file)}
 
+\item{min_CG}{minimum overlapping CG positions (if NULL deafult value is used)}
+
+\item{min_HCGD}{minimum overlapping HCGD positions (if NULL deafult value is used)}
+
+\item{min_DGCH}{minimum overlapping DGCH positions (if NULL deafult value is used)}
+
+\item{min_overlap}{minimum overlapping length (if NULL deafult value is used)}
+
 \item{...}{additional arguments (overrides default values)}
 }
 \value{
@@ -34,7 +42,30 @@ An epiG configuration
 Create a epiG configuration with standard parameters
 }
 \examples{
-#TODO
+
+# Retrieve paths to raw data files
+bam_file <- system.file("extdata", "GNAS_small.bam", package="epiG")
+ref_file <- system.file("extdata", "hg19_GNAS.fa", package="epiG")
+alt_file <- system.file("extdata", "dbsnp_135.hg19_GNAS.fa", package="epiG")
+
+# Specify region
+chr <- "chr20"
+start <- 57400000 
+end <- 57400000 + 1000
+
+# Build epiG configuration
+config <- auto_config(
+		bam_file = bam_file,
+		ref_file = ref_file,
+		alt_file = alt_file,
+		chr = chr,
+		start = start,
+		end = end,
+# If ref_file and alt_file contains the entire chromosome this is not needed
+		ref_offset = 57380000, 
+		alt_offset = 57380000)
+
+config #print a summary of the configuration
 }
 \author{
 Martin Vincent

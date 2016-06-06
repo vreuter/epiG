@@ -20,7 +20,7 @@ Fit epiG epigenotype models
 Fit an epiG epigenotype model for each configuration in the list configs.
 }
 \examples{
-#TODO
+#TODO example
 }
 \author{
 Martin Vincent

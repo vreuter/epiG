@@ -22,7 +22,7 @@ an epiG conversion model
 Create a bisulphite sequencing conversion model
 }
 \examples{
-#TODO
+BSeq()
 }
 \author{
 Martin Vincent

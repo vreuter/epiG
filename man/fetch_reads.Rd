@@ -15,9 +15,6 @@ model with reads included (this may increase the memory use)
 \description{
 Reads will be loaded and include in the epiG object
 }
-\examples{
-#TODO
-}
 \author{
 Martin Vincent
 }

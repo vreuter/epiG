@@ -18,7 +18,7 @@
 Number of chunks
 }
 \examples{
-#TODO
+#TODO examples nchunks
 }
 \author{
 Martin Vincent
