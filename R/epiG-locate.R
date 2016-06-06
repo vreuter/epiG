@@ -81,9 +81,9 @@ locate_C <- function(object) {
 
 #' @title Locate GpC
 #' @description
-#' Locate GC positions
+#' Locate GpC positions in the refrence genom
 #' @param object 
-#' @return ??
+#' @return a vector of GpC positions 
 #' 
 #' @author Martin Vincent
 #' @export
@@ -112,9 +112,9 @@ locate_GC <- function(object) {
 
 #' @title Locate CpG
 #' @description
-#' Locate CpG positions
+#' Locate CpG positions in the refrence genom
 #' @param object 
-#' @return ??
+#' @return a vector of CpG positions
 #' 
 #' @author Martin Vincent
 #' @export
@@ -143,10 +143,10 @@ locate_CG <- function(object) {
 
 #' @title Locate DGCH
 #' @description
-#' Locate DGCH (isolated GpC) positions
+#' Locate DGCH (isolated GpC) positions in the refrence genom
 #' 
 #' @param object 
-#' @return ??
+#' @return a vector of isolated GpC positions
 #' 
 #' @author Martin Vincent
 #' @export
@@ -199,10 +199,10 @@ locate_DGCH <- function(object) {
 
 #' @title Locate HCGD 
 #' @description
-#' locate HCGD (isolated CpG) positions
+#' locate HCGD (isolated CpG) positions in the refrence genom
 #' 
-#' @param object 
-#' @return ??
+#' @param object an epiG model
+#' @return a vector of isolated CpG positions
 #' 
 #' @author Martin Vincent
 #' @export
@@ -257,8 +257,8 @@ locate_HCGD <- function(object) {
 #' @description
 #' Locate positions where at least one chain has a genotype not matching with the reference.
 #' 
-#' @param object 
-#' @return postions of mismatches
+#' @param object an epiG model
+#' @return a vector of postions of mismatches
 #' 
 #' @author Martin Vincent
 #' @export

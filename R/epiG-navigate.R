@@ -1,6 +1,6 @@
 #
 #     Description of this R script:
-#     TODO licens
+#     epiG R scripts for exatracting information from epiG models
 #
 #     Intended for use with R.
 #     Copyright (C) 2013 Martin Vincent
@@ -25,7 +25,7 @@
 #' 
 #' @param object an epiG model
 #' @param ... ignored
-#' @return ??
+#' @return the last position in model
 #' 
 #' @author Martin Vincent
 #' @export
@@ -37,7 +37,7 @@ end <- function(object, ... ) UseMethod("end")
 #' 
 #' @param object an epiG model
 #' @param ... ignored
-#' @return ??
+#' @return the first position in the model
 #' 
 #' @author Martin Vincent
 #' @export
@@ -48,32 +48,34 @@ start <- function(object, ... ) UseMethod("start")
 #' Number of reads in model
 #' @param object an epiG model
 #' @param ... ignored
-#' @return ??
+#' @return number of reads in the model
 #' 
 #' @author Martin Vincent
 #' @export
 nread <- function(object, ... ) UseMethod("nread")
 
-#' @title read_depth
+#' @title Read depth 
 #' @description
-#' read_depth
+#' Exatract the read depth 
 #' 
 #' @param object an epiG model
 #' @param pos position 
 #' @param ... ignored
-#' @return ??
+#' @retur
+#' #TODO return read_depth
 #' 
 #' @author Martin Vincent
 #' @export
 read_depth <- function(object, pos = NULL, ... ) UseMethod("read_depth")
 
-#' @title position_info
+#' @title Position information
 #' @description
-#' position_info
+#' Exstract information about positions in the model
 #' @param object an epiG model
 #' @param pos position 
 #' @param ... ignored
-#' @return ??
+#' @return a data.frame with \code{length(pos)} rows and the following columns
+#' #TODO return position_info 
 #' 
 #' @author Martin Vincent
 #' @export
@@ -727,10 +729,10 @@ read_info.epiG_reads <- function(object, inc.symbols = FALSE, ...) {
 
 #' @title Number of chunks
 #' @description
-#' Number of chunks 
+#' Number of chunks in the epiG object 
 #' @param object 
 #' @param ... 
-#' @return ??
+#' @return the number of chunks in the epiG object
 #' 
 #' @author Martin Vincent
 #' @method nchunks epiG
@@ -750,10 +752,10 @@ nchunks.epiG <- function(object, ...) {
 
 #' @title Number of chains
 #' @description
-#' Number of chains
+#' Number of chains in the model
 #' @param object 
 #' @param ... 
-#' @return ??
+#' @return number of chains in the model
 #' 
 #' @author Martin Vincent
 #' @method nchain epiG
@@ -773,16 +775,16 @@ nchain.epiG <- function(object, ...) {
 	
 }
 
-#' @title subregion
+#' @title Subregion
 #' @description
-#' subregion
+#' Exatract a subregion of an epiG model
 #'
-#' @param object 
-#' @param start 
-#' @param end 
-#' @param chop.reads 
+#' @param object epiG model
+#' @param start start position of subregion
+#' @param end end position of subregion
+#' @param chop.reads if TRUE reads will be choped at the boundaries of the region
 #' @param ... 
-#' @return ??
+#' @return an epiG model
 #' 
 #' @method subregion epiG
 #' @export
