@@ -249,7 +249,7 @@ read_fasta <- function(file, refname, start, len, offset = 1) {
 #' @description 
 #' Load alternative nucleotides and include it in epiG object. 
 #' 
-#' @param object 
+#' @param object a epiG model
 #' @return epiG model
 #' 
 #' @author Martin Vincent
