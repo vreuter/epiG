@@ -4,21 +4,21 @@
 \alias{read_depth}
 \title{Read depth}
 \usage{
-read_depth(object, pos = NULL, ...)
+read_depth(object, pos = NULL)
 }
 \arguments{
-\item{object}{an epiG model}
+\item{object}{epiG model}
 
 \item{pos}{position}
-
-\item{...}{additonal arguments}
 }
 \value{
 ??
-#TODO return read_depth
 }
 \description{
-Exatract the read depth
+Retrive the read depth at a given position in the model
+}
+\examples{
+#TODO examples read_depth
 }
 \author{
 Martin Vincent

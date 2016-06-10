@@ -2,23 +2,23 @@
 % Please edit documentation in R/epiG-navigate.R
 \name{position_info}
 \alias{position_info}
-\title{Position information}
+\title{Position Info}
 \usage{
-position_info(object, pos, ...)
+position_info(object, pos)
 }
 \arguments{
-\item{object}{an epiG model}
+\item{object}{epiG model}
 
 \item{pos}{position}
-
-\item{...}{additonal arguments}
 }
 \value{
-a data.frame with \code{length(pos)} rows and the following columns
-#TODO return position_info
+??
 }
 \description{
-Exstract information about positions in the model
+Retriev information about the estimated epi-genotype at a given position in the model
+}
+\examples{
+#TODO examples position_info
 }
 \author{
 Martin Vincent

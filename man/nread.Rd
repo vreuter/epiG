@@ -4,18 +4,19 @@
 \alias{nread}
 \title{Number of reads in model}
 \usage{
-nread(object, ...)
+nread(object)
 }
 \arguments{
-\item{object}{an epiG model}
-
-\item{...}{additonal arguments}
+\item{object}{epiG model}
 }
 \value{
-number of reads in the model
+number of reads contined in model
 }
 \description{
 Number of reads in model
+}
+\examples{
+#TODO examples nread
 }
 \author{
 Martin Vincent

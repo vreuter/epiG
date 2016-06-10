@@ -37,7 +37,6 @@
 #include <string.h>
 #include <unistd.h>
 #include "razf.h"
-#include <R.h>
 
 
 #if ZLIB_VERNUM < 0x1221
@@ -148,7 +147,6 @@ static void load_zindex(RAZF *rz, int fd){
 #ifdef _RZ_READONLY
 static RAZF* razf_open_w(int fd)
 {
-	// REP: fprintf(stderr, "[razf_open_w] Writing is not available with zlib ver < 1.2.2.1\n");
 	Rprintf("[razf_open_w] Writing is not available with zlib ver < 1.2.2.1\n");
 	return 0;
 }
@@ -282,7 +280,7 @@ static void _razf_buffered_write(RAZF *rz, const void *data, int size){
 			n = RZ_BUFFER_SIZE - rz->buf_len;
 			for(i=0;i<n;i++) ((char*)rz->inbuf + rz->buf_len)[i] = ((char*)data)[i];
 			size -= n;
-			data += n;
+			data = (const void *) (((const unsigned char*) data) + n);
 			rz->buf_len += n;
 		}
 	}
@@ -296,7 +294,7 @@ int razf_write(RAZF* rz, const void *data, int size){
 	while(rz->in + rz->buf_len + size >= next_block){
 		n = next_block - rz->in - rz->buf_len;
 		_razf_buffered_write(rz, data, n);
-		data += n;
+		data = (const void *) (((const unsigned char*) data) + n);
 		size -= n;
 		razf_flush(rz);
 		add_zindex(rz, rz->in, rz->out);
@@ -391,7 +389,7 @@ static RAZF* razf_open_r(int fd, int _load_index){
 	ret = inflateInit2(rz->stream, -WINDOW_BITS);
 	if(ret != Z_OK){ inflateEnd(rz->stream); goto PLAIN_FILE;}
 	rz->stream->avail_in = n - rz->header_size;
-	rz->stream->next_in  = rz->inbuf + rz->header_size;
+	rz->stream->next_in  = (void*) (((unsigned char* )rz->inbuf) + rz->header_size);
 	rz->stream->avail_out = RZ_BUFFER_SIZE;
 	rz->stream->next_out  = rz->outbuf;
 	rz->file_type = FILE_TYPE_GZ;
@@ -399,10 +397,9 @@ static RAZF* razf_open_r(int fd, int _load_index){
 	rz->block_pos = rz->header_size;
 	rz->next_block_pos = rz->header_size;
 	rz->block_off = 0;
-	if(ext_len < 7 || memcmp(rz->inbuf + ext_off, c, 4) != 0) return rz;
+	if(ext_len < 7 || memcmp(((unsigned char*)rz->inbuf) + ext_off, c, 4) != 0) return rz;
 	if(((((unsigned char*)rz->inbuf)[ext_off + 5] << 8) | ((unsigned char*)rz->inbuf)[ext_off + 6]) != RZ_BLOCK_SIZE){
-		// REP: fprintf(stderr, " -- WARNING: RZ_BLOCK_SIZE is not %d, treat source as gz file.  in %s -- %s:%d --\n", RZ_BLOCK_SIZE, __FUNCTION__, __FILE__, __LINE__);
-		Rprintf( " -- WARNING: RZ_BLOCK_SIZE is not %d, treat source as gz file.  in %s -- %s:%d --\n", RZ_BLOCK_SIZE, __FUNCTION__, __FILE__, __LINE__);
+		Rprintf( " -- WARNING: RZ_BLOCK_SIZE is not %d, treat source as gz file.  in %s -- %s:%d --\n", RZ_BLOCK_SIZE, "razf_open_r", __FILE__, __LINE__);
 		return rz;
 	}
 	rz->load_index = _load_index;
@@ -469,7 +466,6 @@ static RAZF* razf_open_r(int fd, int _load_index){
 
 #ifdef _USE_KNETFILE
 RAZF* razf_dopen(int fd, const char *mode){
-    // REP: if (strstr(mode, "r")) fprintf(stderr,"[razf_dopen] implement me\n");
 	if (strstr(mode, "r")) Rprintf("[razf_dopen] implement me\n");
     else if(strstr(mode, "w")) return razf_open_w(fd);
 	return NULL;
@@ -477,7 +473,6 @@ RAZF* razf_dopen(int fd, const char *mode){
 
 RAZF* razf_dopen2(int fd, const char *mode)
 {
-    // REP: fprintf(stderr,"[razf_dopen2] implement me\n");
 	Rprintf("[razf_dopen2] implement me\n");
     return NULL;
 }
@@ -503,7 +498,6 @@ static R_INLINE RAZF* _razf_open(const char *filename, const char *mode, int _lo
 #ifdef _USE_KNETFILE
         knetFile *fd = knet_open(filename, "r");
         if (fd == 0) {
-            // REP: fprintf(stderr, "[_razf_open] fail to open %s\n", filename);
         	Rprintf("[_razf_open] fail to open %s\n", filename);
             return NULL;
         }
@@ -608,7 +602,6 @@ static int _razf_read(RAZF* rz, void *data, int size){
 		ret = inflate(rz->stream, Z_BLOCK);
 		rz->in += tin - rz->stream->avail_in;
 		if(ret == Z_NEED_DICT || ret == Z_MEM_ERROR || ret == Z_DATA_ERROR){
-			// REP: fprintf(stderr, "[_razf_read] inflate error: %d %s (at %s:%d)\n", ret, rz->stream->msg ? rz->stream->msg : "", __FILE__, __LINE__);
 			Rprintf("[_razf_read] inflate error: %d %s (at %s:%d)\n", ret, rz->stream->msg ? rz->stream->msg : "", __FILE__, __LINE__);
 			rz->z_err = 1;
 			break;
@@ -635,13 +628,13 @@ int razf_read(RAZF *rz, void *data, int size){
 				for(i=0;i<size;i++) ((char*)data)[i] = ((char*)rz->outbuf + rz->buf_off)[i];
 				rz->buf_off += size;
 				rz->buf_len -= size;
-				data += size;
+				data = (void*) ((char*)data + size);
 				rz->block_off += size;
 				size = 0;
 				break;
 			} else {
 				for(i=0;i<rz->buf_len;i++) ((char*)data)[i] = ((char*)rz->outbuf + rz->buf_off)[i];
-				data += rz->buf_len;
+				data = (void*) ((char*)data + rz->buf_len);
 				size -= rz->buf_len;
 				rz->block_off += rz->buf_len;
 				rz->buf_off = 0;
@@ -781,16 +774,6 @@ int64_t razf_seek(RAZF* rz, int64_t pos, int where){
 
 uint64_t razf_tell2(RAZF *rz)
 {
-	/*
-	if (rz->load_index) {
-		int64_t idx, seek_pos;
-		idx = rz->out / RZ_BLOCK_SIZE - 1;
-		seek_pos = (idx < 0)? rz->header_size:(rz->index->cell_offsets[idx] + rz->index->bin_offsets[idx / RZ_BIN_SIZE]);
-		if (seek_pos != rz->block_pos || rz->out%RZ_BLOCK_SIZE != rz->block_off)
-			fprintf(stderr, "[razf_tell2] inconsistent block offset: (%lld, %lld) != (%lld, %lld)\n",
-					(long long)seek_pos, (long long)rz->out%RZ_BLOCK_SIZE, (long long)rz->block_pos, (long long) rz->block_off);
-	}
-	*/
 	return (uint64_t)rz->block_pos<<16 | (rz->block_off&0xffff);
 }
 

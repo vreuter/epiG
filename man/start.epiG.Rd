@@ -4,10 +4,10 @@
 \alias{start.epiG}
 \title{Start position}
 \usage{
-\method{start}{epiG}(object, ...)
+\method{start}{epiG}(x, ...)
 }
 \arguments{
-\item{object}{an epiG model}
+\item{x}{an epiG model}
 
 \item{...}{ignored}
 }

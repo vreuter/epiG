@@ -456,7 +456,6 @@ void haplotype::set_blocks(std::vector<t_indices> const& blocks) {
 	}
 
 	if(any(read_present == 0)) {
-		std::cout << trans(read_present) << endl;
 		throw std::runtime_error("set_blocks - blocks not compete error");
 	}
 

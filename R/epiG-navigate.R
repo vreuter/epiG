@@ -19,80 +19,6 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
-#' @title End position
-#' @description
-#' Return the last position in the model
-#' 
-#' @param object an epiG model
-#' @param ... additonal arguments
-#' @return the last position in model
-#' 
-#' @author Martin Vincent
-#' @export
-end <- function(object, ... ) UseMethod("end")
-
-#' @title Start position
-#' @description
-#' Return the first position in the model
-#' 
-#' @param object an epiG model
-#' @param ... additonal arguments
-#' @return the first position in the model
-#' 
-#' @author Martin Vincent
-#' @export
-start <- function(object, ... ) UseMethod("start")
-
-#' @title Number of reads in model
-#' @description
-#' Number of reads in model
-#' @param object an epiG model
-#' @param ... additonal arguments
-#' @return number of reads in the model
-#' 
-#' @author Martin Vincent
-#' @export
-nread <- function(object, ... ) UseMethod("nread")
-
-#' @title Read depth 
-#' @description
-#' Exatract the read depth 
-#' 
-#' @param object an epiG model
-#' @param pos position 
-#' @param ... additonal arguments
-#' @return ??
-#' #TODO return read_depth
-#' 
-#' @author Martin Vincent
-#' @export
-read_depth <- function(object, pos = NULL, ... ) UseMethod("read_depth")
-
-#' @title Position information
-#' @description
-#' Exstract information about positions in the model
-#' @param object an epiG model
-#' @param pos position 
-#' @param ... additonal arguments
-#' @return a data.frame with \code{length(pos)} rows and the following columns
-#' #TODO return position_info 
-#' 
-#' @author Martin Vincent
-#' @export
-position_info <- function(object, pos, ... ) UseMethod("position_info")
-
-#' @title Information about chains
-#' @description
-#' Rerive information about chains
-#'
-#' @param object epiG model
-#' @param ... additonal arguments
-#' @return A data.frame with \code{nchain(object)} rows.
-#' 
-#' @author Martin Vincent
-#' @export
-chain_info <- function(object, ... ) UseMethod("chain_info")
-
 
 #' @title Information about reads
 #' @description
@@ -105,67 +31,32 @@ chain_info <- function(object, ... ) UseMethod("chain_info")
 #' @export
 read_info <- function(object, ... ) UseMethod("read_info")
 
-#' @title Number of chunks
-#' @description
-#' Number of chunks 
-#' @param object an epiG model
-#' @param pos position 
-#' @param ... additonal arguments
-#' @return ??
-#' 
-#' @author Martin Vincent
-#' @export
-nchunks <- function(object, pos, ... ) UseMethod("nchunks")
-
-#' @title Number of chains
-#' @description
-#' Number of chains
-#' @param object epiG model
-#' @param pos position 
-#' @param ... additonal arguments
-#' @return ??
-#' 
-#' @author Martin Vincent
-#' @export
-nchain <- function(object, pos, ... ) UseMethod("nchain")
-
-#' @title Subregion
-#' @description
-#' Cut out a subregion of the model
-#' @param object epiG model
-#' @param start start of subregion
-#' @param end end of subregion
-#' @param chop.reads if TRUE reads will be choped at the boundaries of the region
-#' @param ... additonal arguments
-#' @return an epiG model
-#' 
-#' @author Martin Vincent
-#' @export
-subregion <- function(object, start, end, chop.reads = FALSE, ... ) UseMethod("subregion")
-
 
 #' @title Start position
 #' @description
 #' Return the first position in the model
 #' 
-#' @param object an epiG model
+#' @param x an epiG model
 #' @param ... ignored
 #' @return the first position in the model
 #' 
 #' @author Martin Vincent
 #' @method start epiG
 #' @export
+#' @importFrom stats start
 #'
 #' @examples 
-#' #TODO examples start.epiG
-start.epiG <- function(object, ...) {
+#' data(example)
+#' 
+#' start(fit)
+start.epiG <- function(x, ...) {
 	
-	if(paste(class(object), collapse = ".") == "epiG") {
-		return(object$offset)
+	if(paste(class(x), collapse = ".") == "epiG") {
+		return(x$offset)
 	}
 	
-	if(paste(class(object), collapse = ".") == "epiG.chunks") {
-		return(sapply(object, start))
+	if(paste(class(x), collapse = ".") == "epiG.chunks") {
+		return(sapply(x, start))
 	}
 	
 	stop("Unknown class")
@@ -175,24 +66,26 @@ start.epiG <- function(object, ...) {
 #' @description
 #' Return the last position in the model
 #' 
-#' @param object an epiG model
+#' @param x an epiG model
 #' @param ... ignored
 #' @return the last position in model
 #' 
 #' @author Martin Vincent
 #' @method end epiG
 #' @export
-#'
+#' @importFrom stats end
 #' @examples 
-#' #TODO examples end
-end.epiG <- function(object, ...) {
+#' data(example)
+#' 
+#' end(fit)
+end.epiG <- function(x, ...) {
 	
-	if(paste(class(object), collapse = ".") == "epiG") {
-		return(start(object) + length(object)-1L)
+	if(paste(class(x), collapse = ".") == "epiG") {
+		return(start(x) + length(x)-1L)
 	}
 	
-	if(paste(class(object), collapse = ".") == "epiG.chunks") {
-		return(sapply(object, end))
+	if(paste(class(x), collapse = ".") == "epiG.chunks") {
+		return(sapply(x, end))
 	}
 	
 	stop("Unknown class")
@@ -230,16 +123,14 @@ length.epiG <- function(x, ...) {
 #' Number of reads in model
 #'
 #' @param object epiG model
-#' @param ... ignored
 #' @return number of reads contined in model
 #' 
 #' @author Martin Vincent
-#' @method nread epiG
 #' @export
 #'
 #' @examples 
 #' #TODO examples nread
-nread.epiG <- function(object, ...)  {
+nread <- function(object)  {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
 		return(length(unique(unlist(object$read_ids))))
@@ -256,7 +147,7 @@ nread.epiG <- function(object, ...)  {
 # Retrive genotype information
 # codeing C = 1, G = 2, A = 3, T = 4 C^me = 5 G_me = 6
 # use .symbol command to convert
-.genotype <- function(object, pos, remove.meth = FALSE, ...) {
+.genotype <- function(object, pos, remove.meth = FALSE) {
 	
 	if(length(pos) > 1) {
 		stop("pos must have length 1")
@@ -291,7 +182,7 @@ nread.epiG <- function(object, ...)  {
 }
 
 # Retrive log-likelihood information
-.loglike <- function(object, pos, ...) {
+.loglike <- function(object, pos) {
 	
 	if(length(pos) > 1) {
 		stop("pos must have length 1")
@@ -330,16 +221,14 @@ nread.epiG <- function(object, ...)  {
 #' 
 #' @param object epiG model
 #' @param pos position
-#' @param ... ignored
 #' @return ??
 #' 
 #' @author Martin Vincent
-#' @method read_depth epiG
 #' @export
 #'
 #' @examples 
 #' #TODO examples read_depth
-read_depth.epiG <- function(object, pos = NULL, ...) {
+read_depth <- function(object, pos = NULL) {
 	
 	if(is.null(pos)) {
 		return(sapply(start(object):end(object), function(pos) read_depth(object, pos)))
@@ -412,16 +301,14 @@ read_depth.epiG <- function(object, pos = NULL, ...) {
 #' 
 #' @param object epiG model
 #' @param pos position 
-#' @param ... ignored
 #' @return ??
 #' 
 #' @author Martin Vincent
-#' @method position_info epiG
 #' @export
 #'
 #' @examples 
 #' #TODO examples position_info
-position_info.epiG <- function(object, pos, ...) {
+position_info <- function(object, pos) {
 	
 	if(length(pos) == 0) {
 		return(NULL)
@@ -506,7 +393,7 @@ position_info.epiG <- function(object, pos, ...) {
 	
 	if(paste(class(object), collapse = ".") == "epiG.chunks") {
 		
-		tmp <- lapply(object, function(x) position_info(x, pos[pos %in% start(x):end(x)]), ...)		
+		tmp <- lapply(object, function(x) position_info(x, pos[pos %in% start(x):end(x)]))		
 		
 		# Adjust chain.id
 		chain.id.offset = 0
@@ -524,19 +411,31 @@ position_info.epiG <- function(object, pos, ...) {
 
 #' @title Information about chains
 #' @description
-#' Rerive information about chains
+#' Rerive information about infered haplotype chains
 #'
 #' @param object epiG model
-#' @param ... ignored
-#' @return A data.frame with \code{nchain(object)} rows.
+#' @return A data.frame with \code{nchain(object)} rows. With the following columns:
+#' \itemize{
+#'  \item[\code{chain.id}]{a unique chain id}
+#' \item[\code{start}]{first position of the chain}
+#' \item[\code{end}]{last position of the chain}
+#' \item[\code{length}]{length of the chain}
+#' \item[\code{nreads}]{number of reads in the chain}
+#' \item[\code{nreads.fwd}]{number of fwd reads in the chain}
+#' \item[\code{nreads.rev}]{number of rev reads in the chain}
+#' \item[\code{depth.fraction}]{the computed depth fraction}
+#' }
 #' 
 #' @author Martin Vincent
-#' @method chain_info epiG
 #' @export
 #'
 #' @examples 
-#' #TODO examples chain_info
-chain_info.epiG <- function(object, ...) {
+#' data(example)
+#' 
+#' chains <- chain_info(fit)
+#' 
+#' subset(chains, nreads > 2)
+chain_info <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
 		
@@ -563,7 +462,7 @@ chain_info.epiG <- function(object, ...) {
 	}
 	
 	if(paste(class(object), collapse = ".") == "epiG.chunks") {
-		tmp <- lapply(object, function(x) chain_info(x, ...))		
+		tmp <- lapply(object, function(x) chain_info(x))		
 			
 		# Adjust chain.id
 		chain.id.offset = 0
@@ -731,19 +630,19 @@ read_info.epiG_reads <- function(object, inc.symbols = FALSE, ...) {
 #' @description
 #' Number of chunks in the epiG object 
 #' @param object epiG model
-#' @param ... ignored
 #' @return the number of chunks in the epiG object
 #' 
 #' @author Martin Vincent
-#' @method nchunks epiG
 #' @export
 #'
 #' @examples 
 #' #TODO examples nchunks
-nchunks.epiG <- function(object, ...) {
+nchunks <- function(object) {
+	
 	if(paste(class(object), collapse = ".") == "epiG") {
 		return(1)
 	}
+	
 	if(paste(class(object), collapse = ".") == "epiG.chunks") {
 		return(sum(sapply(object, nchunks)))
 	}
@@ -754,16 +653,14 @@ nchunks.epiG <- function(object, ...) {
 #' @description
 #' Number of chains in the model
 #' @param object epiG model
-#' @param ... ignored
 #' @return number of chains in the model
 #' 
 #' @author Martin Vincent
-#' @method nchain epiG
 #' @export
 #'
 #' @examples 
 #' #TODO examples nchain
-nchain.epiG <- function(object, ...) {
+nchain <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
 		return(length(object$haplotype$start))
@@ -783,16 +680,14 @@ nchain.epiG <- function(object, ...) {
 #' @param start start position of subregion
 #' @param end end position of subregion
 #' @param chop.reads if TRUE reads will be choped at the boundaries of the region
-#' @param ... ignored
 #' @return an epiG model
 #' 
-#' @method subregion epiG
 #' @export
 #' @author Martin Vincent
 #'
 #' @examples 
 #' #TODO examples subregion
-subregion.epiG <- function(object, start, end, chop.reads = FALSE, ...) {
+subregion <- function(object, start, end, chop.reads = FALSE) {
 		
 	if(paste(class(object), collapse = ".") == "epiG") {
 
@@ -901,7 +796,7 @@ subregion.epiG <- function(object, start, end, chop.reads = FALSE, ...) {
 		
 		for(i in 1:nchunks(object)) {
 			if((start(object[[i]]) <= end && end <= end(object[[i]])) || (start(object[[i]]) <= start && start <= end(object[[i]]))) {
-				new_object[[j]] <- subregion(object[[i]], max(start, start(object[[i]])), min(end, end(object[[i]])), chop.reads, ...)
+				new_object[[j]] <- subregion(object[[i]], max(start, start(object[[i]])), min(end, end(object[[i]])), chop.reads)
 				j <- j + 1
 			} 		
 		}

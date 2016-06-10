@@ -33,24 +33,24 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <R.h>
+#include "khash.h"
+
+#if defined(_WIN32) || defined(_MSC_VER)
+#define fseeko(fp, offset, whence) fseek(fp, offset, whence)
+#else
+extern int fseeko(FILE *stream, off_t offset, int whence);
+#endif
+
+/* This is below ftello declaration. Otherwise: conflicting types for 'ftello' (ftello later removed)*/
 #include "bgzf.h"
 
-#include "khash.h"
+/* uint8_t is defined in bgzf.h */
 typedef struct {
 	int size;
 	uint8_t *block;
 	int64_t end_offset;
 } cache_t;
 KHASH_MAP_INIT_INT64(cache, cache_t)
-
-#if defined(_WIN32) || defined(_MSC_VER)
-#define ftello(fp) ftell(fp)
-#define fseeko(fp, offset, whence) fseek(fp, offset, whence)
-#else
-extern off_t ftello(FILE *stream);
-extern int fseeko(FILE *stream, off_t offset, int whence);
-#endif
 
 typedef int8_t bgzf_byte_t;
 
@@ -119,7 +119,6 @@ int bgzf_check_bgzf(const char *fn)
 
     if ((fp = bgzf_open(fn, "r")) == 0) 
     {
-        // REP: fprintf(stderr, "[bgzf_check_bgzf] failed to open the file: %s\n",fn);
     	Rprintf("[bgzf_check_bgzf] failed to open the file: %s\n",fn);
         return -1;
     }
@@ -261,9 +260,7 @@ bgzf_fdopen(int fd, const char * __restrict mode)
     }
 }
 
-static
-int
-deflate_block(BGZF* fp, int block_length)
+static int deflate_block(BGZF* fp, int block_length)
 {
     // Deflate the block in fp->uncompressed_block into fp->compressed_block.
     // Also adds an extra field that stores the compressed block length.
@@ -355,25 +352,22 @@ deflate_block(BGZF* fp, int block_length)
             report_error(fp, "remainder too large");
             return -1;
         }
-        memcpy(fp->uncompressed_block,
-               fp->uncompressed_block + input_length,
+        memcpy((Bytef*) fp->uncompressed_block,
+        		(Bytef*) fp->uncompressed_block + input_length,
                remaining);
     }
     fp->block_offset = remaining;
     return compressed_length;
 }
 
-static
-int
-inflate_block(BGZF* fp, int block_length)
+static int inflate_block(BGZF* fp, int block_length)
 {
     // Inflate the block in fp->compressed_block into fp->uncompressed_block
-
     z_stream zs;
 	int status;
     zs.zalloc = NULL;
     zs.zfree = NULL;
-    zs.next_in = fp->compressed_block + 18;
+    zs.next_in = ((unsigned char *) fp->compressed_block) + 18;
     zs.avail_in = block_length - 16;
     zs.next_out = fp->uncompressed_block;
     zs.avail_out = fp->uncompressed_block_size;
@@ -397,9 +391,7 @@ inflate_block(BGZF* fp, int block_length)
     return zs.total_out;
 }
 
-static
-int
-check_header(const bgzf_byte_t* header)
+static int check_header(const bgzf_byte_t* header)
 {
     return (header[0] == GZIP_ID1 &&
             header[1] == (bgzf_byte_t) GZIP_ID2 &&
@@ -478,7 +470,7 @@ bgzf_read_block(BGZF* fp)
 	if (load_block_from_cache(fp, block_address)) return 0;
     count = knet_read(fp->x.fpr, header, sizeof(header));
 #else
-    int64_t block_address = ftello(fp->file);
+    int64_t block_address = ftell(fp->file);
 	if (load_block_from_cache(fp, block_address)) return 0;
     count = fread(header, 1, sizeof(header), fp->file);
 #endif
@@ -521,8 +513,7 @@ bgzf_read_block(BGZF* fp)
     return 0;
 }
 
-int
-bgzf_read(BGZF* fp, void* data, int length)
+int bgzf_read(BGZF* fp, void* data, int length)
 {
     if (length <= 0) {
         return 0;
@@ -557,7 +548,7 @@ bgzf_read(BGZF* fp, void* data, int length)
 #ifdef _USE_KNETFILE
         fp->block_address = knet_tell(fp->x.fpr);
 #else
-        fp->block_address = ftello(fp->file);
+        fp->block_address = ftell(fp->file);
 #endif
         fp->block_offset = 0;
         fp->block_length = 0;
@@ -677,7 +668,7 @@ int bgzf_check_EOF(BGZF *fp)
 	knet_read(fp->x.fpr, buf, 28);
 	knet_seek(fp->x.fpr, offset, SEEK_SET);
 #else
-	offset = ftello(fp->file);
+	offset = ftell(fp->file);
 	if (fseeko(fp->file, -28, SEEK_END) != 0) return -1;
 	fread(buf, 1, 28, fp->file);
 	fseeko(fp->file, offset, SEEK_SET);

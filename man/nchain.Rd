@@ -4,20 +4,19 @@
 \alias{nchain}
 \title{Number of chains}
 \usage{
-nchain(object, pos, ...)
+nchain(object)
 }
 \arguments{
 \item{object}{epiG model}
-
-\item{pos}{position}
-
-\item{...}{additonal arguments}
 }
 \value{
-??
+number of chains in the model
 }
 \description{
-Number of chains
+Number of chains in the model
+}
+\examples{
+#TODO examples nchain
 }
 \author{
 Martin Vincent

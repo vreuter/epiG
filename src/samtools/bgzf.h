@@ -27,12 +27,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <zlib.h>
-#include <R.h>
-//#ifdef _USE_KNETFILE
-//#include "knetfile.h"
-//#endif
+#include "rdef.h"
 
-//typedef int8_t bool;
 
 typedef struct {
     int file_descriptor;
@@ -147,7 +143,7 @@ static R_INLINE int bgzf_getc(BGZF *fp)
 #ifdef _USE_KNETFILE
         fp->block_address = knet_tell(fp->x.fpr);
 #else
-        fp->block_address = ftello(fp->file);
+        fp->block_address = ftell(fp->file);
 #endif
         fp->block_offset = 0;
         fp->block_length = 0;

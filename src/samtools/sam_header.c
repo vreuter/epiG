@@ -4,7 +4,6 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <R.h>
 
 #include "khash.h"
 KHASH_MAP_INIT_STR(str, const char *)
@@ -304,7 +303,9 @@ static HeaderLine *sam_header_line_clone(const HeaderLine *hline)
         HeaderTag *new = malloc(sizeof(HeaderTag));
         new->key[0] = old->key[0];
         new->key[1] = old->key[1];
-        new->value  = strdup(old->value);
+        new->value = malloc(strlen(old->value) + 1);
+        strcpy(new->value,old->value);
+
         out->tags = list_append(out->tags, new);
 
         tags = tags->next;
@@ -329,7 +330,9 @@ static int sam_header_line_merge_with(HeaderLine *out_hline, const HeaderLine *t
             HeaderTag *tag = malloc(sizeof(HeaderTag));
             tag->key[0] = tmpl_tag->key[0];
             tag->key[1] = tmpl_tag->key[1];
-            tag->value  = strdup(tmpl_tag->value);
+            tag->value  = malloc(strlen(tmpl_tag->value) + 1);
+            strcpy(tag->value,tmpl_tag->value);
+
             out_hline->tags = list_append(out_hline->tags,tag);
         }
         tmpl_tags = tmpl_tags->next;
@@ -445,27 +448,6 @@ static int sam_header_line_validate(HeaderLine *hline)
     return 1;
 }
 
-/*
-static void print_header_line(FILE *fp, HeaderLine *hline)
-{
-    list_t *tags = hline->tags;
-    HeaderTag *tag;
-
-    fprintf(fp, "@%c%c", hline->type[0],hline->type[1]);
-    while (tags)
-    {
-        tag = tags->data;
-
-        fprintf(fp, "\t");
-        if ( tag->key[0]!=' ' || tag->key[1]!=' ' )
-            fprintf(fp, "%c%c:", tag->key[0],tag->key[1]);
-        fprintf(fp, "%s", tag->value);
-
-        tags = tags->next;
-    }
-    fprintf(fp,"\n");
-}
-*/
 static void print_header_line(HeaderLine *hline)
 {
     list_t *tags = hline->tags;
@@ -558,7 +540,6 @@ char *sam_header_write(const void *_header)
     while (hlines)
     {
         HeaderLine *hline = hlines->data;
-
         nout += sprintf(out+nout,"@%c%c",hline->type[0],hline->type[1]);
 
         list_t *tags = hline->tags;
@@ -734,8 +715,6 @@ void *sam_header_merge(int n, const void **_dicts)
                 
                 if ( status==2 ) 
                 {
-                    //print_header_line(stderr,tmpl_hlines->data);
-                    //print_header_line(stderr,out_hlines->data);
                     print_header_line(tmpl_hlines->data);
                     print_header_line(out_hlines->data);
                     debug("Conflicting lines, cannot merge the headers.\n");
@@ -753,7 +732,6 @@ void *sam_header_merge(int n, const void **_dicts)
             tmpl_hlines = tmpl_hlines->next;
         }
     }
-
     return out_dict;
 }
 

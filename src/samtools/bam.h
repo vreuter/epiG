@@ -46,7 +46,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <R.h>
+/* defines optind and optarg (bam_sort.c) */
+#include <getopt.h>
+
+#include "rdef.h"
 
 #ifndef BAM_LITE
 #define BAM_VIRTUAL_OFFSET16
@@ -120,6 +123,8 @@ void bam_destroy_header_hash(bam_header_t *header);
 #define BAM_FQCFAIL      512
 /*! @abstract optical or PCR duplicate */
 #define BAM_FDUP        1024
+/*! @abstract supplementary alignment */
+#define BAM_FSUPPLEMENTARY 2048
 
 #define BAM_OFDEC          0
 #define BAM_OFHEX          1
@@ -200,6 +205,9 @@ typedef struct {
 	bam1_core_t core;
 	int l_aux, data_len, m_data;
 	uint8_t *data;
+#ifdef BAM1_ADD_CIGAR
+	uint32_t *cigar;
+#endif
 } bam1_t;
 
 typedef struct __bam_iter_t *bam_iter_t;
@@ -216,7 +224,15 @@ typedef struct __bam_iter_t *bam_iter_t;
   lower 4 bits gives a CIGAR operation and the higher 28 bits keep the
   length of a CIGAR.
  */
-#define bam1_cigar(b) ((uint32_t*)((b)->data + (b)->core.l_qname))
+
+
+#ifdef BAM1_ADD_CIGAR
+#define bam1_cigar(b) ((b)->cigar)
+#define bam1_data_cigar(b) ((b)->data + (b)->core.l_qname)
+#else
+#define bam1_cigar(b) ((b)->data + (b)->core.l_qname)
+#endif /* BAM1_ADD_CIGAR */
+
 
 /*! @function
   @abstract  Get the name of the query
@@ -459,9 +475,21 @@ extern "C" {
 	  @abstract  Free the memory allocated for an alignment.
 	  @param  b  pointer to an alignment
 	 */
+
+// + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + //
+// Eventually free extra copy of cigar data
+// + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + //
+#ifdef BAM1_ADD_CIGAR
+#define bam_destroy1(b) do {					\
+		if (b) { free((b)->data); free((b)->cigar); free(b); }	\
+	} while (0)
+#else
 #define bam_destroy1(b) do {					\
 		if (b) { free((b)->data); free(b); }	\
 	} while (0)
+#endif /* BAM1_ADD_CIGAR */
+
+
 
 	/*!
 	  @abstract       Format a BAM record in the SAM format
@@ -739,6 +767,13 @@ static R_INLINE bam1_t *bam_copy1(bam1_t *bdst, const bam1_t *bsrc)
 	// restore the backup
 	bdst->m_data = m_data;
 	bdst->data = data;
+
+	// + + + + + + + + + + + + + + + //
+	// Eventually fill cigar field
+	// + + + + + + + + + + + + + + + //
+#ifdef BAM1_ADD_CIGAR
+	COPY_CIGAR_VALUES(bdst);
+#endif
 	return bdst;
 }
 
@@ -751,10 +786,25 @@ static R_INLINE bam1_t *bam_dup1(const bam1_t *src)
 {
 	bam1_t *b;
 	b = bam_init1();
-	*b = *src;
-	b->m_data = b->data_len;
-	b->data = (uint8_t*)calloc(b->data_len, 1);
-	memcpy(b->data, src->data, b->data_len);
+
+	// Plain copy
+	// replaces: *b=*src
+	b->core=src->core;
+	b->l_aux=src->l_aux;
+	b->data_len=src->data_len;
+	b->m_data = b->data_len;		// m_data: max data size
+	// b->cigar must remain 0!
+
+	// Deep copy
+	b->data = (uint8_t*)calloc((size_t) b->data_len, 1);
+	memcpy(b->data, src->data, (size_t) b->data_len);
+
+	// + + + + + + + + + + + + + + + //
+	// Eventually fill cigar field
+	// + + + + + + + + + + + + + + + //
+#ifdef BAM1_ADD_CIGAR
+	COPY_CIGAR_VALUES(b);
+#endif
 	return b;
 }
 

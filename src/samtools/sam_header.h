@@ -1,6 +1,8 @@
 #ifndef __SAM_HEADER_H__
 #define __SAM_HEADER_H__
 
+#include "rdef.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -4,20 +4,19 @@
 \alias{nchunks}
 \title{Number of chunks}
 \usage{
-nchunks(object, pos, ...)
+nchunks(object)
 }
 \arguments{
-\item{object}{an epiG model}
-
-\item{pos}{position}
-
-\item{...}{additonal arguments}
+\item{object}{epiG model}
 }
 \value{
-??
+the number of chunks in the epiG object
 }
 \description{
-Number of chunks
+Number of chunks in the epiG object
+}
+\examples{
+#TODO examples nchunks
 }
 \author{
 Martin Vincent

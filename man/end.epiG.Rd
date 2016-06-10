@@ -4,10 +4,10 @@
 \alias{end.epiG}
 \title{End position}
 \usage{
-\method{end}{epiG}(object, ...)
+\method{end}{epiG}(x, ...)
 }
 \arguments{
-\item{object}{an epiG model}
+\item{x}{an epiG model}
 
 \item{...}{ignored}
 }

@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include "faidx.h"
 #include "khash.h"
-#include <R.h>
+
 
 typedef struct {
 	int32_t line_len, line_blen;
@@ -18,10 +18,8 @@ KHASH_MAP_INIT_STR(s, faidx1_t)
 #include "razf.h"
 #else
 #ifdef _WIN32
-#define ftello(fp) ftell(fp)
 #define fseeko(fp, offset, whence) fseek(fp, offset, whence)
 #else
-extern off_t ftello(FILE *stream);
 extern int fseeko(FILE *stream, off_t offset, int whence);
 #endif
 #define RAZF FILE
@@ -29,11 +27,8 @@ extern int fseeko(FILE *stream, off_t offset, int whence);
 #define razf_open(fn, mode) fopen(fn, mode)
 #define razf_close(fp) fclose(fp)
 #define razf_seek(fp, offset, whence) fseeko(fp, offset, whence)
-#define razf_tell(fp) ftello(fp)
+#define razf_tell(fp) ftell(fp)
 #endif
-//#ifdef _USE_KNETFILE
-//#include "knetfile.h"
-//#endif
 
 struct __faidx_t {
 	RAZF *rz;
@@ -55,7 +50,9 @@ static R_INLINE void fai_insert_index(faidx_t *idx, const char *name, int len, i
 		idx->m = idx->m? idx->m<<1 : 16;
 		idx->name = (char**)realloc(idx->name, sizeof(void*) * idx->m);
 	}
-	idx->name[idx->n] = strdup(name);
+	idx->name[idx->n] = malloc(strlen(name) + 1);
+	strcpy(idx->name[idx->n],name);
+
 	k = kh_put(s, idx->hash, idx->name[idx->n], &ret);
 	t.len = len; t.line_len = line_len; t.line_blen = line_blen; t.offset = offset;
 	kh_value(idx->hash, k) = t;
@@ -97,7 +94,6 @@ faidx_t *fai_build_core(RAZF *rz)
 			}
 			name[l_name] = '\0';
 			if (ret == 0) {
-				// REP: fprintf(stderr, "[fai_build_core] the last entry has no sequence\n");
 				Rprintf("[fai_build_core] the last entry has no sequence\n");
 				free(name); fai_destroy(idx);
 				return 0;
@@ -107,7 +103,6 @@ faidx_t *fai_build_core(RAZF *rz)
 			offset = razf_tell(rz);
 		} else {
 			if (state == 3) {
-				// REP: fprintf(stderr, "[fai_build_core] inlined empty line is not allowed in sequence '%s'.\n", name);
 				Rprintf("[fai_build_core] inlined empty line is not allowed in sequence '%s'.\n", name);
 				free(name); fai_destroy(idx);
 				return 0;
@@ -119,7 +114,6 @@ faidx_t *fai_build_core(RAZF *rz)
 				if (isgraph(c)) ++l2;
 			} while ((ret = razf_read(rz, &c, 1)) && c != '\n');
 			if (state == 3 && l2) {
-				//REP: fprintf(stderr, "[fai_build_core] different line length in sequence '%s'.\n", name);
 				Rprintf("[fai_build_core] different line length in sequence '%s'.\n", name);
 				free(name); fai_destroy(idx);
 				return 0;
@@ -199,7 +193,6 @@ int fai_build(const char *fn)
 	sprintf(str, "%s.fai", fn);
 	rz = razf_open(fn, "r");
 	if (rz == 0) {
-		// REP: fprintf(stderr, "[fai_build] fail to open the FASTA file %s\n",fn);
 		Rprintf("[fai_build] fail to open the FASTA file %s\n",fn);
 		free(str);
 		return -1;
@@ -208,7 +201,6 @@ int fai_build(const char *fn)
 	razf_close(rz);
 	fp = fopen(str, "wb");
 	if (fp == 0) {
-		// REP: fprintf(stderr, "[fai_build] fail to write FASTA index %s\n",str);
 		Rprintf("[fai_build] fail to write FASTA index %s\n",str);
 		fai_destroy(fai); free(str);
 		return -1;
@@ -220,48 +212,6 @@ int fai_build(const char *fn)
 	return 0;
 }
 
-#ifdef _USE_KNETFILE
-FILE *download_and_open(const char *fn)
-{
-    const int buf_size = 1 * 1024 * 1024;
-    uint8_t *buf;
-    FILE *fp;
-    knetFile *fp_remote;
-    const char *url = fn;
-    const char *p;
-    int l = strlen(fn);
-    for (p = fn + l - 1; p >= fn; --p)
-        if (*p == '/') break;
-    fn = p + 1;
-
-    // First try to open a local copy
-    fp = fopen(fn, "r");
-    if (fp)
-        return fp;
-
-    // If failed, download from remote and open
-    fp_remote = knet_open(url, "rb");
-    if (fp_remote == 0) {
-        // REP: fprintf(stderr, "[download_from_remote] fail to open remote file %s\n",url);
-    	Rprintf("[download_from_remote] fail to open remote file %s\n",url);
-        return NULL;
-    }
-    if ((fp = fopen(fn, "wb")) == 0) {
-        // REP: fprintf(stderr, "[download_from_remote] fail to create file in the working directory %s\n",fn);
-    	Rprintf("[download_from_remote] fail to create file in the working directory %s\n",fn);
-        knet_close(fp_remote);
-        return NULL;
-    }
-    buf = (uint8_t*)calloc(buf_size, 1);
-    while ((l = knet_read(fp_remote, buf, buf_size)) != 0)
-        fwrite(buf, 1, l, fp);
-    free(buf);
-    fclose(fp);
-    knet_close(fp_remote);
-
-    return fopen(fn, "r");
-}
-#endif
 
 faidx_t *fai_load(const char *fn)
 {
@@ -277,7 +227,6 @@ faidx_t *fai_load(const char *fn)
         fp = download_and_open(str);
         if ( !fp )
         {
-            // REP: fprintf(stderr, "[fai_load] failed to open remote FASTA index %s\n", str);
         	Rprintf("[fai_load] failed to open remote FASTA index %s\n", str);
             free(str);
             return 0;
@@ -287,25 +236,21 @@ faidx_t *fai_load(const char *fn)
 #endif
         fp = fopen(str, "rb");
 	if (fp == 0) {
-		// REP: fprintf(stderr, "[fai_load] build FASTA index.\n");
 		Rprintf("[fai_load] build FASTA index.\n");
 		fai_build(fn);
 		fp = fopen(str, "rb");
 		if (fp == 0) {
-			// REP: fprintf(stderr, "[fai_load] fail to open FASTA index.\n");
 			Rprintf("[fai_load] fail to open FASTA index.\n");
 			free(str);
 			return 0;
 		}
 	}
-
 	fai = fai_read(fp);
 	fclose(fp);
 
 	fai->rz = razf_open(fn, "rb");
 	free(str);
 	if (fai->rz == 0) {
-		// REP: fprintf(stderr, "[fai_load] fail to open FASTA file.\n");
 		Rprintf("[fai_load] fail to open FASTA file.\n");
 		return 0;
 	}
@@ -376,35 +321,6 @@ char *fai_fetch(const faidx_t *fai, const char *str, int *len)
 	return s;
 }
 
-//int faidx_main(int argc, char *argv[])
-//{
-//	if (argc == 1) {
-//		// REP: fprintf(stderr, "Usage: faidx <in.fasta> [<reg> [...]]\n");
-//		Rprintf("Usage: faidx <in.fasta> [<reg> [...]]\n");
-//		return 1;
-//	} else {
-//		if (argc == 2) fai_build(argv[1]);
-//		else {
-//			int i, j, k, l;
-//			char *s;
-//			faidx_t *fai;
-//			fai = fai_load(argv[1]);
-//			if (fai == 0) return 1;
-//			for (i = 2; i != argc; ++i) {
-//				printf(">%s\n", argv[i]);
-//				s = fai_fetch(fai, argv[i], &l);
-//				for (j = 0; j < l; j += 60) {
-//					for (k = 0; k < 60 && k < l - j; ++k)
-//						putchar(s[j + k]);
-//					putchar('\n');
-//				}
-//				free(s);
-//			}
-//			fai_destroy(fai);
-//		}
-//	}
-//	return 0;
-//}
 
 int faidx_fetch_nseq(const faidx_t *fai) 
 {
@@ -440,6 +356,4 @@ char *faidx_fetch_seq(const faidx_t *fai, char *c_name, int p_beg_i, int p_end_i
 	return seq;
 }
 
-//#ifdef FAIDX_MAIN
-//int main(int argc, char *argv[]) { return faidx_main(argc, argv); }
-//#endif
+

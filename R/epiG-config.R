@@ -96,7 +96,7 @@ BSeq <- function(bisulphite_rate = .95, bisulphite_inap_rate = 0.05, Lmax = 110,
 
 #' @title NOMe-sequencing Conversion Model
 #' @description
-#' Create a NOMe-sequencing conveBSeq()sion model
+#' Create a NOMe-seq conversion model
 #' 
 #' @param bisulphite_rate bisulphite conversion rate (numeric in the range (0, 1])
 #' @param bisulphite_inap_rate bisulphite inappropriate conversion rate (numeric in the range (0, 1])

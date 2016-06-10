@@ -4,18 +4,33 @@
 \alias{chain_info}
 \title{Information about chains}
 \usage{
-chain_info(object, ...)
+chain_info(object)
 }
 \arguments{
 \item{object}{epiG model}
-
-\item{...}{additonal arguments}
 }
 \value{
-A data.frame with \code{nchain(object)} rows.
+A data.frame with \code{nchain(object)} rows. With the following columns:
+\itemize{
+ \item[\code{chain.id}]{a unique chain id}
+\item[\code{start}]{first position of the chain}
+\item[\code{end}]{last position of the chain}
+\item[\code{length}]{length of the chain}
+\item[\code{nreads}]{number of reads in the chain}
+\item[\code{nreads.fwd}]{number of fwd reads in the chain}
+\item[\code{nreads.rev}]{number of rev reads in the chain}
+\item[\code{depth.fraction}]{the computed depth fraction}
+}
 }
 \description{
-Rerive information about chains
+Rerive information about infered haplotype chains
+}
+\examples{
+data(example)
+
+chains <- chain_info(fit)
+
+subset(chains, nreads > 2)
 }
 \author{
 Martin Vincent

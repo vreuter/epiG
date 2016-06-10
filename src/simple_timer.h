@@ -72,6 +72,8 @@ public:
 #define TIMER_START
 #endif
 
+#ifdef FUNC_ENTER
+
 class EnterFunction {
 
 
@@ -92,7 +94,6 @@ public:
 
 };
 
-#ifdef FUNC_ENTER
 #define DEBUG_ENTER EnterFunction enter(__func__, __FILE__, __LINE__);
 #else
 #define DEBUG_ENTER

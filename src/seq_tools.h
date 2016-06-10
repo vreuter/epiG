@@ -37,7 +37,7 @@ std::string read_fasta(
 
 	if (cstr_ref == 0) {
 
-		cout << ref << " : " << pos-offset << " - " << pos-offset + length-1 << endl;
+		//cout << ref << " : " << pos-offset << " - " << pos-offset + length-1 << endl;
 
 		throw std::runtime_error("read_fasta : unable to fetch region");
 	}

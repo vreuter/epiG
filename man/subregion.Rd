@@ -4,24 +4,25 @@
 \alias{subregion}
 \title{Subregion}
 \usage{
-subregion(object, start, end, chop.reads = FALSE, ...)
+subregion(object, start, end, chop.reads = FALSE)
 }
 \arguments{
 \item{object}{epiG model}
 
-\item{start}{start of subregion}
+\item{start}{start position of subregion}
 
-\item{end}{end of subregion}
+\item{end}{end position of subregion}
 
 \item{chop.reads}{if TRUE reads will be choped at the boundaries of the region}
-
-\item{...}{additonal arguments}
 }
 \value{
 an epiG model
 }
 \description{
-Cut out a subregion of the model
+Exatract a subregion of an epiG model
+}
+\examples{
+#TODO examples subregion
 }
 \author{
 Martin Vincent

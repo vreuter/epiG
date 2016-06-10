@@ -99,7 +99,7 @@ int main() {
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-#include <R.h>
+#include "rdef.h"
 
 /* compipler specific configuration */
 
