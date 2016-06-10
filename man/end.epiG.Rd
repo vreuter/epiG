@@ -2,20 +2,20 @@
 % Please edit documentation in R/epiG-navigate.R
 \name{end.epiG}
 \alias{end.epiG}
-\title{end position}
+\title{End position}
 \usage{
 \method{end}{epiG}(object, ...)
 }
 \arguments{
-\item{object}{fitted model (epiG object)}
+\item{object}{an epiG model}
 
-\item{...}{}
+\item{...}{ignored}
 }
 \value{
-end position (bp) of region contined in model
+the last position in model
 }
 \description{
-end
+Return the last position in the model
 }
 \examples{
 #TODO examples end

@@ -9,10 +9,10 @@ nread(object, ...)
 \arguments{
 \item{object}{an epiG model}
 
-\item{...}{ignored}
+\item{...}{additonal arguments}
 }
 \value{
-??
+number of reads in the model
 }
 \description{
 Number of reads in model

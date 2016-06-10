@@ -7,13 +7,13 @@
 locate_GC(object)
 }
 \arguments{
-\item{object}{}
+\item{object}{epiG model}
 }
 \value{
-??
+a vector of GpC positions
 }
 \description{
-Locate GC positions
+Locate GpC positions in the refrence genom
 }
 \examples{
 #TODO example

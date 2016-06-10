@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG-navigate.R
 \name{read_depth}
 \alias{read_depth}
-\title{read_depth}
+\title{Read depth}
 \usage{
 read_depth(object, pos = NULL, ...)
 }
@@ -11,13 +11,14 @@ read_depth(object, pos = NULL, ...)
 
 \item{pos}{position}
 
-\item{...}{ignored}
+\item{...}{additonal arguments}
 }
 \value{
 ??
+#TODO return read_depth
 }
 \description{
-read_depth
+Exatract the read depth
 }
 \author{
 Martin Vincent

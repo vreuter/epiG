@@ -2,7 +2,7 @@
 % Please edit documentation in R/epiG-navigate.R
 \name{position_info}
 \alias{position_info}
-\title{position_info}
+\title{Position information}
 \usage{
 position_info(object, pos, ...)
 }
@@ -11,13 +11,14 @@ position_info(object, pos, ...)
 
 \item{pos}{position}
 
-\item{...}{ignored}
+\item{...}{additonal arguments}
 }
 \value{
-??
+a data.frame with \code{length(pos)} rows and the following columns
+#TODO return position_info
 }
 \description{
-position_info
+Exstract information about positions in the model
 }
 \author{
 Martin Vincent

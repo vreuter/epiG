@@ -20,12 +20,12 @@
 #
 
 
-#' @title print
+#' @title Print Information About an Fitted epiG Model
 #' @description
-#' print
+#' Print Information About an Fitted epiG Model
 #' 
-#' @param x 
-#' @param ... 
+#' @param x epiG model
+#' @param ... ignored
 #' 
 #' @author Martin Vincent
 #' @method print epiG
@@ -53,12 +53,12 @@ print.epiG <- function(x, ...) {
 #TODO print number of reads
 }
 
-#' @title print config
+#' @title Print Information About an epiG Configuration
 #' @description
-#' print config
+#' Print Information About an epiG Configuration
 #' 
-#' @param x 
-#' @param ... 
+#' @param x epiG configuration
+#' @param ... ignored
 #' 
 #' @author Martin Vincent
 #' @method print epiG.config
@@ -100,12 +100,12 @@ print.epiG.config <- function(x, ...) {
 	print(tmp)
 }
 
-#' @title print model
+#' @title Print Information About an epiG Conversion Model
 #' @description
-#' print model
+#' Print Information About an epiG Conversion Model
 #' 
-#' @param x 
-#' @param ... 
+#' @param x epiG conversion model
+#' @param ... ignored
 #' 
 #' @author Martin Vincent
 #' @method print epiG.model
@@ -124,6 +124,19 @@ print.epiG.model <- function(x, ...) {
 	print(x$rev[[1]])
 }
 
+#' @title Print Information About an epiG Reads Object
+#' @description
+#' Print information about an epiG reads object
+#' 
+#' @param x epiG reads object
+#' @param ... ignored
+#' 
+#' @author Martin Vincent
+#' @method print epiG.reads
+#' @export
+#'
+#' @examples 
+#' #TODO examples print.epiG.reads 
 print.epiG.reads <- function(x, ...) {
 	message("epiG reads object:")
 }

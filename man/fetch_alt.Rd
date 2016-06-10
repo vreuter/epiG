@@ -7,7 +7,7 @@
 fetch_alt(object)
 }
 \arguments{
-\item{object}{}
+\item{object}{a epiG model}
 }
 \value{
 epiG model

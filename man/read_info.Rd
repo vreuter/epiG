@@ -2,20 +2,20 @@
 % Please edit documentation in R/epiG-navigate.R
 \name{read_info}
 \alias{read_info}
-\title{read_info}
+\title{Information about reads}
 \usage{
 read_info(object, ...)
 }
 \arguments{
-\item{object}{}
+\item{object}{epiG model}
 
-\item{...}{}
+\item{...}{additonal arguments}
 }
 \value{
 ??
 }
 \description{
-read_info
+Retrive information about reads in the model
 }
 \author{
 Martin Vincent

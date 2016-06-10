@@ -360,7 +360,7 @@ epiG_config <- function(
 		max_stages = 1,
 		chunk_size = 5000, 
 		chunk_method = "reads", 
-		hard_limit = 7500,
+		hard_limit = chunk_size + 1000,
 		ref_offset = 1,
 		alt_offset = 1,
 		verbose = TRUE,

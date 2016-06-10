@@ -19,24 +19,24 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
-#' @title end position
+#' @title End position
 #' @description
-#' end position
+#' Return the last position in the model
 #' 
 #' @param object an epiG model
-#' @param ... ignored
+#' @param ... additonal arguments
 #' @return the last position in model
 #' 
 #' @author Martin Vincent
 #' @export
 end <- function(object, ... ) UseMethod("end")
 
-#' @title start position
+#' @title Start position
 #' @description
-#' start position
+#' Return the first position in the model
 #' 
 #' @param object an epiG model
-#' @param ... ignored
+#' @param ... additonal arguments
 #' @return the first position in the model
 #' 
 #' @author Martin Vincent
@@ -47,7 +47,7 @@ start <- function(object, ... ) UseMethod("start")
 #' @description
 #' Number of reads in model
 #' @param object an epiG model
-#' @param ... ignored
+#' @param ... additonal arguments
 #' @return number of reads in the model
 #' 
 #' @author Martin Vincent
@@ -60,8 +60,8 @@ nread <- function(object, ... ) UseMethod("nread")
 #' 
 #' @param object an epiG model
 #' @param pos position 
-#' @param ... ignored
-#' @retur
+#' @param ... additonal arguments
+#' @return ??
 #' #TODO return read_depth
 #' 
 #' @author Martin Vincent
@@ -73,7 +73,7 @@ read_depth <- function(object, pos = NULL, ... ) UseMethod("read_depth")
 #' Exstract information about positions in the model
 #' @param object an epiG model
 #' @param pos position 
-#' @param ... ignored
+#' @param ... additonal arguments
 #' @return a data.frame with \code{length(pos)} rows and the following columns
 #' #TODO return position_info 
 #' 
@@ -81,24 +81,24 @@ read_depth <- function(object, pos = NULL, ... ) UseMethod("read_depth")
 #' @export
 position_info <- function(object, pos, ... ) UseMethod("position_info")
 
-#' @title chain_info
+#' @title Information about chains
 #' @description
-#' chain_info
+#' Rerive information about chains
 #'
-#' @param object 
-#' @param ... 
-#' @return ??
+#' @param object epiG model
+#' @param ... additonal arguments
+#' @return A data.frame with \code{nchain(object)} rows.
 #' 
 #' @author Martin Vincent
 #' @export
 chain_info <- function(object, ... ) UseMethod("chain_info")
 
 
-#' @title read_info
+#' @title Information about reads
 #' @description
-#' read_info
-#' @param object 
-#' @param ... 
+#' Retrive information about reads in the model
+#' @param object epiG model
+#' @param ... additonal arguments
 #' @return ??
 #' 
 #' @author Martin Vincent
@@ -110,7 +110,7 @@ read_info <- function(object, ... ) UseMethod("read_info")
 #' Number of chunks 
 #' @param object an epiG model
 #' @param pos position 
-#' @param ... ignored
+#' @param ... additonal arguments
 #' @return ??
 #' 
 #' @author Martin Vincent
@@ -120,37 +120,37 @@ nchunks <- function(object, pos, ... ) UseMethod("nchunks")
 #' @title Number of chains
 #' @description
 #' Number of chains
-#' @param object an epiG model
+#' @param object epiG model
 #' @param pos position 
-#' @param ... ignored
+#' @param ... additonal arguments
 #' @return ??
 #' 
 #' @author Martin Vincent
 #' @export
 nchain <- function(object, pos, ... ) UseMethod("nchain")
 
-#' @title subregion
+#' @title Subregion
 #' @description
-#' subregion
-#' @param object 
-#' @param start 
-#' @param end 
-#' @param chop.reads 
-#' @param ... 
-#' @return ??
+#' Cut out a subregion of the model
+#' @param object epiG model
+#' @param start start of subregion
+#' @param end end of subregion
+#' @param chop.reads if TRUE reads will be choped at the boundaries of the region
+#' @param ... additonal arguments
+#' @return an epiG model
 #' 
 #' @author Martin Vincent
 #' @export
 subregion <- function(object, start, end, chop.reads = FALSE, ... ) UseMethod("subregion")
 
 
-#' @title start position
+#' @title Start position
 #' @description
-#' start position
+#' Return the first position in the model
 #' 
-#' @param object 
-#' @param ... 
-#' @return numeric
+#' @param object an epiG model
+#' @param ... ignored
+#' @return the first position in the model
 #' 
 #' @author Martin Vincent
 #' @method start epiG
@@ -171,14 +171,13 @@ start.epiG <- function(object, ...) {
 	stop("Unknown class")
 }
 
-#' @title end position
+#' @title End position
 #' @description
-#' end
+#' Return the last position in the model
 #' 
-#' @param object fitted model (epiG object)
-#' @param ...
-#' 
-#' @return end position (bp) of region contined in model 
+#' @param object an epiG model
+#' @param ... ignored
+#' @return the last position in model
 #' 
 #' @author Martin Vincent
 #' @method end epiG
@@ -203,7 +202,8 @@ end.epiG <- function(object, ...) {
 #' @description
 #' Length of model in base pairs
 #' 
-#' @param x 
+#' @param x epiG model
+#' @param ... ignored
 #' @return Length of model in base pairs
 #' 
 #' @author Martin Vincent
@@ -212,7 +212,7 @@ end.epiG <- function(object, ...) {
 #'
 #' @examples 
 #' #TODO examples length.epiG
-length.epiG <- function(x) {
+length.epiG <- function(x, ...) {
 	
 	if(paste(class(x), collapse = ".") == "epiG") {
 		return(x$length)
@@ -229,8 +229,8 @@ length.epiG <- function(x) {
 #' @description
 #' Number of reads in model
 #'
-#' @param object 
-#' @param ... 
+#' @param object epiG model
+#' @param ... ignored
 #' @return number of reads contined in model
 #' 
 #' @author Martin Vincent
@@ -324,13 +324,13 @@ nread.epiG <- function(object, ...)  {
 }
 
 
-#' @title read_depth
+#' @title Read depth
 #' @description
-#' read_depth
+#' Retrive the read depth at a given position in the model
 #' 
-#' @param object 
-#' @param pos 
-#' @param ... 
+#' @param object epiG model
+#' @param pos position
+#' @param ... ignored
 #' @return ??
 #' 
 #' @author Martin Vincent
@@ -406,11 +406,11 @@ read_depth.epiG <- function(object, pos = NULL, ...) {
 	stop("Internal errro")
 }
 
-#' @title position_info
+#' @title Position Info
 #' @description
-#' position_info
+#' Retriev information about the estimated epi-genotype at a given position in the model
 #' 
-#' @param object an epiG model
+#' @param object epiG model
 #' @param pos position 
 #' @param ... ignored
 #' @return ??
@@ -522,13 +522,13 @@ position_info.epiG <- function(object, pos, ...) {
 	
 }
 
-#' @title chain_info
+#' @title Information about chains
 #' @description
-#' chain_info
-#' 
-#' @param object 
-#' @param ... 
-#' @return ??
+#' Rerive information about chains
+#'
+#' @param object epiG model
+#' @param ... ignored
+#' @return A data.frame with \code{nchain(object)} rows.
 #' 
 #' @author Martin Vincent
 #' @method chain_info epiG
@@ -580,12 +580,12 @@ chain_info.epiG <- function(object, ...) {
 }
 
 
-#' @title read_info
+#' @title Information about reads
 #' @description
-#' read_info
-#' @param object 
-#' @param  inc.symbols 
-#' @param ... 
+#' Retrive information about reads in the model
+#' @param object epiG model
+#' @param inc.symbols if \code{TRUE} each line in the returned data.frame will correspond to one nuleobase, if \code{FALSE} one read.
+#' @param ... ignored
 #' @return ??
 #' 
 #' @author Martin Vincent
@@ -685,13 +685,13 @@ read_info.epiG <- function(object, inc.symbols = FALSE, ...) {
 	
 }
 
-#' @title read_info
+#' @title Information about reads
 #' @description
-#' read_info.epiG_reads
-#' 
-#' @param object 
-#' @param inc.symbols 
-#' @param ... 
+#' Retrive information about reads from a epiG read object produced with \code{load_reads}
+#' @param object epiG read object 
+#' @param inc.symbols if \code{TRUE} each line in the returned data.frame will correspond to one nuleobase, if \code{FALSE} one read.
+#' @param ... ignored
+#' @return ??
 #' 
 #' @author Martin Vincent
 #' @export
@@ -730,8 +730,8 @@ read_info.epiG_reads <- function(object, inc.symbols = FALSE, ...) {
 #' @title Number of chunks
 #' @description
 #' Number of chunks in the epiG object 
-#' @param object 
-#' @param ... 
+#' @param object epiG model
+#' @param ... ignored
 #' @return the number of chunks in the epiG object
 #' 
 #' @author Martin Vincent
@@ -753,8 +753,8 @@ nchunks.epiG <- function(object, ...) {
 #' @title Number of chains
 #' @description
 #' Number of chains in the model
-#' @param object 
-#' @param ... 
+#' @param object epiG model
+#' @param ... ignored
 #' @return number of chains in the model
 #' 
 #' @author Martin Vincent
@@ -783,7 +783,7 @@ nchain.epiG <- function(object, ...) {
 #' @param start start position of subregion
 #' @param end end position of subregion
 #' @param chop.reads if TRUE reads will be choped at the boundaries of the region
-#' @param ... 
+#' @param ... ignored
 #' @return an epiG model
 #' 
 #' @method subregion epiG

@@ -4,10 +4,12 @@
 \alias{length.epiG}
 \title{Length of model}
 \usage{
-\method{length}{epiG}(x)
+\method{length}{epiG}(x, ...)
 }
 \arguments{
-\item{x}{}
+\item{x}{epiG model}
+
+\item{...}{ignored}
 }
 \value{
 Length of model in base pairs

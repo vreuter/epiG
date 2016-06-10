@@ -2,26 +2,26 @@
 % Please edit documentation in R/epiG-navigate.R
 \name{subregion.epiG}
 \alias{subregion.epiG}
-\title{subregion}
+\title{Subregion}
 \usage{
 \method{subregion}{epiG}(object, start, end, chop.reads = FALSE, ...)
 }
 \arguments{
-\item{object}{}
+\item{object}{epiG model}
 
-\item{start}{}
+\item{start}{start position of subregion}
 
-\item{end}{}
+\item{end}{end position of subregion}
 
-\item{chop.reads}{}
+\item{chop.reads}{if TRUE reads will be choped at the boundaries of the region}
 
-\item{...}{}
+\item{...}{ignored}
 }
 \value{
-??
+an epiG model
 }
 \description{
-subregion
+Exatract a subregion of an epiG model
 }
 \examples{
 #TODO examples subregion

@@ -7,11 +7,11 @@
 nchain(object, pos, ...)
 }
 \arguments{
-\item{object}{an epiG model}
+\item{object}{epiG model}
 
 \item{pos}{position}
 
-\item{...}{ignored}
+\item{...}{additonal arguments}
 }
 \value{
 ??

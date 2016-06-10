@@ -2,12 +2,12 @@
 % Please edit documentation in R/epiG-navigate.R
 \name{position_info.epiG}
 \alias{position_info.epiG}
-\title{position_info}
+\title{Position Info}
 \usage{
 \method{position_info}{epiG}(object, pos, ...)
 }
 \arguments{
-\item{object}{an epiG model}
+\item{object}{epiG model}
 
 \item{pos}{position}
 
@@ -17,7 +17,7 @@
 ??
 }
 \description{
-position_info
+Retriev information about the estimated epi-genotype at a given position in the model
 }
 \examples{
 #TODO examples position_info

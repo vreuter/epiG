@@ -2,22 +2,22 @@
 % Please edit documentation in R/epiG-navigate.R
 \name{read_depth.epiG}
 \alias{read_depth.epiG}
-\title{read_depth}
+\title{Read depth}
 \usage{
 \method{read_depth}{epiG}(object, pos = NULL, ...)
 }
 \arguments{
-\item{object}{}
+\item{object}{epiG model}
 
-\item{pos}{}
+\item{pos}{position}
 
-\item{...}{}
+\item{...}{ignored}
 }
 \value{
 ??
 }
 \description{
-read_depth
+Retrive the read depth at a given position in the model
 }
 \examples{
 #TODO examples read_depth

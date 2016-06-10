@@ -7,13 +7,13 @@
 locate_DGCH(object)
 }
 \arguments{
-\item{object}{}
+\item{object}{epiG model}
 }
 \value{
-??
+a vector of isolated GpC positions
 }
 \description{
-Locate DGCH (isolated GpC) positions
+Locate DGCH (isolated GpC) positions in the refrence genom
 }
 \examples{
 #TODO examples locate_DGCH

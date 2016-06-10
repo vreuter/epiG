@@ -11,7 +11,7 @@ nchunks(object, pos, ...)
 
 \item{pos}{position}
 
-\item{...}{ignored}
+\item{...}{additonal arguments}
 }
 \value{
 ??

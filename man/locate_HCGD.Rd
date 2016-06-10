@@ -7,13 +7,13 @@
 locate_HCGD(object)
 }
 \arguments{
-\item{object}{}
+\item{object}{epiG model}
 }
 \value{
-??
+a vector of isolated CpG positions
 }
 \description{
-locate HCGD (isolated CpG) positions
+locate HCGD (isolated CpG) positions in the refrence genom
 }
 \examples{
 #TODO examples locate_HCGD

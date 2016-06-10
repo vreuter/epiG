@@ -2,17 +2,17 @@
 % Please edit documentation in R/epiG-summary.R
 \name{print.epiG.model}
 \alias{print.epiG.model}
-\title{print model}
+\title{Print Information About an epiG Conversion Model}
 \usage{
 \method{print}{epiG.model}(x, ...)
 }
 \arguments{
-\item{x}{}
+\item{x}{epiG conversion model}
 
-\item{...}{}
+\item{...}{ignored}
 }
 \description{
-print model
+Print Information About an epiG Conversion Model
 }
 \examples{
 #TODO examples print.epiG.model 

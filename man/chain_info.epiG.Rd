@@ -2,20 +2,20 @@
 % Please edit documentation in R/epiG-navigate.R
 \name{chain_info.epiG}
 \alias{chain_info.epiG}
-\title{chain_info}
+\title{Information about chains}
 \usage{
 \method{chain_info}{epiG}(object, ...)
 }
 \arguments{
-\item{object}{}
+\item{object}{epiG model}
 
-\item{...}{}
+\item{...}{ignored}
 }
 \value{
-??
+A data.frame with \code{nchain(object)} rows.
 }
 \description{
-chain_info
+Rerive information about chains
 }
 \examples{
 #TODO examples chain_info

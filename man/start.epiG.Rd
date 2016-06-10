@@ -2,20 +2,20 @@
 % Please edit documentation in R/epiG-navigate.R
 \name{start.epiG}
 \alias{start.epiG}
-\title{start position}
+\title{Start position}
 \usage{
 \method{start}{epiG}(object, ...)
 }
 \arguments{
-\item{object}{}
+\item{object}{an epiG model}
 
-\item{...}{}
+\item{...}{ignored}
 }
 \value{
-numeric
+the first position in the model
 }
 \description{
-start position
+Return the first position in the model
 }
 \examples{
 #TODO examples start.epiG

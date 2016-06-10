@@ -2,17 +2,17 @@
 % Please edit documentation in R/epiG-summary.R
 \name{print.epiG}
 \alias{print.epiG}
-\title{print}
+\title{Print Information About an Fitted epiG Model}
 \usage{
 \method{print}{epiG}(x, ...)
 }
 \arguments{
-\item{x}{}
+\item{x}{epiG model}
 
-\item{...}{}
+\item{...}{ignored}
 }
 \description{
-print
+Print Information About an Fitted epiG Model
 }
 \examples{
 #TODO examples print

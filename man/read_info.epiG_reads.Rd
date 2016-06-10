@@ -2,19 +2,22 @@
 % Please edit documentation in R/epiG-navigate.R
 \name{read_info.epiG_reads}
 \alias{read_info.epiG_reads}
-\title{read_info}
+\title{Information about reads}
 \usage{
 \method{read_info}{epiG_reads}(object, inc.symbols = FALSE, ...)
 }
 \arguments{
-\item{object}{}
+\item{object}{epiG read object}
 
-\item{inc.symbols}{}
+\item{inc.symbols}{if \code{TRUE} each line in the returned data.frame will correspond to one nuleobase, if \code{FALSE} one read.}
 
-\item{...}{}
+\item{...}{ignored}
+}
+\value{
+??
 }
 \description{
-read_info.epiG_reads
+Retrive information about reads from a epiG read object produced with \code{load_reads}
 }
 \examples{
 #TODO examples read_info

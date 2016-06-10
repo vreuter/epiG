@@ -7,13 +7,13 @@
 locate_CG(object)
 }
 \arguments{
-\item{object}{}
+\item{object}{epiG model}
 }
 \value{
-??
+a vector of CpG positions
 }
 \description{
-Locate CpG positions
+Locate CpG positions in the refrence genom
 }
 \examples{
 #TODO examle locate_CG

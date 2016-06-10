@@ -7,15 +7,15 @@
 \method{nchain}{epiG}(object, ...)
 }
 \arguments{
-\item{object}{}
+\item{object}{epiG model}
 
-\item{...}{}
+\item{...}{ignored}
 }
 \value{
-??
+number of chains in the model
 }
 \description{
-Number of chains
+Number of chains in the model
 }
 \examples{
 #TODO examples nchain

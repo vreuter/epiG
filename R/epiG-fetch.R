@@ -125,7 +125,7 @@ load_reads <- function(file, refname, start, end, quality_threshold = 1, raw_qua
 		
 	reads$reads <- lapply(reads$reads, .symbols)
 
-	class(reads) <- "epiG.reads"
+	class(reads) <- "epiG_reads"
 	
 	return(reads)
 }

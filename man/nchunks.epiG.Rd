@@ -7,15 +7,15 @@
 \method{nchunks}{epiG}(object, ...)
 }
 \arguments{
-\item{object}{}
+\item{object}{epiG model}
 
-\item{...}{}
+\item{...}{ignored}
 }
 \value{
-??
+the number of chunks in the epiG object
 }
 \description{
-Number of chunks
+Number of chunks in the epiG object
 }
 \examples{
 #TODO examples nchunks

@@ -7,9 +7,9 @@
 \method{nread}{epiG}(object, ...)
 }
 \arguments{
-\item{object}{}
+\item{object}{epiG model}
 
-\item{...}{}
+\item{...}{ignored}
 }
 \value{
 number of reads contined in model

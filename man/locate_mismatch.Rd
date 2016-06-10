@@ -7,10 +7,10 @@
 locate_mismatch(object)
 }
 \arguments{
-\item{object}{}
+\item{object}{an epiG model}
 }
 \value{
-postions of mismatches
+a vector of postions of mismatches
 }
 \description{
 Locate positions where at least one chain has a genotype not matching with the reference.

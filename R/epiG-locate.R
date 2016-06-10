@@ -82,7 +82,7 @@ locate_C <- function(object) {
 #' @title Locate GpC
 #' @description
 #' Locate GpC positions in the refrence genom
-#' @param object 
+#' @param object epiG model
 #' @return a vector of GpC positions 
 #' 
 #' @author Martin Vincent
@@ -95,7 +95,7 @@ locate_GC <- function(object) {
 	if(paste(class(object), collapse = ".") == "epiG") {
 		
 		if(is.null(object[["ref"]])) {
-			stop("No ref genom found")
+			stop("No refrence genom found in model")
 		}
 		
 		pos <- vector_search(c(2,1), object$ref)
@@ -113,7 +113,7 @@ locate_GC <- function(object) {
 #' @title Locate CpG
 #' @description
 #' Locate CpG positions in the refrence genom
-#' @param object 
+#' @param object epiG model
 #' @return a vector of CpG positions
 #' 
 #' @author Martin Vincent
@@ -126,7 +126,7 @@ locate_CG <- function(object) {
 	if(paste(class(object), collapse = ".") == "epiG") {
 		
 		if(is.null(object[["ref"]])) {
-			stop("No ref genom found")
+			stop("No refrence genom found in model")
 		}
 		
 		pos <- vector_search(c(1,2), object$ref)
@@ -145,7 +145,7 @@ locate_CG <- function(object) {
 #' @description
 #' Locate DGCH (isolated GpC) positions in the refrence genom
 #' 
-#' @param object 
+#' @param object epiG model
 #' @return a vector of isolated GpC positions
 #' 
 #' @author Martin Vincent
@@ -158,7 +158,7 @@ locate_DGCH <- function(object) {
 	if(paste(class(object), collapse = ".") == "epiG") {
 		
 		if(is.null(object[["ref"]])) {
-			stop("No ref genom found")
+			stop("No refrence genom found in model")
 		}
 		
 		pos <- vector_search(c(2,1), object$ref)
@@ -201,7 +201,7 @@ locate_DGCH <- function(object) {
 #' @description
 #' locate HCGD (isolated CpG) positions in the refrence genom
 #' 
-#' @param object an epiG model
+#' @param object epiG model
 #' @return a vector of isolated CpG positions
 #' 
 #' @author Martin Vincent

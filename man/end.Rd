@@ -2,20 +2,20 @@
 % Please edit documentation in R/epiG-navigate.R
 \name{end}
 \alias{end}
-\title{end position}
+\title{End position}
 \usage{
 end(object, ...)
 }
 \arguments{
 \item{object}{an epiG model}
 
-\item{...}{ignored}
+\item{...}{additonal arguments}
 }
 \value{
-??
+the last position in model
 }
 \description{
-end position
+Return the last position in the model
 }
 \author{
 Martin Vincent

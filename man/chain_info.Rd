@@ -2,20 +2,20 @@
 % Please edit documentation in R/epiG-navigate.R
 \name{chain_info}
 \alias{chain_info}
-\title{chain_info}
+\title{Information about chains}
 \usage{
 chain_info(object, ...)
 }
 \arguments{
-\item{object}{}
+\item{object}{epiG model}
 
-\item{...}{}
+\item{...}{additonal arguments}
 }
 \value{
-??
+A data.frame with \code{nchain(object)} rows.
 }
 \description{
-chain_info
+Rerive information about chains
 }
 \author{
 Martin Vincent

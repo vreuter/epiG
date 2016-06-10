@@ -2,17 +2,17 @@
 % Please edit documentation in R/epiG-summary.R
 \name{print.epiG.config}
 \alias{print.epiG.config}
-\title{print config}
+\title{Print Information About an epiG Configuration}
 \usage{
 \method{print}{epiG.config}(x, ...)
 }
 \arguments{
-\item{x}{}
+\item{x}{epiG configuration}
 
-\item{...}{}
+\item{...}{ignored}
 }
 \description{
-print config
+Print Information About an epiG Configuration
 }
 \examples{
 #TODO examples print.epiG.config
