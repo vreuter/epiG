@@ -18,7 +18,9 @@ the last position in model
 Return the last position in the model
 }
 \examples{
-#TODO examples end
+data(example)
+
+end(fit)
 }
 \author{
 Martin Vincent

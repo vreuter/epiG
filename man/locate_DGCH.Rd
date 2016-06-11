@@ -16,7 +16,10 @@ a vector of isolated GpC positions
 Locate DGCH (isolated GpC) positions in the refrence genom
 }
 \examples{
-#TODO examples locate_DGCH
+data(example)
+
+fit <- fetch_ref(fit)
+locate_DGCH(fit)
 }
 \author{
 Martin Vincent

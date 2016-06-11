@@ -17,9 +17,6 @@ position of pattern in x
 \description{
 Search for pattern in integer vector
 }
-\examples{
-#TODO example
-}
 \author{
 Martin Vincent
 }

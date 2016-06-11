@@ -16,7 +16,10 @@ a vector of isolated CpG positions
 locate HCGD (isolated CpG) positions in the refrence genom
 }
 \examples{
-#TODO examples locate_HCGD
+data(example)
+
+fit <- fetch_ref(fit)
+locate_HCGD(fit)
 }
 \author{
 Martin Vincent

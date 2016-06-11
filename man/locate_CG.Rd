@@ -16,7 +16,10 @@ a vector of CpG positions
 Locate CpG positions in the refrence genom
 }
 \examples{
-#TODO examle locate_CG
+data(example)
+
+fit <- fetch_ref(fit)
+locate_CG(fit)
 }
 \author{
 Martin Vincent

@@ -18,7 +18,9 @@ the first position in the model
 Return the first position in the model
 }
 \examples{
-#TODO examples start.epiG
+data(example)
+
+start(fit)
 }
 \author{
 Martin Vincent

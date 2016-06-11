@@ -30,9 +30,6 @@
 #' @useDynLib epiG r_epiG_locate
 #' @export
 #' @author Martin Vincent
-#'
-#' @examples 
-#' #TODO example
 vector_search <- function(pattern, x) {
 	
 	#TODO check input
@@ -58,7 +55,10 @@ vector_search <- function(pattern, x) {
 #' @export
 #'
 #' @examples 
-#' #TODO example
+#' data(example)
+#' 
+#' fit <- fetch_ref(fit)
+#' locate_C(fit)
 locate_C <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -89,7 +89,10 @@ locate_C <- function(object) {
 #' @export
 #'
 #' @examples 
-#' #TODO example
+#' data(example)
+#' 
+#' fit <- fetch_ref(fit)
+#' locate_GC(fit)
 locate_GC <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -120,7 +123,10 @@ locate_GC <- function(object) {
 #' @export
 #'
 #' @examples 
-#' #TODO examle locate_CG
+#' data(example)
+#' 
+#' fit <- fetch_ref(fit)
+#' locate_CG(fit)
 locate_CG <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -152,7 +158,10 @@ locate_CG <- function(object) {
 #' @export
 #'
 #' @examples 
-#' #TODO examples locate_DGCH
+#' data(example)
+#' 
+#' fit <- fetch_ref(fit)
+#' locate_DGCH(fit)
 locate_DGCH <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -208,7 +217,10 @@ locate_DGCH <- function(object) {
 #' @export
 #'
 #' @examples 
-#' #TODO examples locate_HCGD
+#' data(example)
+#' 
+#' fit <- fetch_ref(fit)
+#' locate_HCGD(fit)
 locate_HCGD <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -264,7 +276,10 @@ locate_HCGD <- function(object) {
 #' @export
 #'
 #' @examples 
-#' #TODO examples locate_mismatch
+#' data(example)
+#' 
+#' fit <- fetch_ref(fit)
+#' locate_mismatch(fit)
 locate_mismatch <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {

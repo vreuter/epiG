@@ -191,7 +191,12 @@ NOMeSeq <- function(bisulphite_rate = .95, bisulphite_inap_rate = 0.05, Lmax = 1
 #' 		ref_offset = 57380000, 
 #' 		alt_offset = 57380000)
 #'
-#' config #print a summary of the configuration
+#' config # print a summary of the configuration
+#' 
+#' # Run epiG
+#' fit <- epiG(max_threads = 2, config = config)
+#' 
+#' fit # print a summary of inferred model
 auto_config <- function(
 		ref_file, 
 		alt_file, 
@@ -317,25 +322,25 @@ auto_config <- function(
 #' @description
 #' Create a custom epiG configuration
 #' 
-#' @param model conversion model
 #' @param ref_file genome reference file (path to .fa file)
 #' @param alt_file alternative nucleotide file (path to .fa file)
+#' @param ref_offset ref file offset (usually ref_offset = 1)
+#' @param alt_offset alt file offset (usually alt_offset = 1)
+#' @param model conversion model
 #' @param min_overlap minimum overlapping length
 #' @param min_CG minimum overlapping CG positions
 #' @param min_HCGD minimum overlapping HCGD positions
 #' @param min_DGCH minimum overlapping DGCH positions
-#' @param paired_reads used pair information (reads with the same name in the bam file is paired and will be forced into the same haplotype chain)
 #' @param ref_prior genotype prior parameter
 #' @param structual_prior structural prior scaling
 #' @param margin cut off margin
+#' @param quality_threshold discard reads with mean epsilon quality higher than quality_threshold
+#' @param chunk_method Method used to split region into chunks ('none' only one chunk, 'reads' chunks of approximately chunk_size reads, 'bases' chunks of chunk_size bases)
+#' @param chunk_size chunk size
+#' @param hard_limit maximal number of reads loaded per chunk (reads not loaded will be completely ignored)
+#' @param paired_reads used pair information (reads with the same name in the bam file is paired and will be forced into the same haplotype chain)
 #' @param max_iterations maximal number of iterations
 #' @param max_stages experimental stage optimization (if <= 1 then stage optimization is off)
-#' @param chunk_size chunk size
-#' @param chunk_method chunk method ('none' only one chunk, 'reads' chunks of approximately chunk_size reads, 'bases' chunks of chunk_size bases)
-#' @param hard_limit maximal number of reads loaded per chunk (reads not loaded will be completely ignored)
-#' @param ref_offset ref file offset (usually ref_offset = 1)
-#' @param alt_offset alt file offset (usually alt_offset = 1)
-#' @param quality_threshold discard reads with mean epsilon quality higher than quality_threshold
 #' @param verbose show information while running
 #' @param ... ignored
 #' 
@@ -343,26 +348,84 @@ auto_config <- function(
 #' 
 #' @author Martin Vincent
 #' @export
+#' @examples
+#' 
+#' # Retrieve paths to raw data files
+#' ref_file <- system.file("extdata", "hg19_GNAS.fa", package="epiG")
+#' alt_file <- system.file("extdata", "dbsnp_135.hg19_GNAS.fa", package="epiG")
+#' 
+#' config <- epiG_config(
+#' 
+#' 	ref_file = ref_file,
+#' 	alt_file = alt_file,
+#' 	ref_offset = 57380000, 
+#' 	alt_offset = 57380000, 
+#'  							
+#' 	model = BSeq(),
+#' 			
+#' 	min_overlap = 80,
+#' 	min_CG = 0,
+#' 	min_HCGD = 0,
+#' 	min_DGCH = 0,
+#' 			
+#' 	ref_prior = 0.999, 
+#' 	structual_prior = 1,
+#' 	margin = 5,
+#' 	quality_threshold = 0.020,
+#' 
+#'  chunk_method = "reads", 		
+#' 	chunk_size = 8000, 
+#' 	hard_limit = 10000, 
+#' 
+#' 	paired_reads = TRUE,
+#' 			 	
+#' 	max_iterations = 1e5,
+#' 	
+#' 	verbose = TRUE
+#' 	)
+#' 
+#' config # print a summary of the configuration
+#' 
+#' # Specify region and bam file
+#' bam_file <- system.file("extdata", "GNAS_small.bam", package="epiG")
+#' 
+#' chr <- "chr20"
+#' start <- 57400000 
+#' end <- 57400000 + 1000
+#' 
+#' config <- set_run_configuration(config, bam_file, chr, start, end)
+#' 
+#' # Run epiG
+#' fit <- epiG(max_threads = 2, config = config)
+#' 
+#' fit # print a summary of inferred model
 epiG_config <- function(
-		model, 
 		ref_file, 
 		alt_file, 
+		ref_offset = 1,
+		alt_offset = 1,
+		
+		model, 
+		
 		min_overlap,
 		min_CG,
 		min_HCGD,
 		min_DGCH,
-		paired_reads,
+		
 		ref_prior = 1-1e-4, 
 		structual_prior = 1,
 		quality_threshold = 0.020,
 		margin = 5,
+		
+		chunk_method = "reads", 
+		chunk_size = 5000, 
+		hard_limit = 6000,
+		
+		paired_reads,
+		
 		max_iterations = 1e5, 
 		max_stages = 1,
-		chunk_size = 5000, 
-		chunk_method = "reads", 
-		hard_limit = chunk_size + 1000,
-		ref_offset = 1,
-		alt_offset = 1,
+
 		verbose = TRUE,
 		...) {
 	
@@ -460,6 +523,8 @@ epiG_config <- function(
 #'
 #' @author Martin Vincent
 #' @export
+#' @examples
+#' # See epiG_config example
 set_run_configuration <- function(config, filename, refname, start, end) {
 	
 	config$filename <- filename

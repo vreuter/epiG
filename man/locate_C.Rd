@@ -16,7 +16,10 @@ positions of C in object
 Locate C positions
 }
 \examples{
-#TODO example
+data(example)
+
+fit <- fetch_ref(fit)
+locate_C(fit)
 }
 \author{
 Martin Vincent

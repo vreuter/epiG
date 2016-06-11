@@ -16,7 +16,10 @@ a vector of postions of mismatches
 Locate positions where at least one chain has a genotype not matching with the reference.
 }
 \examples{
-#TODO examples locate_mismatch
+data(example)
+
+fit <- fetch_ref(fit)
+locate_mismatch(fit)
 }
 \author{
 Martin Vincent

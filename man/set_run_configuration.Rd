@@ -23,6 +23,9 @@ an epiG configuration
 \description{
 set run configuration
 }
+\examples{
+# See epiG_config example
+}
 \author{
 Martin Vincent
 }

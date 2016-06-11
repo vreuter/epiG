@@ -65,7 +65,12 @@ config <- auto_config(
 		ref_offset = 57380000, 
 		alt_offset = 57380000)
 
-config #print a summary of the configuration
+config # print a summary of the configuration
+
+# Run epiG
+fit <- epiG(max_threads = 2, config = config)
+
+fit # print a summary of inferred model
 }
 \author{
 Martin Vincent

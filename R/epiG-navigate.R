@@ -104,7 +104,9 @@ end.epiG <- function(x, ...) {
 #' @export
 #'
 #' @examples 
-#' #TODO examples length.epiG
+#' data(example)
+#' 
+#' length(fit)
 length.epiG <- function(x, ...) {
 	
 	if(paste(class(x), collapse = ".") == "epiG") {
@@ -129,7 +131,9 @@ length.epiG <- function(x, ...) {
 #' @export
 #'
 #' @examples 
-#' #TODO examples nread
+#' data(example)
+#' 
+#' nread(fit)
 nread <- function(object)  {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -227,7 +231,9 @@ nread <- function(object)  {
 #' @export
 #'
 #' @examples 
-#' #TODO examples read_depth
+#' data(example)
+#' 
+#' read_depth(fit)
 read_depth <- function(object, pos = NULL) {
 	
 	if(is.null(pos)) {
@@ -636,7 +642,9 @@ read_info.epiG_reads <- function(object, inc.symbols = FALSE, ...) {
 #' @export
 #'
 #' @examples 
-#' #TODO examples nchunks
+#' data(example)
+#' 
+#' nchunks(fit)
 nchunks <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -659,7 +667,9 @@ nchunks <- function(object) {
 #' @export
 #'
 #' @examples 
-#' #TODO examples nchain
+#' data(example)
+#' 
+#' nchain(fit)
 nchain <- function(object) {
 	
 	if(paste(class(object), collapse = ".") == "epiG") {

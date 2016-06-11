@@ -171,9 +171,6 @@ epiG <- function(config, max_threads = 2L) {
 #' @export
 #' @useDynLib epiG r_epiG_haplo_fit_filename_chunks
 #' @author Martin Vincent
-#'
-#' @examples 
-#' #TODO example
 epiG_chunks <- function(configs, max_threads = 8L) {
 	
 	if(class(configs) == "epiG.config") {

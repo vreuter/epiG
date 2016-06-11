@@ -16,7 +16,9 @@ number of chains in the model
 Number of chains in the model
 }
 \examples{
-#TODO examples nchain
+data(example)
+
+nchain(fit)
 }
 \author{
 Martin Vincent

@@ -16,7 +16,9 @@ the number of chunks in the epiG object
 Number of chunks in the epiG object
 }
 \examples{
-#TODO examples nchunks
+data(example)
+
+nchunks(fit)
 }
 \author{
 Martin Vincent

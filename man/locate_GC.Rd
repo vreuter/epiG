@@ -16,7 +16,10 @@ a vector of GpC positions
 Locate GpC positions in the refrence genom
 }
 \examples{
-#TODO example
+data(example)
+
+fit <- fetch_ref(fit)
+locate_GC(fit)
 }
 \author{
 Martin Vincent

@@ -18,7 +18,9 @@ read_depth(object, pos = NULL)
 Retrive the read depth at a given position in the model
 }
 \examples{
-#TODO examples read_depth
+data(example)
+
+read_depth(fit)
 }
 \author{
 Martin Vincent
