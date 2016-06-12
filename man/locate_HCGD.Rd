@@ -18,7 +18,6 @@ locate HCGD (isolated CpG) positions in the refrence genom
 \examples{
 data(example)
 
-fit <- fetch_ref(fit)
 locate_HCGD(fit)
 }
 \author{

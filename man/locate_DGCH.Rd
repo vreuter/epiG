@@ -18,7 +18,6 @@ Locate DGCH (isolated GpC) positions in the refrence genom
 \examples{
 data(example)
 
-fit <- fetch_ref(fit)
 locate_DGCH(fit)
 }
 \author{

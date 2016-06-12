@@ -57,7 +57,6 @@ vector_search <- function(pattern, x) {
 #' @examples 
 #' data(example)
 #' 
-#' fit <- fetch_ref(fit)
 #' locate_C(fit)
 locate_C <- function(object) {
 	
@@ -91,7 +90,6 @@ locate_C <- function(object) {
 #' @examples 
 #' data(example)
 #' 
-#' fit <- fetch_ref(fit)
 #' locate_GC(fit)
 locate_GC <- function(object) {
 	
@@ -125,7 +123,6 @@ locate_GC <- function(object) {
 #' @examples 
 #' data(example)
 #' 
-#' fit <- fetch_ref(fit)
 #' locate_CG(fit)
 locate_CG <- function(object) {
 	
@@ -160,7 +157,6 @@ locate_CG <- function(object) {
 #' @examples 
 #' data(example)
 #' 
-#' fit <- fetch_ref(fit)
 #' locate_DGCH(fit)
 locate_DGCH <- function(object) {
 	
@@ -219,7 +215,6 @@ locate_DGCH <- function(object) {
 #' @examples 
 #' data(example)
 #' 
-#' fit <- fetch_ref(fit)
 #' locate_HCGD(fit)
 locate_HCGD <- function(object) {
 	
@@ -278,7 +273,6 @@ locate_HCGD <- function(object) {
 #' @examples 
 #' data(example)
 #' 
-#' fit <- fetch_ref(fit)
 #' locate_mismatch(fit)
 locate_mismatch <- function(object) {
 	

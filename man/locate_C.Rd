@@ -18,7 +18,6 @@ Locate C positions
 \examples{
 data(example)
 
-fit <- fetch_ref(fit)
 locate_C(fit)
 }
 \author{

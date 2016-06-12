@@ -18,7 +18,6 @@ Locate positions where at least one chain has a genotype not matching with the r
 \examples{
 data(example)
 
-fit <- fetch_ref(fit)
 locate_mismatch(fit)
 }
 \author{
