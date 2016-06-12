@@ -19,7 +19,7 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
-
+#TODO examples print
 #' @title Print Information About an Fitted epiG Model
 #' @description
 #' Print Information About an Fitted epiG Model
@@ -30,9 +30,6 @@
 #' @author Martin Vincent
 #' @method print epiG
 #' @export
-#'
-#' @examples 
-#' #TODO examples print
 print.epiG <- function(x, ...) {
 	
         if("chunks" %in% class(x)) {
@@ -53,6 +50,7 @@ print.epiG <- function(x, ...) {
 #TODO print number of reads
 }
 
+#TODO examples print.epiG.config
 #' @title Print Information About an epiG Configuration
 #' @description
 #' Print Information About an epiG Configuration
@@ -63,9 +61,6 @@ print.epiG <- function(x, ...) {
 #' @author Martin Vincent
 #' @method print epiG.config
 #' @export
-#'
-#' @examples 
-#' #TODO examples print.epiG.config
 print.epiG.config <- function(x, ...) {
 	
 	message("\nepiG Config Object")
@@ -100,6 +95,7 @@ print.epiG.config <- function(x, ...) {
 	print(tmp)
 }
 
+#TODO examples print.epiG.model 
 #' @title Print Information About an epiG Conversion Model
 #' @description
 #' Print Information About an epiG Conversion Model
@@ -110,9 +106,6 @@ print.epiG.config <- function(x, ...) {
 #' @author Martin Vincent
 #' @method print epiG.model
 #' @export
-#'
-#' @examples 
-#' #TODO examples print.epiG.model 
 print.epiG.model <- function(x, ...) {
 	
 	cat(x$name)
@@ -124,6 +117,7 @@ print.epiG.model <- function(x, ...) {
 	print(x$rev[[1]])
 }
 
+#TODO examples print.epiG.reads 
 #' @title Print Information About an epiG Reads Object
 #' @description
 #' Print information about an epiG reads object
@@ -134,9 +128,6 @@ print.epiG.model <- function(x, ...) {
 #' @author Martin Vincent
 #' @method print epiG.reads
 #' @export
-#'
-#' @examples 
-#' #TODO examples print.epiG.reads 
 print.epiG.reads <- function(x, ...) {
 	message("epiG reads object:")
 }

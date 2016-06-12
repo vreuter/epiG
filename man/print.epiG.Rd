@@ -14,9 +14,6 @@
 \description{
 Print Information About an Fitted epiG Model
 }
-\examples{
-#TODO examples print
-}
 \author{
 Martin Vincent
 }

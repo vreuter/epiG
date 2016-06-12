@@ -14,9 +14,6 @@
 \description{
 Print information about an epiG reads object
 }
-\examples{
-#TODO examples print.epiG.reads 
-}
 \author{
 Martin Vincent
 }

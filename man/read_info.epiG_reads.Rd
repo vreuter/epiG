@@ -19,9 +19,6 @@
 \description{
 Retrive information about reads from a epiG read object produced with \code{load_reads}
 }
-\examples{
-#TODO examples read_info
-}
 \author{
 Martin Vincent
 }

@@ -14,9 +14,6 @@
 \description{
 Print Information About an epiG Configuration
 }
-\examples{
-#TODO examples print.epiG.config
-}
 \author{
 Martin Vincent
 }

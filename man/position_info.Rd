@@ -17,9 +17,6 @@ position_info(object, pos)
 \description{
 Retriev information about the estimated epi-genotype at a given position in the model
 }
-\examples{
-#TODO examples position_info
-}
 \author{
 Martin Vincent
 }

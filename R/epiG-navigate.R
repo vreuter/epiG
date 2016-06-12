@@ -301,6 +301,7 @@ read_depth <- function(object, pos = NULL) {
 	stop("Internal errro")
 }
 
+#TODO examples position_info
 #' @title Position Info
 #' @description
 #' Retriev information about the estimated epi-genotype at a given position in the model
@@ -311,9 +312,6 @@ read_depth <- function(object, pos = NULL) {
 #' 
 #' @author Martin Vincent
 #' @export
-#'
-#' @examples 
-#' #TODO examples position_info
 position_info <- function(object, pos) {
 	
 	if(length(pos) == 0) {
@@ -484,7 +482,7 @@ chain_info <- function(object) {
 	
 }
 
-
+#TODO examples read_info
 #' @title Information about reads
 #' @description
 #' Retrive information about reads in the model
@@ -496,9 +494,6 @@ chain_info <- function(object) {
 #' @author Martin Vincent
 #' @method read_info epiG
 #' @export
-#'
-#' @examples 
-#' #TODO examples read_info
 read_info.epiG <- function(object, inc.symbols = FALSE, ...) {
 		
 	if(paste(class(object), collapse = ".") == "epiG") {
@@ -590,6 +585,7 @@ read_info.epiG <- function(object, inc.symbols = FALSE, ...) {
 	
 }
 
+#TODO examples read_info
 #' @title Information about reads
 #' @description
 #' Retrive information about reads from a epiG read object produced with \code{load_reads}
@@ -600,9 +596,6 @@ read_info.epiG <- function(object, inc.symbols = FALSE, ...) {
 #' 
 #' @author Martin Vincent
 #' @export
-#'
-#' @examples 
-#' #TODO examples read_info
 read_info.epiG_reads <- function(object, inc.symbols = FALSE, ...) {
 	
 	info <- NULL

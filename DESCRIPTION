@@ -3,11 +3,10 @@ Type: Package
 Title: Statistical Inference of Epi-allelic Patterns from Whole-Genome
     Bisulphite Sequencing Data
 Version: 0.9.0
-Date: 2015-03-23
+Date: 2016-06-12
 Author: Martin Vincent
-Maintainer: Martin Vincent <vincent@math.ku.dk>
-Description: Statistical Inference of Epi-allelic Patterns from Whole-Genome
-    Bisulphite Sequencing Data
+Maintainer: Martin Vincent <martin.vincent.dk@gmail.com>
+Description: Statistical method to infer epiallelic haplotypes, annotated with CpG methylation marks and polymorphisms, from whole genome bisulphite sequencing data, and nucleosome occupancy from NOMe-seq data
 URL: 
 License: GPL (>= 2)
 LazyLoad: yes

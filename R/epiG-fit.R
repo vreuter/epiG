@@ -101,7 +101,7 @@ epiG <- function(config, max_threads = 2L) {
 			chunks_end <- s[2:length(s)]-1L
 			chunks_start[1] <- start
 			refnames <- as.list(rep(refname, length(chunks_start)))
-			configs <- replicate(length(chunks_start), config, simplify = FALSE) #FIXME call epiG.chunks 
+			configs <- replicate(length(chunks_start), config, simplify = FALSE) #TODO call epiG.chunks 
 			
 			res <- .Call(r_epiG_haplo_fit_filename_chunks, filename, refnames, as.integer(chunks_start), as.integer(chunks_end), as.integer(max_threads), configs)
 		

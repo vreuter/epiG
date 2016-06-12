@@ -14,9 +14,6 @@
 \description{
 Print Information About an epiG Conversion Model
 }
-\examples{
-#TODO examples print.epiG.model 
-}
 \author{
 Martin Vincent
 }

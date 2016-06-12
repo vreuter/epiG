@@ -19,9 +19,6 @@
 \description{
 Retrive information about reads in the model
 }
-\examples{
-#TODO examples read_info
-}
 \author{
 Martin Vincent
 }
