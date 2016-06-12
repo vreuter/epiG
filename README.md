@@ -3,6 +3,8 @@
 
 [![Travis-CI Build Status](https://travis-ci.org/vincent-dk/epiG.svg?branch=master)](https://travis-ci.org/vincent-dk/epiG)
 
+[R package manual](epiG-manual.pdf)
+
 ## Installation
 
 Get the development version from github:
