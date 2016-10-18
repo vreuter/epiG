@@ -338,7 +338,7 @@ auto_config <- function(
 #' @param chunk_method Method used to split region into chunks ('none' only one chunk, 'reads' chunks of approximately chunk_size reads, 'bases' chunks of chunk_size bases)
 #' @param chunk_size chunk size
 #' @param hard_limit maximal number of reads loaded per chunk (reads not loaded will be completely ignored)
-#' @param paired_reads used pair information (reads with the same name in the bam file is paired and will be forced into the same haplotype chain)
+#' @param paired_reads use pair information (reads with the same name in the bam file is paired and will be forced into the same haplotype chain)
 #' @param max_iterations maximal number of iterations
 #' @param max_stages experimental stage optimization (if <= 1 then stage optimization is off)
 #' @param verbose show information while running

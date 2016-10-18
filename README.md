@@ -2,6 +2,7 @@
 ### *Statistical Inference of Epi-allelic Patterns from Whole-Genome Bisulphite Sequencing Data*
 
 [![Travis-CI Build Status](https://travis-ci.org/vincent-dk/epiG-pkg.svg?branch=master)](https://travis-ci.org/vincent-dk/epiG-pkg)
+[![Coverage Status](https://codecov.io/github/vincent-dk/lsgl/coverage.svg?branch=master)](https://codecov.io/github/vincent-dk/lsgl?branch=master)
 
 [R package manual](epiG-manual.pdf)
 
