@@ -1,0 +1,3 @@
+  ignore: # files and folders for processing
+    - tests/*
+    - src/samtools/*
