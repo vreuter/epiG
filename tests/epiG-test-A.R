@@ -35,3 +35,6 @@ fit <- fetch_alt(fit)
 
 # Test print
 fit
+
+# Test position info
+position_info(fit, start:end)
