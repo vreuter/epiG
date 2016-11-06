@@ -44,7 +44,7 @@ epiG_config(ref_file, alt_file, ref_offset = 1, alt_offset = 1, model,
 
 \item{hard_limit}{maximal number of reads loaded per chunk (reads not loaded will be completely ignored)}
 
-\item{paired_reads}{used pair information (reads with the same name in the bam file is paired and will be forced into the same haplotype chain)}
+\item{paired_reads}{use pair information (reads with the same name in the bam file is paired and will be forced into the same haplotype chain)}
 
 \item{max_iterations}{maximal number of iterations}
 

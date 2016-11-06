@@ -23,7 +23,7 @@ typedef t_counts t_lengths;
 typedef int t_position;
 typedef Col<int> t_positions;
 
-typedef char t_base; //coding 0 - N, 1 -C, 2 - G, 3 -A, 4 - T
+typedef u32 t_base; //coding 0 - N, 1 -C, 2 - G, 3 -A, 4 - T
 typedef Col<t_base> t_seq_bases;
 
 typedef Col<double> t_epsilon_quality;
@@ -32,7 +32,7 @@ typedef Col<int> t_quality;
 typedef u32 t_haplochain;
 typedef Col<t_haplochain> t_haplochains;
 
-typedef char t_epi_base; //coding 0 - C, 1 - G, 2 - A, 3 - T, 4 - C^me, 5 - G_me
+typedef u32 t_epi_base; //coding 0 - C, 1 - G, 2 - A, 3 - T, 4 - C^me, 5 - G_me
 typedef Col<t_epi_base> t_genotype;
 //TODO remove
 //typedef Col<t_epi_base> t_genotype; // vector of length (max number of alleles)
@@ -58,7 +58,7 @@ typedef Col<t_epi_base> t_genotype;
 	14 V = G C A (all but T)
 	15 N = A G C T (any)
 */
-typedef char t_base_subset;
+typedef u32 t_base_subset;
 typedef Col<t_base_subset> t_base_subsets;
 
 typedef int t_strand;

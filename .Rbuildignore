@@ -1,4 +1,10 @@
 ^\.travis\.yml$
-^README.md
-^LICENSE
-^epiG-manual.pdf
+^README\.md$
+^LICENSE$
+^appveyor\.yml$
+^codecov\.yml$
+^check\.R$
+^install\.R$
+^roxygenise\.R$
+^run-tests-valgrind\.R$
+^run-tests\.R$
