@@ -3,7 +3,7 @@
 
 [![Travis-CI Build Status](https://travis-ci.org/vincent-dk/epiG-pkg.svg?branch=master)](https://travis-ci.org/vincent-dk/epiG-pkg)
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/vincent-dk/epiG?branch=master&svg=true)](https://ci.appveyor.com/project/vincent-dk/epiG)
-[![Coverage Status](https://codecov.io/github/vincent-dk/epiG-pkg/coverage.svg?branch=master)](https://codecov.io/github/vincent-dk/epiG-pkg?branch=master)
+[![Coverage Status](https://codecov.io/github/vincent-dk/epiG/coverage.svg?branch=master)](https://codecov.io/github/vincent-dk/epiG?branch=master)
 
 [R package manual](epiG-manual.pdf)
 
