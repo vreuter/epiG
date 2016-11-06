@@ -17,6 +17,7 @@ sparseMatrix_from_C_format <- function(x) {
 #'
 #' @param x a spares matrix
 #' @author Martin Vincent
+#' @importFrom methods as
 #' @export
 sparseMatrix_to_C_format <- function(x) {
 	x <- as(x, "CsparseMatrix")
