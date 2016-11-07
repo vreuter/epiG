@@ -1,7 +1,7 @@
 # epiG
 ### *Statistical Inference of Epi-allelic Patterns from Whole-Genome Bisulphite Sequencing Data*
 
-[![Travis-CI Build Status](https://travis-ci.org/vincent-dk/epiG-pkg.svg?branch=master)](https://travis-ci.org/vincent-dk/epiG-pkg)
+[![Travis-CI Build Status](https://travis-ci.org/vincent-dk/epiG.svg?branch=master)](https://travis-ci.org/vincent-dk/epiG)
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/vincent-dk/epiG?branch=master&svg=true)](https://ci.appveyor.com/project/vincent-dk/epiG)
 [![Coverage Status](https://codecov.io/github/vincent-dk/epiG/coverage.svg?branch=master)](https://codecov.io/github/vincent-dk/epiG?branch=master)
 
