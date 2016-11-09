@@ -148,14 +148,6 @@ void chunk_haplo_chain_optimizer::run() {
 
 		if (!p.is_aborted()) {
 
-			//TODO remove
-//#ifdef EPIG_USE_OPENMP
-//#pragma omp critical
-//#endif
-//			{
-//			cout << i << " : " << chunk_start_pos(i) << endl;
-//			}
-
 			bamReader reader(bam_file, refNames(i), chunk_start_pos(i),
 					chunk_end_pos(i));
 
@@ -198,25 +190,42 @@ void chunk_haplo_chain_optimizer::run() {
 	        alignment_data data(config, reads, refNames(i), n_reads_hard_limit);
 
 			//Load ref
-	        t_seq_bases ref = create_bases_vector(read_fasta(config.ref_filename, config.ref_offset, refNames(i), data.offset, data.sequence_length+2));
+			t_seq_bases ref;
+			if(config.use_ref) {
+				ref = create_bases_vector(read_fasta(config.ref_filename, config.ref_offset, refNames(i), data.offset, data.sequence_length+2));
 
-	        //TODO append 0's (unknowns) + error -> warning
-	        if (ref.n_elem != static_cast<unsigned int>(data.sequence_length+2)) {
-				throw std::runtime_error("Problem with refGenom"); //TODO error msg
+	      //TODO append 0's (unknowns) + error -> warning
+	      if (ref.n_elem != static_cast<unsigned int>(data.sequence_length+2)) {
+					throw std::runtime_error("Problem with refGenom"); //TODO error msg
+				}
+			}	
+
+			else {
+				ref.resize(data.sequence_length+2);
+				ref.zeros();
 			}
 
-	        //Load alt
-	        t_seq_bases alt = create_bases_vector(read_fasta(config.alt_filename, config.alt_offset,  refNames(i), data.offset, data.sequence_length+2));
+	    //Load alt
+			t_seq_bases alt;
+			if(config.use_alt) {
 
-	        //TODO append 0's (no snp) + error -> warning
-	        if (alt.n_elem != static_cast<unsigned int>(data.sequence_length+2)) {
-	        	std::ostringstream msg;
-	        	msg << "Problem with altGenom"; //TODO warning msg
-	        	warnings.add(msg.str());
+				alt = create_bases_vector(read_fasta(config.alt_filename, config.alt_offset,  refNames(i), data.offset, data.sequence_length+2));
 
-	        	int old_n_elem = alt.n_elem;
-	        	alt.resize(data.sequence_length+2);
-	        	alt.subvec(old_n_elem, alt.n_elem-1).zeros();
+	      //TODO append 0's (no snp) + error -> warning
+	      if (alt.n_elem != static_cast<unsigned int>(data.sequence_length+2)) {
+	      	std::ostringstream msg;
+	      	msg << "Problem with altGenom"; //TODO warning msg
+	      	warnings.add(msg.str());
+
+        	int old_n_elem = alt.n_elem;
+        	alt.resize(data.sequence_length+2);
+        	alt.subvec(old_n_elem, alt.n_elem-1).zeros();
+				}
+			}
+
+			else {
+				alt.resize(data.sequence_length+2);
+				alt.zeros();
 			}
 
 			//Init haplo optimizer

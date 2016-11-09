@@ -4,12 +4,12 @@
 \alias{epiG_config}
 \title{Create an epiG Configuration}
 \usage{
-epiG_config(ref_file, alt_file, ref_offset = 1, alt_offset = 1, model,
-  min_overlap, min_CG, min_HCGD, min_DGCH, ref_prior = 1 - 1e-04,
-  structual_prior = 1, quality_threshold = 0.02, margin = 5,
-  chunk_method = "reads", chunk_size = 5000, hard_limit = 6000,
-  paired_reads, max_iterations = 1e+05, max_stages = 1, verbose = TRUE,
-  ...)
+epiG_config(ref_file = NULL, alt_file = NULL, ref_offset = 1,
+  alt_offset = 1, model, min_overlap, min_CG, min_HCGD, min_DGCH,
+  ref_prior = 1 - 1e-04, structual_prior = 1, quality_threshold = 0.02,
+  margin = 5, chunk_method = "reads", chunk_size = 5000,
+  hard_limit = 6000, paired_reads, max_iterations = 1e+05, max_stages = 1,
+  verbose = TRUE, ...)
 }
 \arguments{
 \item{ref_file}{genome reference file (path to .fa file)}
@@ -70,29 +70,29 @@ config <- epiG_config(
 
 	ref_file = ref_file,
 	alt_file = alt_file,
-	ref_offset = 57380000, 
-	alt_offset = 57380000, 
- 							
+	ref_offset = 57380000,
+	alt_offset = 57380000,
+
 	model = BSeq(),
-			
+
 	min_overlap = 80,
 	min_CG = 0,
 	min_HCGD = 0,
 	min_DGCH = 0,
-			
-	ref_prior = 0.999, 
+
+	ref_prior = 0.999,
 	structual_prior = 1,
 	margin = 5,
 	quality_threshold = 0.020,
 
- chunk_method = "reads", 		
-	chunk_size = 8000, 
-	hard_limit = 10000, 
+ chunk_method = "reads",
+	chunk_size = 8000,
+	hard_limit = 10000,
 
 	paired_reads = TRUE,
-			 	
+
 	max_iterations = 1e5,
-	
+
 	verbose = TRUE
 	)
 
@@ -102,7 +102,7 @@ config # print a summary of the configuration
 bam_file <- system.file("extdata", "GNAS_small.bam", package="epiG")
 
 chr <- "chr20"
-start <- 57400000 
+start <- 57400000
 end <- 57400000 + 1000
 
 config <- set_run_configuration(config, bam_file, chr, start, end)

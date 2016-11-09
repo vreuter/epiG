@@ -1,22 +1,22 @@
 #
 #     Description of this R script:
-#     epiG-configuration scripts. 
+#     epiG-configuration scripts.
 #     This scripts contain functions need for creating epiG configurations
 #     and bisulphite models
 #
 #     Intended for use with R.
 #     Copyright (C) 2016 Martin Vincent
-# 
+#
 #     This program is free software: you can redistribute it and/or modify
 #     it under the terms of the GNU General Public License as published by
 #     the Free Software Foundation, either version 3 of the License, or
 #     (at your option) any later version.
-# 
+#
 #     This program is distributed in the hope that it will be useful,
 #     but WITHOUT ANY WARRANTY without even the implied warranty of
 #     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #     GNU General Public License for more details.
-# 
+#
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <http:#www.gnu.org/licenses/>
 #
@@ -24,22 +24,22 @@
 
 # Create bisulphite conversion model
 .create_BS_model <- function(bisulphite_rate, bisulphite_inap_rate) {
-	
+
 	#TODO split up into 2 functions one for fwd model and one for rev model
-	
+
 	bisulphite_model <- list()
-	
+
 	bisulphite_model$fwd <- matrix(nrow = 4, ncol = 6)
 	bisulphite_model$rev <- matrix(nrow = 4, ncol = 6)
-	
-	rownames(bisulphite_model$fwd) <- c('C', 'G', 'A', 'T')	
-	rownames(bisulphite_model$rev) <- c('C', 'G', 'A', 'T')	
+
+	rownames(bisulphite_model$fwd) <- c('C', 'G', 'A', 'T')
+	rownames(bisulphite_model$rev) <- c('C', 'G', 'A', 'T')
 	colnames(bisulphite_model$rev) <- c('C', 'G', 'A', 'T', 'C^me', 'G_me')
 	colnames(bisulphite_model$fwd) <- c('C', 'G', 'A', 'T', 'C^me', 'G_me')
-	
+
 	bisulphite_model$fwd[,] <- 0
 	bisulphite_model$rev[,] <- 0
-	
+
 	bisulphite_model$fwd[1, 1] <- 1 - bisulphite_rate #C C
 	bisulphite_model$fwd[1, 5] <- 1 - bisulphite_inap_rate #C c
 	bisulphite_model$fwd[4, 5] <- bisulphite_inap_rate #T c
@@ -48,7 +48,7 @@
 	bisulphite_model$fwd[3, 3] <- 1 #A A
 	bisulphite_model$fwd[4, 1] <- bisulphite_rate #T C
 	bisulphite_model$fwd[4, 4] <- 1 #T T
-	
+
 	bisulphite_model$rev[1, 1] <- 1 #C C
 	bisulphite_model$rev[1, 5] <- 1 #C c
 	bisulphite_model$rev[2, 2] <- 1 - bisulphite_rate #G G
@@ -57,39 +57,39 @@
 	bisulphite_model$rev[3, 3] <- 1 #A A
 	bisulphite_model$rev[3, 2] <- bisulphite_rate #A G
 	bisulphite_model$rev[4, 4] <- 1 #T T
-	
+
 	return(bisulphite_model)
 }
 
 #' @title Bisulphite Conversion Model
 #' @description
 #' Create a bisulphite sequencing conversion model
-#' 
+#'
 #' @param bisulphite_rate bisulphite conversion rate (numeric in the range (0, 1])
 #' @param bisulphite_inap_rate bisulphite inappropriate conversion rate (numeric in the range (0, 1])
 #' @param Lmax maximal read length (integer)
 #' @param ... ignored
 #' @return an epiG conversion model
-#' 
+#'
 #' @author Martin Vincent
 #' @export
-#' @examples 
+#' @examples
 #' BSeq()
 BSeq <- function(bisulphite_rate = .95, bisulphite_inap_rate = 0.05, Lmax = 110, ...) {
-	
+
 	bisulphite_rates <- rep(bisulphite_rate, Lmax)
 	bisulphite_inap_rates <- rep(bisulphite_inap_rate, Lmax)
-	
+
 	model <- list()
-	model$fwd <-lapply(1:Lmax, function(i) .create_BS_model(bisulphite_rates[i], bisulphite_inap_rates[i])$fwd) 
-	model$rev <-lapply(1:Lmax, function(i) .create_BS_model(bisulphite_rates[i], bisulphite_inap_rates[i])$rev) 
-	
+	model$fwd <-lapply(1:Lmax, function(i) .create_BS_model(bisulphite_rates[i], bisulphite_inap_rates[i])$fwd)
+	model$rev <-lapply(1:Lmax, function(i) .create_BS_model(bisulphite_rates[i], bisulphite_inap_rates[i])$rev)
+
 	model$name <- "Bisulphite Sequencing Conversion Model"
-	
+
 	model$use_split <- FALSE
-	
+
 	class(model) <- "epiG.model"
-	
+
 	return(model)
 }
 
@@ -97,50 +97,50 @@ BSeq <- function(bisulphite_rate = .95, bisulphite_inap_rate = 0.05, Lmax = 110,
 #' @title NOMe-sequencing Conversion Model
 #' @description
 #' Create a NOMe-seq conversion model
-#' 
+#'
 #' @param bisulphite_rate bisulphite conversion rate (numeric in the range (0, 1])
 #' @param bisulphite_inap_rate bisulphite inappropriate conversion rate (numeric in the range (0, 1])
 #' @param Lmax maximal read length (integer)
 #' @param ... ignored
 #' @return an epiG conversion model
-#' 
+#'
 #' @author Martin Vincent
 #' @export
-#' @examples 
+#' @examples
 #' NOMeSeq()
 NOMeSeq <- function(bisulphite_rate = .95, bisulphite_inap_rate = 0.05, Lmax = 110, ...) {
-	
+
 	model <- BSeq(
-		bisulphite_rate = bisulphite_rate, 
-		bisulphite_inap_rate = bisulphite_inap_rate, 
+		bisulphite_rate = bisulphite_rate,
+		bisulphite_inap_rate = bisulphite_inap_rate,
 		Lmax = Lmax)
 
-	
+
 	ignor.me <- diag(6)
 	rownames(ignor.me) <- c('C', 'G', 'A', 'T', 'C^me', 'G_me')
 	colnames(ignor.me) <- c('C', 'G', 'A', 'T', 'C^me', 'G_me')
 	ignor.me[c(1, 5), c(1, 5)] <- 1/2
 	ignor.me[c(2, 6), c(2, 6)] <- 1/2
-			
+
 	model$fwd_HCGD <- model$fwd
 	model$rev_HCGD <- model$rev
-		
+
 	model$fwd_DGCH <- model$fwd
 	model$rev_DGCH <- model$rev
-		
+
 	model$fwd_CH <- lapply(model$fwd, function(x) x %*% ignor.me)
 	model$rev_CH <- lapply(model$rev, function(x) x %*% ignor.me)
-		
+
 	model$fwd_C_G <- lapply(model$fwd, function(x) x %*% ignor.me)
 	model$rev_C_G <- lapply(model$rev, function(x) x %*% ignor.me)
-	
-	
+
+
 	model$name <- "NOMe-sequencing Conversion Model"
-	
+
 	model$use_split <- TRUE
-	
+
 	class(model) <- "epiG.model"
-	
+
 	return(model)
 }
 
@@ -148,13 +148,13 @@ NOMeSeq <- function(bisulphite_rate = .95, bisulphite_inap_rate = 0.05, Lmax = 1
 #' @title Create Standard Configuration
 #' @description
 #' Create a epiG configuration with standard parameters
-#' 
+#'
 #' @param ref_file genome reference file (path to .fa file)
 #' @param alt_file alternative nucleotide file (path to .fa file)
 #' @param bam_file bam file (path to .bam file)
 #' @param chr reference name
-#' @param start start position of region to processes 
-#' @param end end position of region to processes 
+#' @param start start position of region to processes
+#' @param end end position of region to processes
 #' @param seq_type sequencing type ("BSeq" for bisulphite sequencing, "NOMeSeq" for NOMe sequencing)
 #' @param paired_reads should pair information be used (TRUE/FALSE or NULL, if NULL then paired information is used if pairs are present in bam file)
 #' @param min_overlap minimum overlapping length (if NULL deafult value is used)
@@ -162,23 +162,23 @@ NOMeSeq <- function(bisulphite_rate = .95, bisulphite_inap_rate = 0.05, Lmax = 1
 #' @param min_HCGD minimum overlapping HCGD positions (if NULL deafult value is used)
 #' @param min_DGCH minimum overlapping DGCH positions (if NULL deafult value is used)
 #' @param ... additional arguments (overrides default values)
-#' 
+#'
 #' @return An epiG configuration
-#' 
+#'
 #' @author Martin Vincent
 #' @export
-#' @examples 
-#' 
+#' @examples
+#'
 #' # Retrieve paths to raw data files
 #' bam_file <- system.file("extdata", "GNAS_small.bam", package="epiG")
 #' ref_file <- system.file("extdata", "hg19_GNAS.fa", package="epiG")
 #' alt_file <- system.file("extdata", "dbsnp_135.hg19_GNAS.fa", package="epiG")
-#' 
+#'
 #' # Specify region
 #' chr <- "chr20"
-#' start <- 57400000 
+#' start <- 57400000
 #' end <- 57400000 + 1000
-#' 
+#'
 #' # Build epiG configuration
 #' config <- auto_config(
 #' 		bam_file = bam_file,
@@ -188,22 +188,22 @@ NOMeSeq <- function(bisulphite_rate = .95, bisulphite_inap_rate = 0.05, Lmax = 1
 #' 		start = start,
 #' 		end = end,
 #' # If ref_file and alt_file contains the entire chromosome this is not needed
-#' 		ref_offset = 57380000, 
+#' 		ref_offset = 57380000,
 #' 		alt_offset = 57380000)
 #'
 #' config # print a summary of the configuration
-#' 
+#'
 #' # Run epiG
 #' fit <- epiG(max_threads = 2, config = config)
-#' 
+#'
 #' fit # print a summary of inferred model
 auto_config <- function(
-		ref_file, 
-		alt_file, 
+		ref_file,
+		alt_file,
 		bam_file,
-		chr, 
-		start, 
-		end, 
+		chr,
+		start,
+		end,
 		seq_type = "BSeq",
 		paired_reads = NULL,
 		min_CG = NULL,
@@ -215,16 +215,16 @@ auto_config <- function(
 	if(length(chr) == 0 || length(chr) != length(start) || length(chr) != length(end) || length(start) != length(end)) {
 		stop("length of chr, start and end must be equal and nonzero")
 	}
-		
+
 	if(length(chr) > 1) {
-		
-		confs <- lapply(1:length(chr), function(i) 
+
+		confs <- lapply(1:length(chr), function(i)
 			auto_config(
-				ref_file = ref_file, 
-				alt_file = alt_file, 
-				bam_file = bam_file, 
-				chr = chr[i], 
-				start = start[i], 
+				ref_file = ref_file,
+				alt_file = alt_file,
+				bam_file = bam_file,
+				chr = chr[i],
+				start = start[i],
 				end = end[i],
 				seq_type = seq_type,
 				paired_reads = paired_reads,
@@ -234,20 +234,20 @@ auto_config <- function(
 				min_overlap = min_overlap,
 				...
 			))
-		
+
 		return(confs)
 	}
-	
+
 	# Fetch information about file
-	
+
 	reads <- fetch_read_info(bam_file, chr, start, end)
 	n_reads <- nrow(reads)
-	
+
 	if(n_reads == 0) {
 		warning("No reads found in region")
 		return (NULL)
 	}
-	
+
 	# Paired design
 	if(is.null(paired_reads))  {
 		if(max(table(reads$name[1:1000])) == 2) {
@@ -260,41 +260,41 @@ auto_config <- function(
 	# Create conversion model
 
 	if(seq_type == "NOMeSeq") {
-		
+
 		model <- NOMeSeq(Lmax = max(reads$length), ...)
-		
+
 		default_min_CG <- 0
 		default_min_HCGD <- 0
 		default_min_DGCH <- 2
 		default_min_overlap <- 40
-		
-		
+
+
 	} else if(seq_type == "BSeq") {
-		
+
 		model <- BSeq(Lmax = max(reads$length), ...)
 
-		
+
 		if(paired_reads) {
 			default_min_CG <- 2
 			default_min_overlap <- 50
-			
+
 		} else {
 			default_min_CG <- 1
 			default_min_overlap <- 40
 		}
-		
+
 		default_min_HCGD <- 0
 		default_min_DGCH <- 0
-		
+
 	} else {
 		stop("Unknown seq_type")
 	}
-		
-	
-	
+
+
+
 
 	# Create configuration
-	
+
 	config <- epiG_config(
 			model = model,
 			hard_limit = n_reads + 1000,
@@ -308,20 +308,20 @@ auto_config <- function(
 			paired_reads = paired_reads,
 			...
 			)
-	
+
 	# Set run configuration
 	config <- set_run_configuration(config, bam_file, chr, start, end)
 
-	
+
 	return(config)
-}	
+}
 
 #TODO match C-side config names with R-side
 #TODO examples epiG_config
 #' @title Create an epiG Configuration
 #' @description
 #' Create a custom epiG configuration
-#' 
+#'
 #' @param ref_file genome reference file (path to .fa file)
 #' @param alt_file alternative nucleotide file (path to .fa file)
 #' @param ref_offset ref file offset (usually ref_offset = 1)
@@ -343,168 +343,170 @@ auto_config <- function(
 #' @param max_stages experimental stage optimization (if <= 1 then stage optimization is off)
 #' @param verbose show information while running
 #' @param ... ignored
-#' 
+#'
 #' @return an epiG configuration
-#' 
+#'
 #' @author Martin Vincent
 #' @export
 #' @examples
-#' 
+#'
 #' # Retrieve paths to raw data files
 #' ref_file <- system.file("extdata", "hg19_GNAS.fa", package="epiG")
 #' alt_file <- system.file("extdata", "dbsnp_135.hg19_GNAS.fa", package="epiG")
-#' 
+#'
 #' config <- epiG_config(
-#' 
+#'
 #' 	ref_file = ref_file,
 #' 	alt_file = alt_file,
-#' 	ref_offset = 57380000, 
-#' 	alt_offset = 57380000, 
-#'  							
+#' 	ref_offset = 57380000,
+#' 	alt_offset = 57380000,
+#'
 #' 	model = BSeq(),
-#' 			
+#'
 #' 	min_overlap = 80,
 #' 	min_CG = 0,
 #' 	min_HCGD = 0,
 #' 	min_DGCH = 0,
-#' 			
-#' 	ref_prior = 0.999, 
+#'
+#' 	ref_prior = 0.999,
 #' 	structual_prior = 1,
 #' 	margin = 5,
 #' 	quality_threshold = 0.020,
-#' 
-#'  chunk_method = "reads", 		
-#' 	chunk_size = 8000, 
-#' 	hard_limit = 10000, 
-#' 
+#'
+#'  chunk_method = "reads",
+#' 	chunk_size = 8000,
+#' 	hard_limit = 10000,
+#'
 #' 	paired_reads = TRUE,
-#' 			 	
+#'
 #' 	max_iterations = 1e5,
-#' 	
+#'
 #' 	verbose = TRUE
 #' 	)
-#' 
+#'
 #' config # print a summary of the configuration
-#' 
+#'
 #' # Specify region and bam file
 #' bam_file <- system.file("extdata", "GNAS_small.bam", package="epiG")
-#' 
+#'
 #' chr <- "chr20"
-#' start <- 57400000 
+#' start <- 57400000
 #' end <- 57400000 + 1000
-#' 
+#'
 #' config <- set_run_configuration(config, bam_file, chr, start, end)
-#' 
+#'
 #' # Run epiG
 #' fit <- epiG(max_threads = 2, config = config)
-#' 
+#'
 #' fit # print a summary of inferred model
 epiG_config <- function(
-		ref_file, 
-		alt_file, 
+		ref_file = NULL,
+		alt_file = NULL,
 		ref_offset = 1,
 		alt_offset = 1,
-		
-		model, 
-		
+
+		model,
+
 		min_overlap,
 		min_CG,
 		min_HCGD,
 		min_DGCH,
-		
-		ref_prior = 1-1e-4, 
+
+		ref_prior = 1-1e-4,
 		structual_prior = 1,
 		quality_threshold = 0.020,
 		margin = 5,
-		
-		chunk_method = "reads", 
-		chunk_size = 5000, 
+
+		chunk_method = "reads",
+		chunk_size = 5000,
 		hard_limit = 6000,
-		
+
 		paired_reads,
-		
-		max_iterations = 1e5, 
+
+		max_iterations = 1e5,
 		max_stages = 1,
 
 		verbose = TRUE,
 		...) {
-	
+
 	#TODO check config valid
 	# 1) chunk_size < reads_hard_limit
-	
+
 	config <- list()
-	
-	config$ref_filename <- ref_file
-	config$alt_filename <- alt_file
+
+	config$use_ref <- ! is.null(ref_file)
+	config$use_alt <- ! is.null(alt_file)
+	config$ref_filename <- if(is.null(ref_file)) "" else ref_file
+	config$alt_filename <- if(is.null(alt_file)) "" else alt_file
 	config$ref_offset <- as.integer(ref_offset)-1L
-	config$alt_offset <- as.integer(alt_offset)-1L 
-	
+	config$alt_offset <- as.integer(alt_offset)-1L
+
 	config$max_iterations <- as.integer(max_iterations)
-	
+
 	config$fwd_model <- model$fwd
 	config$rev_model <- model$rev
-	
+
 	config$split_mode <- model$use_split
 
 	config$model_name <- model$name
-	
+
 	if(config$split_mode) {
-		
+
 		config$fwd_DGCH_model <- model$fwd_DGCH
 		config$rev_DGCH_model <- model$rev_DGCH
-	
-		config$fwd_HCGD_model <- model$fwd_HCGD 
+
+		config$fwd_HCGD_model <- model$fwd_HCGD
 		config$rev_HCGD_model <- model$rev_HCGD
-		
-		config$fwd_CH_model <- model$fwd_CH 
+
+		config$fwd_CH_model <- model$fwd_CH
 		config$rev_CH_model <- model$rev_CH
-	
-		config$fwd_C_G_model <- model$fwd_C_G 
+
+		config$fwd_C_G_model <- model$fwd_C_G
 		config$rev_C_G_model <- model$rev_C_G
-		
+
 	} else {
-		
+
 		config$fwd_DGCH_model <- list(matrix(0))
 		config$rev_DGCH_model <- list(matrix(0))
-		
+
 		config$fwd_HCGD_model <- list(matrix(0))
 		config$rev_HCGD_model <- list(matrix(0))
-		
+
 		config$fwd_CH_model <- list(matrix(0))
 		config$rev_CH_model <- list(matrix(0))
-		
+
 		config$fwd_C_G_model <- list(matrix(0))
 		config$rev_C_G_model <- list(matrix(0))
-		
+
 	}
 
 	config$chunk_size <- chunk_size
-	
+
 	config$chunk_method <- chunk_method
-	
+
 	config$reads_hard_limit <- as.integer(hard_limit)
-	
+
 	config$quality_threshold <- quality_threshold
-	
+
 	config$ref_prior <- ref_prior
-	
+
 	config$min_overlap_length <- as.integer(min_overlap)
-	
+
 	config$min_CG_count <- as.integer(min_CG)
 	config$min_HCGD_count <- as.integer(min_HCGD)
 	config$min_DGCH_count <- as.integer(min_DGCH)
 	config$margin <- as.integer(margin)
-	
+
 	config$max_stages <- as.integer(max_stages)
-	
+
 	config$structual_prior_scale <- structual_prior
-		
+
 	config$use_paired_reads <- paired_reads
-				
+
 	config$verbose <- verbose
-	
+
 	class(config) <- "epiG.config"
-	
+
 	return(config)
 }
 
@@ -512,12 +514,12 @@ epiG_config <- function(
 #' @title Run Configuration
 #' @description
 #' set run configuration
-#' 
-#' @param config an epiG configuration 
+#'
+#' @param config an epiG configuration
 #' @param filename bam file (path to .bam file)
 #' @param refname reference name
-#' @param start start position of region to processes 
-#' @param end end position of region to processes 
+#' @param start start position of region to processes
+#' @param end end position of region to processes
 #'
 #' @return an epiG configuration
 #'
@@ -526,11 +528,11 @@ epiG_config <- function(
 #' @examples
 #' # See epiG_config example
 set_run_configuration <- function(config, filename, refname, start, end) {
-	
+
 	config$filename <- filename
 	config$start <- start
 	config$end <- end
 	config$refname <- refname
-	
+
 	return(config)
 }

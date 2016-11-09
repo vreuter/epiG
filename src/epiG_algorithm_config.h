@@ -56,9 +56,11 @@ class AlgorithmConfiguration {
 
 public:
 
+	bool use_ref;
 	std::string ref_filename;
 	t_position ref_offset;
 
+	bool use_alt;
 	std::string alt_filename;
 	t_position alt_offset;
 
@@ -87,8 +89,8 @@ public:
 
     t_position min_overlap_length;
 
-    t_count min_CG_count;
-    t_count min_HCGD_count;
+  t_count min_CG_count;
+  t_count min_HCGD_count;
 	t_count min_DGCH_count;
 	t_position margin;
 
@@ -106,11 +108,13 @@ public:
 
 	AlgorithmConfiguration(rList const& config) :
 
+			use_ref(getConfigAttribute<bool>(config, "use_ref")),
 			ref_filename(getConfigAttribute<std::string>(config, "ref_filename")),
 			ref_offset(getConfigAttribute<t_position>(config, "ref_offset")),
 
-			alt_filename(getConfigAttribute<std::string>(config, "ref_filename")),
-			alt_offset(getConfigAttribute<t_position>(config, "ref_offset")),
+			use_alt(getConfigAttribute<bool>(config, "use_alt")),
+			alt_filename(getConfigAttribute<std::string>(config, "alt_filename")),
+			alt_offset(getConfigAttribute<t_position>(config, "alt_offset")),
 
 			max_iterations(getConfigAttribute<t_count>(config, "max_iterations")),
 
@@ -129,22 +133,22 @@ public:
 			fwd_C_G_model(getConfigList<t_model>(config, "fwd_C_G_model")),
 			rev_C_G_model(getConfigList<t_model>(config, "rev_C_G_model")),
 
-            reads_hard_limit(getConfigAttribute<t_count>(config, "reads_hard_limit")),
+      reads_hard_limit(getConfigAttribute<t_count>(config, "reads_hard_limit")),
 
 			quality_threshold(getConfigAttribute<double>(config, "quality_threshold")),
 
-            ref_prior(getConfigAttribute<double>(config, "ref_prior")),
+      ref_prior(getConfigAttribute<double>(config, "ref_prior")),
 
-            min_overlap_length(getConfigAttribute<t_position>(config, "min_overlap_length")),
+      min_overlap_length(getConfigAttribute<t_position>(config, "min_overlap_length")),
 
-		    min_CG_count(getConfigAttribute<t_count>(config, "min_CG_count")),
-		    min_HCGD_count(getConfigAttribute<t_count>(config, "min_HCGD_count")),
+		  min_CG_count(getConfigAttribute<t_count>(config, "min_CG_count")),
+		  min_HCGD_count(getConfigAttribute<t_count>(config, "min_HCGD_count")),
 			min_DGCH_count(getConfigAttribute<t_count>(config, "min_DGCH_count")),
 			margin(getConfigAttribute<t_position>(config, "margin")),
 
-		    max_stages(getConfigAttribute<t_count>(config, "max_stages")),
+		  max_stages(getConfigAttribute<t_count>(config, "max_stages")),
 
-		    structual_prior_scale(getConfigAttribute<double>(config, "structual_prior_scale")),
+		  structual_prior_scale(getConfigAttribute<double>(config, "structual_prior_scale")),
 
 			use_paired_reads(getConfigAttribute<bool>(config, "use_paired_reads")),
 

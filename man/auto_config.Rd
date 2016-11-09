@@ -50,7 +50,7 @@ alt_file <- system.file("extdata", "dbsnp_135.hg19_GNAS.fa", package="epiG")
 
 # Specify region
 chr <- "chr20"
-start <- 57400000 
+start <- 57400000
 end <- 57400000 + 1000
 
 # Build epiG configuration
@@ -62,7 +62,7 @@ config <- auto_config(
 		start = start,
 		end = end,
 # If ref_file and alt_file contains the entire chromosome this is not needed
-		ref_offset = 57380000, 
+		ref_offset = 57380000,
 		alt_offset = 57380000)
 
 config # print a summary of the configuration
