@@ -19,6 +19,21 @@ config <- auto_config(
 		ref_offset = 57380000,
 		alt_file = alt_file,
 		alt_offset = 57380000,
+       seq_type = "NOMeSeq",
+		chr = chr,
+		start = start,
+		end = end)
+
+#### Run epiG
+fit <- epiG(max_threads = 2, config = config)
+
+### Build epiG configuration
+config <- auto_config(
+		bam_file = bam_file,
+		ref_file = ref_file,
+		ref_offset = 57380000,
+		alt_file = alt_file,
+		alt_offset = 57380000,
 		chr = chr,
 		start = start,
 		end = end)
