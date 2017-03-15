@@ -244,7 +244,7 @@ rObject::rObject(std::vector<std::string> const& v, bool no_protect) :
 
 	    //Copy data
 	    for(unsigned int i = 0; i < v.size(); i++)  {
-	    	SET_STRING_ELT(exp, i, mkChar(v[i].c_str()));
+	    	SET_STRING_ELT(exp, i, Rf_mkChar(v[i].c_str()));
 	    }
 }
 
@@ -259,7 +259,7 @@ rObject::rObject(std::string const& v, bool no_protect) :
 
 	    exp = protect(!no_protect, Rf_allocVector(STRSXP, 1));
 
-	    SET_STRING_ELT(exp, 0, mkChar(v.c_str()));
+	    SET_STRING_ELT(exp, 0, Rf_mkChar(v.c_str()));
 }
 
 rObject::rObject(arma::sp_mat const& m, bool no_protect) :

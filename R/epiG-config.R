@@ -432,9 +432,13 @@ epiG_config <- function(
 	#TODO check config valid
 	# 1) chunk_size < reads_hard_limit
 
+	if(is.null(ref_file)) {
+		stop("No ref file")
+	}
+
 	config <- list()
 
-	config$use_ref <- ! is.null(ref_file)
+	config$use_ref <- TRUE
 	config$use_alt <- ! is.null(alt_file)
 	config$ref_filename <- if(is.null(ref_file)) "" else ref_file
 	config$alt_filename <- if(is.null(alt_file)) "" else alt_file
